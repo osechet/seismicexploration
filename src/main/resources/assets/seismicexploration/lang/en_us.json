@@ -1,0 +1,7 @@
+{
+  "block.seismicexploration.dfu": "DFU Block",
+  "block.seismicexploration.source": "Source Block",
+  "itemGroup.seismicexploration.seismic_blocks_tab": "Seismic Exploration",
+  "item.seismicexploration.dfu": "DFU",
+  "item.seismicexploration.source": "Source"
+}

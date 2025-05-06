@@ -13,6 +13,11 @@
       "vscjava.vscode-java-pack",
       "redhat.java",
       "vscjava.vscode-gradle"
-    ]
+    ],
+    "vscode": {
+      "extensions": [
+        "EditorConfig.EditorConfig"
+      ]
+    }
   }
 }

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "seismicexploration:block/dfu"
+    },
+    "facing=south": {
+      "model": "seismicexploration:block/dfu",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "seismicexploration:block/dfu",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "seismicexploration:block/dfu",
+      "y": 270
+    }
+  }
+}
