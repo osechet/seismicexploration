@@ -10,16 +10,16 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.so_code.seismicexploration.block.SensorBlock;
-import net.so_code.seismicexploration.spread.SpreadSavedData;
+import net.so_code.seismicexploration.spread.Spread;
 
 @Mod.EventBusSubscriber
 public class SensorBlockEventHandler {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static SpreadSavedData getSpread(ServerLevel level) {
+    private static Spread getSpread(ServerLevel level) {
         DimensionDataStorage storage = level.getDataStorage();
-        return SpreadSavedData.get(storage);
+        return Spread.get(storage);
     }
 
     @SubscribeEvent
