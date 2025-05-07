@@ -10,11 +10,11 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 
-public class DFUBlock extends HorizontalDirectionalBlock {
+public class SensorBlock extends HorizontalDirectionalBlock {
 
-    private static final MapCodec<DFUBlock> CODEC = simpleCodec(DFUBlock::new);
+    private static final MapCodec<SensorBlock> CODEC = simpleCodec(SensorBlock::new);
 
-    public DFUBlock(BlockBehaviour.Properties properties) {
+    public SensorBlock(BlockBehaviour.Properties properties) {
         super(properties);
     }
 

@@ -35,16 +35,16 @@ public class ModItems {
     }
 
     private static <T extends Item> RegistryObject<T> registerItem(String name,
-            Function<Item.Properties, T> ctor, Item.Properties properties) {
+            Function<Item.Properties, T> factory, Item.Properties properties) {
         RegistryObject<T> ro =
-                ITEMS.register(name, () -> ctor.apply(properties.setId(itemId(name))));
+                ITEMS.register(name, () -> factory.apply(properties.setId(itemId(name))));
         return ro;
     }
 
     protected static <T extends Block> RegistryObject<Item> registerBlock(RegistryObject<T> ro,
-            BiFunction<T, Item.Properties, Item> ctor, Item.Properties properties) {
+            BiFunction<T, Item.Properties, Item> factory, Item.Properties properties) {
         return registerItem(blockIdToItemId(ro.getKey()).location().getPath(),
-                (Item.Properties props) -> ctor.apply(ro.get(), props),
+                (Item.Properties props) -> factory.apply(ro.get(), props),
                 properties.useBlockDescriptionPrefix());
     }
 

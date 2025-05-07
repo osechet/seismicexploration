@@ -13,7 +13,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.so_code.seismicexploration.block.BoomBoxBlock;
-import net.so_code.seismicexploration.block.DFUBlock;
+import net.so_code.seismicexploration.block.SensorBlock;
 
 public class ModBlocks {
 
@@ -31,7 +31,7 @@ public class ModBlocks {
                     .noOcclusion() // avoid display issues with bigger surrounding blocks
     );
 
-    public static final RegistryObject<Block> DFU = registerBlock("dfu", DFUBlock::new,
+    public static final RegistryObject<Block> DFU = registerBlock("dfu", SensorBlock::new,
             BlockBehaviour.Properties.of() // Properties:
                     .mapColor(MapColor.COLOR_BLUE) // the color on the map
                     .sound(SoundType.CROP) // the sound made when placed or destroyed
@@ -47,9 +47,9 @@ public class ModBlocks {
     }
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name,
-            Function<BlockBehaviour.Properties, T> ctor, BlockBehaviour.Properties properties) {
+            Function<BlockBehaviour.Properties, T> factory, BlockBehaviour.Properties properties) {
         RegistryObject<T> ro =
-                BLOCKS.register(name, () -> ctor.apply(properties.setId(blockId(name))));
+                BLOCKS.register(name, () -> factory.apply(properties.setId(blockId(name))));
         ModItems.registerBlock(ro, BlockItem::new, new Item.Properties());
         return ro;
     }
