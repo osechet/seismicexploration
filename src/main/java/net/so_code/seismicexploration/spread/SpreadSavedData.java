@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -17,19 +16,19 @@ public class SpreadSavedData extends SavedData {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final Codec<SpreadSavedData> CODEC = BlockPos.CODEC.listOf().xmap(list -> {
-        SpreadSavedData data = new SpreadSavedData();
-        data.placedSensors.addAll(list);
-        return data;
-    }, data -> new ArrayList<>(data.placedSensors));
+    public static final SavedDataType<SpreadSavedData> TYPE = new SavedDataType<SpreadSavedData>(
+            "spread", SpreadSavedData::new, BlockPos.CODEC.listOf().xmap(list -> {
+                SpreadSavedData data = new SpreadSavedData();
+                data.placedSensors.addAll(list);
+                return data;
+            }, data -> new ArrayList<>(data.placedSensors)), DataFixTypes.LEVEL);
 
     private Set<BlockPos> placedSensors = new HashSet<>();
 
     public static SpreadSavedData get(DimensionDataStorage storage) {
-        SpreadSavedData temp = storage.computeIfAbsent(new SavedDataType<SpreadSavedData>("spread",
-                () -> new SpreadSavedData(), CODEC, DataFixTypes.LEVEL));
-        LOGGER.debug("Spread loaded with {} positions", temp.placedSensors.size());
-        return temp;
+        SpreadSavedData data = storage.computeIfAbsent(TYPE);
+        LOGGER.debug("Spread loaded with {} positions", data.placedSensors.size());
+        return data;
     }
 
     public void add(BlockPos pos) {
