@@ -2,9 +2,7 @@ package net.so_code.seismicexploration.block;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import com.mojang.serialization.MapCodec;
-
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -28,7 +26,8 @@ public class DFUBlock extends HorizontalDirectionalBlock {
     @Override
     @Nullable
     public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState().setValue(FACING,
+                context.getHorizontalDirection().getOpposite());
     }
 
     @Override

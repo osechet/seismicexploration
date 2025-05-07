@@ -1,14 +1,15 @@
 package net.so_code.seismicexploration;
 
-import java.util.function.Supplier;
-
+import java.util.function.Function;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -18,37 +19,43 @@ import net.so_code.seismicexploration.block.DFUBlock;
 
 public class ModBlocks {
 
-    public static final DeferredRegister<Block> BLOCKS =
+    private static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, SeismicExploration.MODID);
 
     //
     // Register blocks
     //
 
-    public static final RegistryObject<Block> BOOM_BOX_BLOCK = registerBlock("boom_box",
-            () -> new BoomBoxBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("boom_box"))
-                    .mapColor(MapColor.METAL).instabreak().sound(SoundType.CROP)
-                    .pushReaction(PushReaction.DESTROY).noOcclusion()));
+    public static final RegistryObject<Block> BOOM_BOX = registerBlock("boom_box",
+            BoomBoxBlock::new, BlockBehaviour.Properties.of() // Properties:
+                    .mapColor(MapColor.COLOR_BLUE) // the color on the map
+                    .strength(1.5F) // how long it takes to destroy the block
+                    .sound(SoundType.CROP) // the sound made when placed or destroyed
+                    .noOcclusion() // avoid display issues with bigger surrounding blocks
+    );
 
-    public static final RegistryObject<Block> DFU_BLOCK = registerBlock("dfu",
-            () -> new DFUBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("dfu"))
-                    .mapColor(MapColor.METAL).instabreak().sound(SoundType.CROP)
-                    .pushReaction(PushReaction.DESTROY).noOcclusion()));
+    public static final RegistryObject<Block> DFU = registerBlock("dfu", DFUBlock::new,
+            BlockBehaviour.Properties.of() // Properties:
+                    .mapColor(MapColor.COLOR_BLUE) // the color on the map
+                    .strength(1.5F) // how long it takes to destroy the block
+                    .sound(SoundType.CROP) // the sound made when placed or destroyed
+                    .noOcclusion() // avoid display issues with bigger surrounding blocks
+    );
 
     //
     // Utilities
     //
 
-    private static <T extends Block> RegistryObject<T> registerBlock(String name,
-            Supplier<T> block) {
-        RegistryObject<T> ro = BLOCKS.register(name, block);
-        registerBlockItem(name, ro);
-        return ro;
+    private static ResourceKey<Block> blockId(String name) {
+        return BLOCKS.key(name);
     }
 
-    private static <T extends Block> void registerBlockItem(String name, RegistryObject<T> block) {
-        ModItems.register(name,
-                () -> new BlockItem(block.get(), new Item.Properties().setId(ModItems.key(name))));
+    private static <T extends Block> RegistryObject<T> registerBlock(String name,
+            Function<BlockBehaviour.Properties, T> ctor, BlockBehaviour.Properties properties) {
+        RegistryObject<T> ro =
+                BLOCKS.register(name, () -> ctor.apply(properties.setId(blockId(name))));
+        ModItems.registerBlock(ro, BlockItem::new, new Item.Properties());
+        return ro;
     }
 
     protected static void register(IEventBus eventBus) {

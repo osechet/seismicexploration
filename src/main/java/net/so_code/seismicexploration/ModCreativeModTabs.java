@@ -18,11 +18,11 @@ public class ModCreativeModTabs {
 
     public static final RegistryObject<CreativeModeTab> SEISMIC_TAB =
             CREATIVE_MODE_TABS.register("seismic_blocks_tab",
-                    () -> CreativeModeTab.builder()
-                            .icon(() -> new ItemStack(ModBlocks.DFU_BLOCK.get()))
+                    () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModBlocks.DFU.get()))
                             .displayItems((parameters, output) -> {
-                                output.accept(ModBlocks.DFU_BLOCK.get());
-                                output.accept(ModBlocks.BOOM_BOX_BLOCK.get());
+                                output.accept(ModBlocks.DFU.get());
+                                output.accept(ModBlocks.BOOM_BOX.get());
+                                output.accept(ModItems.FIELD_MONITOR.get());
                             }).build());
 
     //
