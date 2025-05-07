@@ -8,20 +8,16 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.material.PushReaction;
 
 public class DFUBlock extends HorizontalDirectionalBlock {
 
     private static final MapCodec<DFUBlock> CODEC = simpleCodec(DFUBlock::new);
 
     public DFUBlock(BlockBehaviour.Properties properties) {
-        super(properties.mapColor(MapColor.METAL).instabreak().sound(SoundType.CROP)
-                .pushReaction(PushReaction.DESTROY));
+        super(properties);
     }
 
     @Override
