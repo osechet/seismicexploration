@@ -4,7 +4,7 @@
     {
       "label": "prepareRunClientCompile",
       "type": "shell",
-      "command": "gradlew.bat prepareRunClientCompile",
+      "command": "./gradlew prepareRunClientCompile",
       "options": {
         "cwd": "${workspaceFolder}"
       }
@@ -12,7 +12,7 @@
     {
       "label": "prepareRunDataCompile",
       "type": "shell",
-      "command": "gradlew.bat prepareRunDataCompile",
+      "command": "./gradlew prepareRunDataCompile",
       "options": {
         "cwd": "${workspaceFolder}"
       }
@@ -20,7 +20,7 @@
     {
       "label": "prepareRunGameTestServerCompile",
       "type": "shell",
-      "command": "gradlew.bat prepareRunGameTestServerCompile",
+      "command": "./gradlew prepareRunGameTestServerCompile",
       "options": {
         "cwd": "${workspaceFolder}"
       }
@@ -28,7 +28,7 @@
     {
       "label": "prepareRunServerCompile",
       "type": "shell",
-      "command": "gradlew.bat prepareRunServerCompile",
+      "command": "./gradlew prepareRunServerCompile",
       "options": {
         "cwd": "${workspaceFolder}"
       }
