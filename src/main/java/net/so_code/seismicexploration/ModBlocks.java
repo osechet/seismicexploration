@@ -27,7 +27,6 @@ public class ModBlocks {
     public static final RegistryObject<Block> BOOM_BOX = registerBlock("boom_box",
             BoomBoxBlock::new, BlockBehaviour.Properties.of() // Properties:
                     .mapColor(MapColor.COLOR_BLUE) // the color on the map
-                    .strength(1.5F) // how long it takes to destroy the block
                     .sound(SoundType.CROP) // the sound made when placed or destroyed
                     .noOcclusion() // avoid display issues with bigger surrounding blocks
     );
@@ -35,7 +34,6 @@ public class ModBlocks {
     public static final RegistryObject<Block> DFU = registerBlock("dfu", DFUBlock::new,
             BlockBehaviour.Properties.of() // Properties:
                     .mapColor(MapColor.COLOR_BLUE) // the color on the map
-                    .strength(1.5F) // how long it takes to destroy the block
                     .sound(SoundType.CROP) // the sound made when placed or destroyed
                     .noOcclusion() // avoid display issues with bigger surrounding blocks
     );

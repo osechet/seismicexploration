@@ -35,7 +35,7 @@ public class SeismicExploration {
         // Register the blocks and items to the mod event bus
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
-        ModCreativeModTabs.register(modEventBus);
+        ModCreativeModeTabs.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -67,7 +67,8 @@ public class SeismicExploration {
 
     // You can use EventBusSubscriber to automatically register all static methods
     // in the class annotated with @SubscribeEvent
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD,
+            value = Dist.CLIENT)
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
