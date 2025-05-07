@@ -1,9 +1,7 @@
 package net.so_code.seismicexploration;
 
 import org.slf4j.Logger;
-
 import com.mojang.logging.LogUtils;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
@@ -34,6 +32,7 @@ public class SeismicExploration {
 
         // Register the blocks and items to the mod event bus
         ModBlocks.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
         ModItems.register(modEventBus);
         ModCreativeModeTabs.register(modEventBus);
 

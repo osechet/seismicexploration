@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=north": {
+    "facing=north,powered=false": {
       "model": "seismicexploration:block/boom_box"
     },
-    "facing=south": {
+    "facing=north,powered=true": {
+      "model": "seismicexploration:block/boom_box_on"
+    },
+    "facing=south,powered=false": {
       "model": "seismicexploration:block/boom_box",
       "y": 180
     },
-    "facing=east": {
+    "facing=south,powered=true": {
+      "model": "seismicexploration:block/boom_box_on",
+      "y": 180
+    },
+    "facing=east,powered=false": {
       "model": "seismicexploration:block/boom_box",
       "y": 90
     },
-    "facing=west": {
+    "facing=east,powered=true": {
+      "model": "seismicexploration:block/boom_box_on",
+      "y": 90
+    },
+    "facing=west,powered=false": {
       "model": "seismicexploration:block/boom_box",
+      "y": 270
+    },
+    "facing=west,powered=true": {
+      "model": "seismicexploration:block/boom_box_on",
       "y": 270
     }
   }
