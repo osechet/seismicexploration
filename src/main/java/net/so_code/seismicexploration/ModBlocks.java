@@ -25,10 +25,10 @@ public class ModBlocks {
     // Register blocks
     //
 
-    // public static final RegistryObject<Block> BOOM_BOX_BLOCK = registerBlock("boom_box",
-    // () -> new BoomBoxBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("boom_box"))
-    // .mapColor(MapColor.METAL).instabreak().sound(SoundType.CROP)
-    // .pushReaction(PushReaction.DESTROY).noOcclusion()));
+    public static final RegistryObject<Block> BOOM_BOX_BLOCK = registerBlock("boom_box",
+            () -> new BoomBoxBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("boom_box"))
+                    .mapColor(MapColor.METAL).instabreak().sound(SoundType.CROP)
+                    .pushReaction(PushReaction.DESTROY).noOcclusion()));
 
     public static final RegistryObject<Block> DFU_BLOCK = registerBlock("dfu",
             () -> new DFUBlock(BlockBehaviour.Properties.of().setId(BLOCKS.key("dfu"))

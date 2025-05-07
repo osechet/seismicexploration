@@ -9,7 +9,7 @@
       "projectName": "Minecraft Seismic Exploration",
       "cwd": "${workspaceFolder}\\run",
       "vmArgs": "-Dforge.logging.console.level\u003ddebug -Dforge.logging.markers\u003dREGISTRIES -Dforge.enabledGameTestNamespaces\u003dseismicexploration -Dforge.enableGameTest\u003dtrue -Djava.net.preferIPv6Addresses\u003dsystem -XX:HeapDumpPath\u003dMojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump",
-      "args": "--launchTarget forge_userdev_client --version MOD_DEV --assetIndex 24 --assetsDir C:\\Users\\olivi\\.gradle\\caches\\forge_gradle\\assets --gameDir .",
+      "args": "--launchTarget forge_userdev_client --version MOD_DEV --assetIndex 24 --assetsDir C:\\Users\\olivi\\.gradle\\caches\\forge_gradle\\assets --gameDir . --width 1920 --height 1080",
       "env": {
         "MOD_CLASSES": "${workspaceFolder}\\build\\sourcesSets\\main",
         "MCP_MAPPINGS": "official_1.21.5"

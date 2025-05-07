@@ -9,19 +9,21 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class ModCreativeModTabs {
 
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister
-            .create(Registries.CREATIVE_MODE_TAB, SeismicExploration.MODID);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, SeismicExploration.MODID);
 
     //
     // Register Creative Tab
     //
 
-    public static final RegistryObject<CreativeModeTab> SEISMIC_TAB = CREATIVE_MODE_TABS.register("seismic_blocks_tab",
-            () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModBlocks.DFU_BLOCK.get()))
-                    .displayItems((parameters, output) -> {
-                        output.accept(ModBlocks.DFU_BLOCK.get());
-                        // output.accept(SOURCE_BLOCK_ITEM.get());
-                    }).build());
+    public static final RegistryObject<CreativeModeTab> SEISMIC_TAB =
+            CREATIVE_MODE_TABS.register("seismic_blocks_tab",
+                    () -> CreativeModeTab.builder()
+                            .icon(() -> new ItemStack(ModBlocks.DFU_BLOCK.get()))
+                            .displayItems((parameters, output) -> {
+                                output.accept(ModBlocks.DFU_BLOCK.get());
+                                output.accept(ModBlocks.BOOM_BOX_BLOCK.get());
+                            }).build());
 
     //
     // Utilities

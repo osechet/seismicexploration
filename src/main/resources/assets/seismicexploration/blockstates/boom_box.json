@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "seismicexploration:block/boom_box"
+    },
+    "facing=south": {
+      "model": "seismicexploration:block/boom_box",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "seismicexploration:block/boom_box",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "seismicexploration:block/boom_box",
+      "y": 270
+    }
+  }
+}
