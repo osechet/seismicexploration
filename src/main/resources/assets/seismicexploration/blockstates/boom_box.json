@@ -3,31 +3,46 @@
     "facing=north,powered=false": {
       "model": "seismicexploration:block/boom_box"
     },
-    "facing=north,powered=true": {
+    "facing=north,powered=true,working=false": {
       "model": "seismicexploration:block/boom_box_on"
+    },
+    "facing=north,powered=true,working=true": {
+      "model": "seismicexploration:block/boom_box_working"
     },
     "facing=south,powered=false": {
       "model": "seismicexploration:block/boom_box",
       "y": 180
     },
-    "facing=south,powered=true": {
+    "facing=south,powered=true,working=false": {
       "model": "seismicexploration:block/boom_box_on",
+      "y": 180
+    },
+    "facing=south,powered=true,working=true": {
+      "model": "seismicexploration:block/boom_box_working",
       "y": 180
     },
     "facing=east,powered=false": {
       "model": "seismicexploration:block/boom_box",
       "y": 90
     },
-    "facing=east,powered=true": {
+    "facing=east,powered=true,working=false": {
       "model": "seismicexploration:block/boom_box_on",
+      "y": 90
+    },
+    "facing=east,powered=true,working=true": {
+      "model": "seismicexploration:block/boom_box_working",
       "y": 90
     },
     "facing=west,powered=false": {
       "model": "seismicexploration:block/boom_box",
       "y": 270
     },
-    "facing=west,powered=true": {
+    "facing=west,powered=true,working=false": {
       "model": "seismicexploration:block/boom_box_on",
+      "y": 270
+    },
+    "facing=west,powered=true,working=true": {
+      "model": "seismicexploration:block/boom_box_working",
       "y": 270
     }
   }

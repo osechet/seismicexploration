@@ -1,53 +1,94 @@
 package net.so_code.seismicexploration.blockentity;
 
-import javax.annotation.Nonnull;
+import java.util.Set;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.so_code.seismicexploration.ModBlockEntities;
-import net.so_code.seismicexploration.SeismicExploration;
+import net.so_code.seismicexploration.block.BoomBoxBlock;
+import net.so_code.seismicexploration.spread.Spread;
 
-public class BoomBoxBlockEntity extends BlockEntity {
+public class BoomBoxBlockEntity extends BlockEntity implements TickableBlockEntity {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private boolean powered = false;
+    private int tickCount = 0;
+    public final static int ticksPerCycle = 20;
+    public final static int cyclesCount = 5;
 
-    public BoomBoxBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.BOOM_BOX_ENTITY.get(), pos, blockState);
-    }
-
-    public void switchPower() {
-        powered = !powered;
-        setChanged();
+    public BoomBoxBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.BOOM_BOX_ENTITY.get(), pos, state);
     }
 
     public boolean isPowered() {
-        return powered;
+        return getBlockState().getValue(BoomBoxBlock.POWERED);
     }
 
-    @Override
-    protected void loadAdditional(@Nonnull CompoundTag tag,
-            @Nonnull HolderLookup.Provider registry) {
-        LOGGER.info("loadAdditional");
-        super.loadAdditional(tag, registry);
+    public void switchPower() {
+        if (level != null) {
+            final Level lvl = level;
+            boolean powered = !getBlockState().getValue(BoomBoxBlock.POWERED);
+            lvl.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.POWERED, powered),
+                    Block.UPDATE_CLIENTS);
+            lvl.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.WORKING, false),
+                    Block.UPDATE_CLIENTS);
 
-        CompoundTag compound = tag.getCompoundOrEmpty(SeismicExploration.MODID);
-        this.powered = compound.getBooleanOr("powered", false);
+            if (powered && lvl instanceof ServerLevel serverLevel) {
+                LOGGER.debug("Boom box firing shot at {}", worldPosition);
+                Set<BlockPos> positions = Spread.getSpread(serverLevel).getPlacedSensors();
+                for (BlockPos sensorPos : positions) {
+                    BlockEntity be = lvl.getBlockEntity(sensorPos);
+                    if (be instanceof SensorBlockEntity blockEntity) {
+                        int midX = (worldPosition.getX() + sensorPos.getX()) / 2;
+                        int midZ = (worldPosition.getZ() + sensorPos.getZ()) / 2;
+                        int y = lvl.getMinY();
+                        BlockPos pos = new BlockPos(midX, y, midZ);
+                        blockEntity.startRecording(pos);
+                    }
+                }
+            }
+        }
     }
 
-    @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag,
-            @Nonnull HolderLookup.Provider registry) {
-        LOGGER.info("saveAdditional");
-        super.saveAdditional(tag, registry);
-
-        CompoundTag compound = new CompoundTag();
-        compound.putBoolean("powered", this.powered);
-        tag.put(SeismicExploration.MODID, compound);
+    public void poweroff() {
+        if (level != null) {
+            final Level lvl = level;
+            lvl.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.POWERED, false),
+                    Block.UPDATE_CLIENTS);
+            lvl.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.WORKING, false),
+                    Block.UPDATE_CLIENTS);
+            tickCount = 0;
+        }
     }
+
+    /*
+     * switchWorking changes the working state in order to make the boom box' screen blink.
+     */
+    @SuppressWarnings("null")
+    private void switchWorking() {
+        if (level != null) {
+            boolean working = getBlockState().getValue(BoomBoxBlock.WORKING);
+            level.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.WORKING, !working),
+                    Block.UPDATE_CLIENTS);
+        }
+    }
+
+    public void tick() {
+        if (isPowered()) {
+            tickCount++;
+            if (tickCount >= cyclesCount * ticksPerCycle) {
+                LOGGER.debug("Working cycles terminated. Powering off.");
+                poweroff();
+            } else if (tickCount % ticksPerCycle == 0) {
+                LOGGER.debug("Cycle terminated.");
+                switchWorking();
+            }
+        }
+    }
+
 }

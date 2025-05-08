@@ -7,6 +7,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -24,6 +25,11 @@ public class Spread extends SavedData {
             }, data -> new ArrayList<>(data.placedSensors)), DataFixTypes.LEVEL);
 
     private Set<BlockPos> placedSensors = new HashSet<>();
+
+    public static Spread getSpread(ServerLevel level) {
+        DimensionDataStorage storage = level.getDataStorage();
+        return Spread.get(storage);
+    }
 
     public static Spread get(DimensionDataStorage storage) {
         Spread data = storage.computeIfAbsent(TYPE);
