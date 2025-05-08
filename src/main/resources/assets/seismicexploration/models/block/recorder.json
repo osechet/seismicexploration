@@ -1,0 +1,66 @@
+{
+  "credit": "Made with Blockbench",
+  "texture_size": [ 64, 64 ],
+  "textures": {
+    "0": "seismicexploration:block/recorder",
+    "particle": "seismicexploration:block/recorder"
+  },
+  "elements": [
+    {
+      "name": "body",
+      "from": [ 0, 0, 4 ],
+      "to": [ 16, 11, 16 ],
+      "rotation": { "angle": 0, "axis": "y", "origin": [ 8, 5.5, 10 ] },
+      "faces": {
+        "north": { "uv": [ 4, 0, 8, 2.75 ], "texture": "#0" },
+        "east": { "uv": [ 7.5, 5.5, 10.5, 8.25 ], "texture": "#0" },
+        "south": { "uv": [ 4, 2.75, 8, 5.5 ], "texture": "#0" },
+        "west": { "uv": [ 8, 0, 11, 2.75 ], "texture": "#0" },
+        "up": { "uv": [ 4, 3, 0, 0 ], "texture": "#0" },
+        "down": { "uv": [ 4, 3, 0, 6 ], "texture": "#0" }
+      }
+    },
+    {
+      "name": "screen",
+      "from": [ 1, 7, 4 ],
+      "to": [ 15, 17, 5 ],
+      "rotation": { "angle": 45, "axis": "x", "origin": [ 8, 12, 4.5 ] },
+      "faces": {
+        "north": { "uv": [ 4, 5.5, 7.5, 8 ], "texture": "#0" },
+        "east": { "uv": [ 3.5, 6, 3.75, 8.5 ], "texture": "#0" },
+        "south": { "uv": [ 0, 6, 3.5, 8.5 ], "texture": "#0" },
+        "west": { "uv": [ 3.75, 6, 4, 8.5 ], "texture": "#0" },
+        "up": { "uv": [ 11.5, 3, 8, 2.75 ], "texture": "#0" },
+        "down": { "uv": [ 11.5, 3, 8, 3.25 ], "texture": "#0" }
+      }
+    }
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [ -134.71, 4.62, 179.53 ],
+      "translation": [ 0, 3.25, -1 ],
+      "scale": [ 0.66, 0.66, 0.66 ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [ -134.71, 4.62, 179.53 ],
+      "translation": [ 0, 3.25, -1 ],
+      "scale": [ 0.66, 0.66, 0.66 ]
+    },
+    "firstperson_righthand": {
+      "rotation": [ 180, 45, 180 ],
+      "scale": [ 0.66, 0.66, 0.66 ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [ 180, 45, 180 ],
+      "scale": [ 0.66, 0.66, 0.66 ]
+    },
+    "ground": {
+      "scale": [ 0.66, 0.66, 0.66 ]
+    },
+    "gui": {
+      "rotation": [ 22.5, -135, 0 ],
+      "translation": [ 0.5, 0.25, 0 ],
+      "scale": [ 0.66, 0.66, 0.66 ]
+    }
+  }
+}
