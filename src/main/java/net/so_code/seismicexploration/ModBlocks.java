@@ -13,6 +13,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.so_code.seismicexploration.block.BoomBoxBlock;
+import net.so_code.seismicexploration.block.RecorderBlock;
 import net.so_code.seismicexploration.block.SensorBlock;
 
 public class ModBlocks {
@@ -35,6 +36,13 @@ public class ModBlocks {
             BlockBehaviour.Properties.of() // Properties:
                     .mapColor(MapColor.COLOR_BLUE) // the color on the map
                     .sound(SoundType.CROP) // the sound made when placed or destroyed
+                    .noOcclusion() // avoid display issues with bigger surrounding blocks
+    );
+
+    public static final RegistryObject<Block> RECORDER = registerBlock("recorder",
+            RecorderBlock::new, BlockBehaviour.Properties.of() // Properties:
+                    .mapColor(MapColor.METAL) // the color on the map
+                    .sound(SoundType.STONE) // the sound made when placed or destroyed
                     .noOcclusion() // avoid display issues with bigger surrounding blocks
     );
 

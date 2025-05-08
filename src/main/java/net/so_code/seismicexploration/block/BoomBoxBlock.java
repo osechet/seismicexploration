@@ -33,7 +33,10 @@ import net.so_code.seismicexploration.blockentity.TickableBlockEntity;
 public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
     private static final MapCodec<BoomBoxBlock> CODEC = simpleCodec(BoomBoxBlock::new);
-    private static final VoxelShape SHAPE = Block.box(3, 0, 7, 13, 12, 10);
+    private static final VoxelShape SHAPE_NORTH = Block.box(3, 0, 7, 13, 12, 10);
+    private static final VoxelShape SHAPE_EAST = Block.box(6, 0, 3, 9, 12, 13);
+    private static final VoxelShape SHAPE_SOUTH = Block.box(3, 0, 6, 13, 12, 9);
+    private static final VoxelShape SHAPE_WEST = Block.box(7, 0, 3, 10, 12, 13);
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty WORKING = BooleanProperty.create("working");
@@ -58,7 +61,18 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
     @Override
     protected VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level,
             @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
-        return SHAPE;
+        Direction dir = state.getValue(FACING);
+        switch (dir) {
+            case EAST:
+                return SHAPE_EAST;
+            case SOUTH:
+                return SHAPE_SOUTH;
+            case WEST:
+                return SHAPE_WEST;
+            case NORTH:
+            default:
+                return SHAPE_NORTH;
+        }
     }
 
     @Override
