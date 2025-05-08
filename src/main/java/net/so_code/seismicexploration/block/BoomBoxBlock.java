@@ -10,6 +10,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -23,6 +24,8 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.so_code.seismicexploration.ModBlockEntities;
 import net.so_code.seismicexploration.blockentity.BoomBoxBlockEntity;
 import net.so_code.seismicexploration.blockentity.TickableBlockEntity;
@@ -30,6 +33,7 @@ import net.so_code.seismicexploration.blockentity.TickableBlockEntity;
 public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
     private static final MapCodec<BoomBoxBlock> CODEC = simpleCodec(BoomBoxBlock::new);
+    private static final VoxelShape SHAPE = Block.box(3, 0, 7, 13, 12, 10);
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty WORKING = BooleanProperty.create("working");
@@ -49,6 +53,12 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
     @Override
     protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
         return CODEC;
+    }
+
+    @Override
+    protected VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level,
+            @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+        return SHAPE;
     }
 
     @Override
