@@ -3,7 +3,11 @@
   "java.compile.nullAnalysis.mode": "automatic",
   "java.format.settings.url": ".vscode/java-formatter.xml",
   "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": "explicit"
-  }
+  "java.cleanup.actions": [
+    "renameFileToType",
+    "addFinalModifier",
+    "organizeImports",
+    "addOverride",
+    "addDeprecated"
+  ]
 }
