@@ -95,7 +95,7 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof BoomBoxBlockEntity blockEntity) {
                 blockEntity.switchPower();
-                return InteractionResult.SUCCESS_SERVER;
+                return InteractionResult.CONSUME;
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);

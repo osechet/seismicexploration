@@ -36,9 +36,7 @@ public class ModItems {
 
     private static <T extends Item> RegistryObject<T> registerItem(String name,
             Function<Item.Properties, T> factory, Item.Properties properties) {
-        RegistryObject<T> ro =
-                ITEMS.register(name, () -> factory.apply(properties.setId(itemId(name))));
-        return ro;
+        return ITEMS.register(name, () -> factory.apply(properties.setId(itemId(name))));
     }
 
     protected static <T extends Block> RegistryObject<Item> registerBlock(RegistryObject<T> ro,
