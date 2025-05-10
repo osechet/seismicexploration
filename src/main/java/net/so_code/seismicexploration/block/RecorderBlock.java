@@ -82,10 +82,12 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
             @Nonnull final BlockState state, @Nonnull final Level level,
             @Nonnull final BlockPos pos, @Nonnull final Player player,
             @Nonnull final InteractionHand hand, @Nonnull final BlockHitResult hitResult) {
-        if (level.getBlockEntity(pos) instanceof final RecorderBlockEntity blockEntity) {
-            if (!level.isClientSide()) {
-                ((ServerPlayer) player).openMenu(blockEntity);
-                return InteractionResult.CONSUME;
+        if (hand == InteractionHand.MAIN_HAND) {
+            if (level.getBlockEntity(pos) instanceof final RecorderBlockEntity blockEntity) {
+                if (!level.isClientSide()) {
+                    ((ServerPlayer) player).openMenu(blockEntity);
+                    return InteractionResult.CONSUME;
+                }
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);

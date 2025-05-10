@@ -1,62 +1,86 @@
 package net.so_code.seismicexploration.screen;
 
 import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ForgeSlider;
+import net.so_code.seismicexploration.SeismicExploration;
 import net.so_code.seismicexploration.menu.RecorderMenu;
+import net.so_code.seismicexploration.spread.SliceSavedData;
 
 public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final int BACKGROUND = 0xffb4b4b4;
-    private static final int MONITOR = 0xffbedaf6;
-    private static final int HIGHLIGHT = 0xc0afafaf;
-    private static final int SHADOW = 0xc05c5c5c;
-
-    private final int margin = 10;
+    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            SeismicExploration.MODID, "textures/gui/recorder/recorder_gui.png");
+    private static final int GUI_TEXTURE_WIDTH = 256;
+    private static final int GUI_TEXTURE_HEIGHT = 174;
 
     private final BlockPos playerPos;
+    private final Level level;
     private ForgeSlider xCoordinateField;
     private ForgeSlider zCoordinateField;
+    private ForgeSlider axisField;
 
     public RecorderScreen(final RecorderMenu menu, final Inventory inv, final Component title) {
         super(menu, inv, title);
         playerPos = inv.player.blockPosition();
+        level = inv.player.level();
     }
 
     @Override
     protected void init() {
         super.init();
-        imageWidth = width - 2 * margin;
-        imageHeight = height - 2 * margin;
-
-        final int x = (width - imageWidth) / 2;
-        final int y = (height - imageHeight) / 2;
+        imageWidth = GUI_TEXTURE_WIDTH;
+        imageHeight = GUI_TEXTURE_HEIGHT;
 
         // Retrieve the current block's position
         final int blockX = playerPos.getX();
         final int blockZ = playerPos.getZ();
 
-        // Initialize coordinate input fields with the block's position
-        xCoordinateField = new CustomSlider(x + 10, y + 10, 50, 20, Component.literal("x: "),
-                Component.literal(""), blockX - 50, blockX + 50, blockX, 1, 0, true,
-                value -> LOGGER.info("X changed: {}", value));
+        final int x = (width - imageWidth) / 2;
+        final int y = (height - imageHeight) / 2;
+        final int contentX = x + 6;
+        final int contentY = y + 6;
 
-        zCoordinateField = new CustomSlider(x + 10, y + 40, 50, 20, Component.literal("z: "),
-                Component.literal(""), blockZ - 50, blockZ + 50, blockZ, 1, 0, true,
-                value -> LOGGER.info("Y changed: {}", value));
+        // Initialize coordinate input fields with the block's position
+        xCoordinateField = new CustomSlider(contentX + 10, contentY + 10, 60, 20,
+                Component.literal("x: "), Component.literal(""), blockX - 64, blockX + 64, blockX,
+                1, 0, true, value -> LOGGER.info("X changed: {}", value));
+
+        zCoordinateField = new CustomSlider(contentX + 10, contentY + 35, 60, 20,
+                Component.literal("z: "), Component.literal(""), blockZ - 64, blockZ + 64, blockZ,
+                1, 0, true, value -> LOGGER.info("Y changed: {}", value));
+
+        axisField = new CustomSlider(contentX + 10, contentY + 60, 60, 20,
+                Component.literal("along "), Component.literal(" axis"), 0, 1, 0, 1, 0, true,
+                value -> LOGGER.info("Axis changed: {}", value), value -> value == 0 ? "X" : "Z");
 
         addRenderableWidget(xCoordinateField);
         addRenderableWidget(zCoordinateField);
+        addRenderableWidget(axisField);
+
+        // TODO: SliceSavedData must be created on server side
+        final SliceInstance sliceInstance = new SliceInstance(new SliceSavedData());
+        sliceInstance.update();
     }
 
     @Override
@@ -66,26 +90,79 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
 
         final int x = (width - imageWidth) / 2;
         final int y = (height - imageHeight) / 2;
-        guiGraphics.fill(x, y, x + imageWidth, y + imageHeight, BACKGROUND);
+
         xCoordinateField.render(guiGraphics, mouseX, mouseY, f);
         zCoordinateField.render(guiGraphics, mouseX, mouseY, f);
+        axisField.render(guiGraphics, mouseX, mouseY, f);
 
-        final int monitorX = x + margin + 50 + margin;
-        final int monitorY = y + margin;
-        final int monitorWidth = imageWidth - (margin + 50 + margin + margin);
-        final int monitorHeight = imageHeight - (2 * margin);
-        guiGraphics.hLine(monitorX, monitorX + monitorWidth, monitorY, SHADOW);
-        guiGraphics.vLine(monitorX, monitorY, monitorY + monitorHeight, SHADOW);
-        guiGraphics.hLine(monitorX, monitorX + monitorWidth, monitorY + monitorHeight, HIGHLIGHT);
-        guiGraphics.vLine(monitorX + monitorWidth, monitorY, monitorY + monitorHeight, HIGHLIGHT);
-        guiGraphics.fill(monitorX + 1, monitorY + 1, monitorX + monitorWidth,
-                monitorY + monitorHeight, MONITOR);
+        final int monitorX = 89;
+        final int monitorY = 7;
+        final int monitorWidth = 160;
+        final int monitorHeight = 160;
+
+        // // Draw the spread slice
+        // if (level instanceof final ServerLevel serverLevel) {
+        // final int centerX = xCoordinateField.getValueInt();
+        // final int centerZ = zCoordinateField.getValueInt();
+        // LOGGER.debug("Creating slice...");
+        // final Spread.Slice slice =
+        // Spread.getSpread(serverLevel).getSlice(level, centerX, centerZ, Axis.X);
+        // LOGGER.debug("Slice created: {}", slice);
+        // }
+
+        final ResourceLocation location =
+                ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/" + "temp");
+
+        guiGraphics.blit(RenderType::guiTextured, location, x + monitorX, y + monitorY, 0, 0,
+                monitorWidth, monitorHeight, 320, 320, 320, 320);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    class SliceInstance implements AutoCloseable {
+
+        private final SliceSavedData data;
+        private final DynamicTexture texture;
+        final ResourceLocation location;
+
+        public SliceInstance(final SliceSavedData data) {
+            this.data = data;
+            this.texture = new DynamicTexture("slice", 320, 320, true);
+            this.location = ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID,
+                    "slice/" + "temp");
+            Minecraft.getInstance().textureManager.register(location, texture);
+        }
+
+        public void update() {
+            final NativeImage nativeimage = texture.getPixels();
+            if (nativeimage != null) {
+                for (int i = 0; i < 320; i++) {
+                    for (int j = 0; j < 320; j++) {
+                        final int k = i * 320 + j;
+                        if (i == 0) {
+                            LOGGER.debug("i: {}, j: {}, k: {}, color: {}", i, j, k,
+                                    this.data.colors[k]);
+                        }
+                        nativeimage.setPixel(i, j,
+                                MapColor.getColorFromPackedId(this.data.colors[k]));
+                    }
+                }
+            }
+            texture.upload();
+        }
+
+        @Override
+        public void close() {
+            this.texture.close();
+        }
     }
 
     @Override
     protected void renderBg(@Nonnull final GuiGraphics guiGraphics, final float partialTicks,
             final int mouseX, final int mouseY) {
-        // no op
+        final int x = (width - imageWidth) / 2;
+        final int y = (height - imageHeight) / 2;
+        guiGraphics.blit(RenderType::guiTextured, GUI_TEXTURE, x, y, 0.0F, 0.0F, this.imageWidth,
+                this.imageHeight, 256, 256);
     }
 
     @Override
@@ -127,15 +204,26 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         }
 
         private final ChangeListener changeListener;
+        private final Function<Integer, String> customFormat;
 
         public CustomSlider(final int x, final int y, final int width, final int height,
                 final Component prefix, final Component suffix, final double minValue,
                 final double maxValue, final double currentValue, final double stepSize,
                 final int precision, final boolean drawString,
                 final ChangeListener changeListener) {
+            this(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
+                    precision, drawString, changeListener, null);
+        }
+
+        public CustomSlider(final int x, final int y, final int width, final int height,
+                final Component prefix, final Component suffix, final double minValue,
+                final double maxValue, final double currentValue, final double stepSize,
+                final int precision, final boolean drawString, final ChangeListener changeListener,
+                final Function<Integer, String> customFormat) {
             super(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
                     precision, drawString);
             this.changeListener = changeListener;
+            this.customFormat = customFormat;
         }
 
         @Override
@@ -143,5 +231,12 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
             changeListener.onValueChanged(getValueInt());
         }
 
+        @Override
+        public String getValueString() {
+            if (this.customFormat == null) {
+                return super.getValueString();
+            }
+            return this.customFormat.apply(this.getValueInt());
+        }
     }
 }

@@ -1,5 +1,6 @@
 package net.so_code.seismicexploration.blockentity;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,27 +29,33 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
     private BlockPos recordingPos;
     private int blocksPerTick = 0;
 
-    private Map<BlockPos, MapColor> blocks = new HashMap<>();
+    private final Map<BlockPos, MapColor> blocks = new HashMap<>();
 
-    public SensorBlockEntity(BlockPos pos, BlockState state) {
+    public SensorBlockEntity(final BlockPos pos, final BlockState state) {
         super(ModBlockEntities.SENSOR_ENTITY.get(), pos, state);
     }
 
+    public Map<BlockPos, MapColor> getBlocks() {
+        return Collections.unmodifiableMap(blocks);
+    }
+
     @SuppressWarnings("null")
-    public void startRecording(@Nonnull BlockPos pos) {
+    public void startRecording(@Nonnull final BlockPos pos) {
         LOGGER.debug("Sensor at {} starting recording at {}", worldPosition, pos);
         recordingPos = pos;
         // Calculate how many blocks must be recorded per tick. We limit the number of blocks being
         // browsed per tick to avoid performance issues
-        int maxY = level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
-        int blocksCount = maxY - pos.getY();
-        int ticksToRecord = (BoomBoxBlockEntity.cyclesCount) * BoomBoxBlockEntity.ticksPerCycle;
+        final int maxY = level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
+        final int blocksCount = maxY - pos.getY();
+        final int ticksToRecord =
+                (BoomBoxBlockEntity.cyclesCount) * BoomBoxBlockEntity.ticksPerCycle;
         blocksPerTick = (int) Math.ceil((float) blocksCount / (float) ticksToRecord);
 
         LOGGER.trace("blocksCount = {} - ticksToRecord = {} - blocksPerTick = {}", blocksCount,
                 ticksToRecord, blocksPerTick);
     }
 
+    @Override
     @SuppressWarnings("null")
     public void tick() {
         if (level != null) {
@@ -77,47 +84,47 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag tag,
-            @Nonnull HolderLookup.Provider registry) {
+    protected void loadAdditional(@Nonnull final CompoundTag tag,
+            @Nonnull final HolderLookup.Provider registry) {
         LOGGER.debug("loadAdditional");
         super.loadAdditional(tag, registry);
 
-        CompoundTag compound = tag.getCompoundOrEmpty(SeismicExploration.MODID);
+        final CompoundTag compound = tag.getCompoundOrEmpty(SeismicExploration.MODID);
 
         // Load blocks map
         blocks.clear();
         if (compound.contains("blocks")) {
-            ListTag blocksList = compound.getListOrEmpty("blocks");
+            final ListTag blocksList = compound.getListOrEmpty("blocks");
             for (int i = 0; i < blocksList.size(); i++) {
-                CompoundTag blockTag = blocksList.getCompoundOrEmpty(i);
-                Optional<Integer> x = blockTag.getInt("x");
-                Optional<Integer> y = blockTag.getInt("y");
-                Optional<Integer> z = blockTag.getInt("z");
-                Optional<Integer> colorId = blockTag.getInt("color");
+                final CompoundTag blockTag = blocksList.getCompoundOrEmpty(i);
+                final Optional<Integer> x = blockTag.getInt("x");
+                final Optional<Integer> y = blockTag.getInt("y");
+                final Optional<Integer> z = blockTag.getInt("z");
+                final Optional<Integer> colorId = blockTag.getInt("color");
                 if (!x.isPresent() || !y.isPresent() || !z.isPresent() || !colorId.isPresent()) {
                     LOGGER.warn("Invalid block tag");
                     continue;
                 }
-                BlockPos pos = new BlockPos(x.get(), y.get(), z.get());
-                MapColor color = MapColor.byId(colorId.get());
+                final BlockPos pos = new BlockPos(x.get(), y.get(), z.get());
+                final MapColor color = MapColor.byId(colorId.get());
                 blocks.put(pos, color);
             }
         }
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag,
-            @Nonnull HolderLookup.Provider registry) {
+    protected void saveAdditional(@Nonnull final CompoundTag tag,
+            @Nonnull final HolderLookup.Provider registry) {
         LOGGER.debug("saveAdditional");
         super.saveAdditional(tag, registry);
 
-        CompoundTag compound = new CompoundTag();
+        final CompoundTag compound = new CompoundTag();
 
         // Save blocks map
-        ListTag blocksList = new ListTag();
-        for (Map.Entry<BlockPos, MapColor> entry : blocks.entrySet()) {
-            CompoundTag blockTag = new CompoundTag();
-            BlockPos pos = entry.getKey();
+        final ListTag blocksList = new ListTag();
+        for (final Map.Entry<BlockPos, MapColor> entry : blocks.entrySet()) {
+            final CompoundTag blockTag = new CompoundTag();
+            final BlockPos pos = entry.getKey();
             blockTag.putInt("x", pos.getX());
             blockTag.putInt("y", pos.getY());
             blockTag.putInt("z", pos.getZ());
