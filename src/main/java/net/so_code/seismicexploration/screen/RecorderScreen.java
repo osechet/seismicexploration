@@ -73,7 +73,9 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         addRenderableWidget(axisField);
 
         // TODO: SliceSavedData must be created on server side
-        final SliceInstance sliceInstance = new SliceInstance(new SliceSavedData());
+        final SliceSavedData savedData = new SliceSavedData();
+        savedData.update();
+        final SliceInstance sliceInstance = new SliceInstance(savedData);
         sliceInstance.update();
     }
 
