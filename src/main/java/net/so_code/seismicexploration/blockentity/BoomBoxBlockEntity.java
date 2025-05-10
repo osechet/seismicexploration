@@ -21,7 +21,7 @@ public class BoomBoxBlockEntity extends BlockEntity implements TickableBlockEnti
     public final static int ticksPerCycle = 20;
     public final static int cyclesCount = 5;
 
-    public BoomBoxBlockEntity(BlockPos pos, BlockState state) {
+    public BoomBoxBlockEntity(final BlockPos pos, final BlockState state) {
         super(ModBlockEntities.BOOM_BOX_ENTITY.get(), pos, state);
     }
 
@@ -32,22 +32,22 @@ public class BoomBoxBlockEntity extends BlockEntity implements TickableBlockEnti
     public void switchPower() {
         if (level != null) {
             final Level lvl = level;
-            boolean powered = !getBlockState().getValue(BoomBoxBlock.POWERED);
+            final boolean powered = !getBlockState().getValue(BoomBoxBlock.POWERED);
             lvl.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.POWERED, powered),
                     Block.UPDATE_CLIENTS);
             lvl.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.WORKING, false),
                     Block.UPDATE_CLIENTS);
 
-            if (powered && lvl instanceof ServerLevel serverLevel) {
+            if (powered && lvl instanceof final ServerLevel serverLevel) {
                 LOGGER.debug("Boom box firing shot at {}", worldPosition);
-                Set<BlockPos> positions = Spread.getSpread(serverLevel).getPlacedSensors();
-                for (BlockPos sensorPos : positions) {
-                    BlockEntity be = lvl.getBlockEntity(sensorPos);
-                    if (be instanceof SensorBlockEntity blockEntity) {
-                        int midX = (worldPosition.getX() + sensorPos.getX()) / 2;
-                        int midZ = (worldPosition.getZ() + sensorPos.getZ()) / 2;
-                        int y = lvl.getMinY();
-                        BlockPos pos = new BlockPos(midX, y, midZ);
+                final Set<BlockPos> positions = Spread.getSpread(serverLevel).getPlacedSensors();
+                for (final BlockPos sensorPos : positions) {
+                    final BlockEntity be = lvl.getBlockEntity(sensorPos);
+                    if (be instanceof final SensorBlockEntity blockEntity) {
+                        final int midX = (worldPosition.getX() + sensorPos.getX()) / 2;
+                        final int midZ = (worldPosition.getZ() + sensorPos.getZ()) / 2;
+                        final int y = lvl.getMinY();
+                        final BlockPos pos = new BlockPos(midX, y, midZ);
                         blockEntity.startRecording(pos);
                     }
                 }
@@ -72,12 +72,13 @@ public class BoomBoxBlockEntity extends BlockEntity implements TickableBlockEnti
     @SuppressWarnings("null")
     private void switchWorking() {
         if (level != null) {
-            boolean working = getBlockState().getValue(BoomBoxBlock.WORKING);
+            final boolean working = getBlockState().getValue(BoomBoxBlock.WORKING);
             level.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.WORKING, !working),
                     Block.UPDATE_CLIENTS);
         }
     }
 
+    @Override
     public void tick() {
         if (isPowered()) {
             tickCount++;

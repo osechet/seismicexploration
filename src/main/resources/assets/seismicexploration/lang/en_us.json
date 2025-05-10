@@ -1,8 +1,10 @@
 {
   "block.seismicexploration.boom_box": "Boom Box",
   "block.seismicexploration.dfu": "DFU",
+  "block.seismicexploration.recorder": "Recorder",
   "creativetab.seismicexploration.seismic_blocks_tab": "Seismic Exploration",
   "item.seismicexploration.boom_box": "Boom Box",
   "item.seismicexploration.dfu": "DFU",
-  "item.seismicexploration.field_monitor": "Field Monitor"
+  "item.seismicexploration.field_monitor": "Field Monitor",
+  "item.seismicexploration.recorder": "Recorder"
 }

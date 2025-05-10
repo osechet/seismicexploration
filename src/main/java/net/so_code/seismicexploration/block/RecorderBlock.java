@@ -16,13 +16,17 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.so_code.seismicexploration.ModBlockEntities;
 import net.so_code.seismicexploration.blockentity.RecorderBlockEntity;
+import net.so_code.seismicexploration.blockentity.TickableBlockEntity;
 
 public class RecorderBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
@@ -34,11 +38,12 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
 
     public RecorderBlock(final BlockBehaviour.Properties properties) {
         super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
     @Override
     public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
-        return new RecorderBlockEntity(pos, state);
+        return ModBlockEntities.RECORDER_ENTITY.get().create(pos, state);
     }
 
     @Override
@@ -82,11 +87,21 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
         if (hand == InteractionHand.MAIN_HAND) {
             if (level.getBlockEntity(pos) instanceof final RecorderBlockEntity blockEntity) {
                 if (!level.isClientSide()) {
+                    // Start getting info recorded by sensors
+                    blockEntity.powerOn();
+
                     ((ServerPlayer) player).openMenu(blockEntity);
                     return InteractionResult.CONSUME;
                 }
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+    }
+
+    @Override
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(final Level level,
+            final BlockState state, final BlockEntityType<T> type) {
+        return TickableBlockEntity.getTickerHelper(level);
     }
 }

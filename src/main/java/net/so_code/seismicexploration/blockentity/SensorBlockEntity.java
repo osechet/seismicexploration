@@ -65,7 +65,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
                         recordingPos.getZ());
                 for (int i = 0; i < blocksPerTick; i++) {
                     if (recordingPos.getY() < maxY) {
-                        LOGGER.debug("Sensor at {} recording block at {}", worldPosition,
+                        LOGGER.trace("Sensor at {} recording block at {}", worldPosition,
                                 recordingPos);
                         blocks.put(recordingPos,
                                 Blocks.DIRT.defaultBlockState().getMapColor(level, recordingPos));

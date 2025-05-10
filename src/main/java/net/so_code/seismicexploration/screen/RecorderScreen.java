@@ -10,12 +10,13 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.client.gui.widget.ForgeSlider;
 import net.so_code.seismicexploration.SeismicExploration;
+import net.so_code.seismicexploration.client.ClientLevelDataManager;
 import net.so_code.seismicexploration.menu.RecorderMenu;
 import net.so_code.seismicexploration.spread.SliceSavedData;
 
@@ -29,15 +30,13 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
     private static final int GUI_TEXTURE_HEIGHT = 174;
 
     private final BlockPos playerPos;
-    private final Level level;
     private ForgeSlider xCoordinateField;
     private ForgeSlider zCoordinateField;
     private ForgeSlider axisField;
 
     public RecorderScreen(final RecorderMenu menu, final Inventory inv, final Component title) {
         super(menu, inv, title);
-        playerPos = inv.player.blockPosition();
-        level = inv.player.level();
+        this.playerPos = inv.player.blockPosition();
     }
 
     @Override
@@ -71,12 +70,6 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         addRenderableWidget(xCoordinateField);
         addRenderableWidget(zCoordinateField);
         addRenderableWidget(axisField);
-
-        // TODO: SliceSavedData must be created on server side
-        final SliceSavedData savedData = new SliceSavedData();
-        savedData.update();
-        final SliceInstance sliceInstance = new SliceInstance(savedData);
-        sliceInstance.update();
     }
 
     @Override
@@ -96,19 +89,13 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         final int monitorWidth = 160;
         final int monitorHeight = 160;
 
-        // // Draw the spread slice
-        // if (level instanceof final ServerLevel serverLevel) {
-        // final int centerX = xCoordinateField.getValueInt();
-        // final int centerZ = zCoordinateField.getValueInt();
-        // LOGGER.debug("Creating slice...");
-        // final Spread.Slice slice =
-        // Spread.getSpread(serverLevel).getSlice(level, centerX, centerZ, Axis.X);
-        // LOGGER.debug("Slice created: {}", slice);
-        // }
+        final SliceSavedData savedData = ClientLevelDataManager.get().getSliceSavedData(
+                xCoordinateField.getValueInt(), zCoordinateField.getValueInt(), Axis.X);
+        final SliceInstance sliceInstance = new SliceInstance(savedData);
+        sliceInstance.update();
 
         final ResourceLocation location =
                 ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
-
         guiGraphics.blit(RenderType::guiTextured, location, x + monitorX, y + monitorY, 0, 0,
                 monitorWidth, monitorHeight, 320, 320, 320, 320);
     }

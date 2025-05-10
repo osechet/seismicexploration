@@ -15,7 +15,8 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 public class SliceSavedData extends SavedData {
 
     public static final Codec<SliceSavedData> CODEC = RecordCodecBuilder.create(o -> o.group( //
-            Codec.INT.fieldOf("center").forGetter(data -> data.center), //
+            Codec.INT.fieldOf("centerX").forGetter(data -> data.centerX), //
+            Codec.INT.fieldOf("centerZ").forGetter(data -> data.centerZ), //
             Codec.STRING.fieldOf("axis").xmap(Axis::valueOf, Axis::name)
                     .forGetter(data -> data.axis),
             Codec.BYTE_BUFFER.fieldOf("colors").forGetter(data -> ByteBuffer.wrap(data.colors)))
@@ -25,14 +26,17 @@ public class SliceSavedData extends SavedData {
             "slice", SliceSavedData::new, CODEC, DataFixTypes.LEVEL);
 
     public static final int SLICE_SIZE = 320 * 320;
-    public int center;
+    public int centerX;
+    public int centerZ;
     public Axis axis;
     public byte[] colors = new byte[SLICE_SIZE];
 
     public SliceSavedData() {}
 
-    public SliceSavedData(final int center, final Axis axis, final ByteBuffer colors) {
-        this.center = center;
+    public SliceSavedData(final int centerX, final int centerZ, final Axis axis,
+            final ByteBuffer colors) {
+        this.centerX = centerX;
+        this.centerZ = centerZ;
         this.axis = axis;
         if (colors.array().length == SLICE_SIZE) {
             this.colors = colors.array();
@@ -45,7 +49,7 @@ public class SliceSavedData extends SavedData {
         return storage.computeIfAbsent(TYPE);
     }
 
-    public void update() {
+    public void dummy() {
         for (int x = 0; x < 320; x++) {
             for (int y = 255; y >= -64; y--) {
                 MapColor color;
