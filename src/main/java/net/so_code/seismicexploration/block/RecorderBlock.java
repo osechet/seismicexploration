@@ -27,10 +27,10 @@ import net.so_code.seismicexploration.blockentity.RecorderBlockEntity;
 public class RecorderBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
     private static final MapCodec<RecorderBlock> CODEC = simpleCodec(RecorderBlock::new);
-    private static final VoxelShape SHAPE_NORTH = Block.box(0, 0, 4, 16, 11, 16);
-    private static final VoxelShape SHAPE_EAST = Block.box(0, 0, 0, 12, 11, 16);
-    private static final VoxelShape SHAPE_SOUTH = Block.box(0, 0, 0, 16, 11, 12);
-    private static final VoxelShape SHAPE_WEST = Block.box(4, 0, 0, 16, 11, 16);
+    private static final VoxelShape SHAPE_NORTH = Block.box(0, 0, 4, 16, 16, 16);
+    private static final VoxelShape SHAPE_EAST = Block.box(0, 0, 0, 12, 16, 16);
+    private static final VoxelShape SHAPE_SOUTH = Block.box(0, 0, 0, 16, 16, 12);
+    private static final VoxelShape SHAPE_WEST = Block.box(4, 0, 0, 16, 16, 16);
 
     public RecorderBlock(final BlockBehaviour.Properties properties) {
         super(properties);
