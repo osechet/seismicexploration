@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
@@ -40,7 +39,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
     }
 
     @SuppressWarnings("null")
-    public void startRecording(@Nonnull final BlockPos pos) {
+    public void startRecording(final BlockPos pos) {
         LOGGER.debug("Sensor at {} starting recording at {}", worldPosition, pos);
         recordingPos = pos;
         // Calculate how many blocks must be recorded per tick. We limit the number of blocks being
@@ -84,8 +83,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
     }
 
     @Override
-    protected void loadAdditional(@Nonnull final CompoundTag tag,
-            @Nonnull final HolderLookup.Provider registry) {
+    protected void loadAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
         LOGGER.debug("loadAdditional");
         super.loadAdditional(tag, registry);
 
@@ -113,8 +111,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
     }
 
     @Override
-    protected void saveAdditional(@Nonnull final CompoundTag tag,
-            @Nonnull final HolderLookup.Provider registry) {
+    protected void saveAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
         LOGGER.debug("saveAdditional");
         super.saveAdditional(tag, registry);
 

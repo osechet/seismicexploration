@@ -2,24 +2,18 @@ package net.so_code.seismicexploration.screen;
 
 import java.util.Optional;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
-import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ForgeSlider;
 import net.so_code.seismicexploration.SeismicExploration;
 import net.so_code.seismicexploration.menu.RecorderMenu;
@@ -84,7 +78,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
     }
 
     @Override
-    public void render(@Nonnull final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
+    public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float f) {
         super.render(guiGraphics, mouseX, mouseY, f);
 
@@ -111,53 +105,15 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         // }
 
         final ResourceLocation location =
-                ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/" + "temp");
+                ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
 
         guiGraphics.blit(RenderType::guiTextured, location, x + monitorX, y + monitorY, 0, 0,
                 monitorWidth, monitorHeight, 320, 320, 320, 320);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    class SliceInstance implements AutoCloseable {
-
-        private final SliceSavedData data;
-        private final DynamicTexture texture;
-        final ResourceLocation location;
-
-        public SliceInstance(final SliceSavedData data) {
-            this.data = data;
-            this.texture = new DynamicTexture("slice", 320, 320, true);
-            this.location = ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID,
-                    "slice/" + "temp");
-            Minecraft.getInstance().textureManager.register(location, texture);
-        }
-
-        public void update() {
-            final NativeImage nativeimage = texture.getPixels();
-            if (nativeimage != null) {
-                for (int i = 0; i < 320; i++) {
-                    for (int j = 0; j < 320; j++) {
-                        final int k = i * 320 + j;
-                        if (i == 0) {
-                            LOGGER.debug("i: {}, j: {}, k: {}, color: {}", i, j, k,
-                                    this.data.colors[k]);
-                        }
-                        nativeimage.setPixel(i, j,
-                                MapColor.getColorFromPackedId(this.data.colors[k]));
-                    }
-                }
-            }
-            texture.upload();
-        }
-
-        @Override
-        public void close() {
-            this.texture.close();
-        }
-    }
 
     @Override
-    protected void renderBg(@Nonnull final GuiGraphics guiGraphics, final float partialTicks,
+    protected void renderBg(final GuiGraphics guiGraphics, final float partialTicks,
             final int mouseX, final int mouseY) {
         final int x = (width - imageWidth) / 2;
         final int y = (height - imageHeight) / 2;
@@ -166,8 +122,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
     }
 
     @Override
-    protected void renderLabels(@Nonnull final GuiGraphics guiGraphics, final int mouseX,
-            final int mouseY) {
+    protected void renderLabels(final GuiGraphics guiGraphics, final int mouseX, final int mouseY) {
         // Override to prevent rendering the "Inventory" text
     }
 
@@ -219,7 +174,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
                 final Component prefix, final Component suffix, final double minValue,
                 final double maxValue, final double currentValue, final double stepSize,
                 final int precision, final boolean drawString, final ChangeListener changeListener,
-                final Function<Integer, String> customFormat) {
+                @Nullable final Function<Integer, String> customFormat) {
             super(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
                     precision, drawString);
             this.changeListener = changeListener;

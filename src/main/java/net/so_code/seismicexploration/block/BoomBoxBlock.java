@@ -1,6 +1,5 @@
 package net.so_code.seismicexploration.block;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -41,7 +40,7 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty WORKING = BooleanProperty.create("working");
 
-    public BoomBoxBlock(BlockBehaviour.Properties properties) {
+    public BoomBoxBlock(final BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH)
                 .setValue(POWERED, false).setValue(WORKING, false));
@@ -49,7 +48,7 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
 
     @Override
     @Nullable
-    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+    public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
         return ModBlockEntities.BOOM_BOX_ENTITY.get().create(pos, state);
     }
 
@@ -59,9 +58,9 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
     }
 
     @Override
-    protected VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level,
-            @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
-        Direction dir = state.getValue(FACING);
+    protected VoxelShape getShape(final BlockState state, final BlockGetter level,
+            final BlockPos pos, final CollisionContext context) {
+        final Direction dir = state.getValue(FACING);
         switch (dir) {
             case EAST:
                 return SHAPE_EAST;
@@ -77,23 +76,23 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(final BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING,
                 context.getHorizontalDirection().getOpposite());
     }
 
     @Override
-    protected void createBlockStateDefinition(@Nonnull Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(final Builder<Block, BlockState> builder) {
         builder.add(FACING, POWERED, WORKING);
     }
 
     @Override
-    protected InteractionResult useItemOn(@Nonnull ItemStack stack, @Nonnull BlockState state,
-            @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player,
-            @Nonnull InteractionHand hand, @Nonnull BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(final ItemStack stack, final BlockState state,
+            final Level level, final BlockPos pos, final Player player, final InteractionHand hand,
+            final BlockHitResult hitResult) {
         if (!level.isClientSide() && hand == InteractionHand.MAIN_HAND) {
-            BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof BoomBoxBlockEntity blockEntity) {
+            final BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof final BoomBoxBlockEntity blockEntity) {
                 blockEntity.switchPower();
                 return InteractionResult.CONSUME;
             }
@@ -103,8 +102,8 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
 
     @Override
     @Nullable
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level,
-            @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(final Level level,
+            final BlockState state, final BlockEntityType<T> type) {
         return TickableBlockEntity.getTickerHelper(level);
     }
 }

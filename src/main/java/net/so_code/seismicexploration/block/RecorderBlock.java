@@ -1,6 +1,5 @@
 package net.so_code.seismicexploration.block;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -38,8 +37,7 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
     }
 
     @Override
-    public BlockEntity newBlockEntity(@Nonnull final BlockPos pos,
-            @Nonnull final BlockState state) {
+    public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
         return new RecorderBlockEntity(pos, state);
     }
 
@@ -49,8 +47,8 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
     }
 
     @Override
-    protected VoxelShape getShape(@Nonnull final BlockState state, @Nonnull final BlockGetter level,
-            @Nonnull final BlockPos pos, @Nonnull final CollisionContext context) {
+    protected VoxelShape getShape(final BlockState state, final BlockGetter level,
+            final BlockPos pos, final CollisionContext context) {
         final Direction dir = state.getValue(FACING);
         switch (dir) {
             case EAST:
@@ -67,21 +65,20 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement(@Nonnull final BlockPlaceContext context) {
+    public BlockState getStateForPlacement(final BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING,
                 context.getHorizontalDirection().getOpposite());
     }
 
     @Override
-    protected void createBlockStateDefinition(@Nonnull final Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(final Builder<Block, BlockState> builder) {
         builder.add(FACING);
     }
 
     @Override
-    protected InteractionResult useItemOn(@Nonnull final ItemStack stack,
-            @Nonnull final BlockState state, @Nonnull final Level level,
-            @Nonnull final BlockPos pos, @Nonnull final Player player,
-            @Nonnull final InteractionHand hand, @Nonnull final BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(final ItemStack stack, final BlockState state,
+            final Level level, final BlockPos pos, final Player player, final InteractionHand hand,
+            final BlockHitResult hitResult) {
         if (hand == InteractionHand.MAIN_HAND) {
             if (level.getBlockEntity(pos) instanceof final RecorderBlockEntity blockEntity) {
                 if (!level.isClientSide()) {

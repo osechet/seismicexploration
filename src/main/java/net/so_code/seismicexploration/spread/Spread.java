@@ -80,8 +80,8 @@ public class Spread extends SavedData {
         public int maxY;
         public int[] colors;
 
-        public Slice(@Nonnull final Level level, final int centerX, final int centerZ,
-                final Axis axis, final Map<BlockPos, Integer> blocks) {
+        public Slice(final Level level, final int centerX, final int centerZ, final Axis axis,
+                final Map<BlockPos, Integer> blocks) {
             this.centerX = centerX;
             this.centerZ = centerZ;
 

@@ -1,6 +1,5 @@
 package net.so_code.seismicexploration.menu;
 
-import javax.annotation.Nonnull;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -24,12 +23,12 @@ public class RecorderMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(@Nonnull final Player player) {
+    public boolean stillValid(final Player player) {
         return stillValid(this.access, player, ModBlocks.RECORDER.get());
     }
 
     @Override
-    public ItemStack quickMoveStack(@Nonnull final Player player, final int index) {
+    public ItemStack quickMoveStack(final Player player, final int index) {
         return ItemStack.EMPTY;
     }
 }

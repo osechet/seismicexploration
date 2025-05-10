@@ -39,7 +39,8 @@ public class SliceSavedData extends SavedData {
         }
     }
 
-    public static SliceSavedData getSpread(final ServerLevel level) {
+    public static SliceSavedData getSlice(final ServerLevel level, final int center,
+            final Axis axis) {
         final DimensionDataStorage storage = level.getDataStorage();
         return storage.computeIfAbsent(TYPE);
     }

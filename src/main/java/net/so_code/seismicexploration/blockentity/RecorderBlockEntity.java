@@ -1,6 +1,5 @@
 package net.so_code.seismicexploration.blockentity;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -28,8 +27,8 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider {
 
     @Override
     @Nullable
-    public AbstractContainerMenu createMenu(final int containerId,
-            @Nonnull final Inventory playerInventory, @Nonnull final Player player) {
+    public AbstractContainerMenu createMenu(final int containerId, final Inventory playerInventory,
+            final Player player) {
         return new RecorderMenu(containerId, playerInventory,
                 ContainerLevelAccess.create(level, worldPosition));
     }
