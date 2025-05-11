@@ -61,8 +61,13 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
     @Nullable
     public AbstractContainerMenu createMenu(final int containerId, final Inventory playerInventory,
             final Player player) {
-        return new RecorderMenu(containerId, playerInventory,
-                ContainerLevelAccess.create(level, worldPosition));
+        ContainerLevelAccess access;
+        if (level != null) {
+            access = ContainerLevelAccess.create(level, worldPosition);
+        } else {
+            access = ContainerLevelAccess.NULL;
+        }
+        return new RecorderMenu(containerId, playerInventory, access);
     }
 
     @Override
