@@ -13,25 +13,23 @@ import net.so_code.seismicexploration.spread.SliceSavedData;
 @OnlyIn(Dist.CLIENT)
 public class SliceInstance implements AutoCloseable {
 
-    private final SliceSavedData data;
     private final DynamicTexture texture;
     final ResourceLocation location;
 
-    public SliceInstance(final SliceSavedData data) {
-        this.data = data;
+    public SliceInstance() {
         this.texture = new DynamicTexture("slice", 320, 320, true);
         this.location =
                 ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
         Minecraft.getInstance().textureManager.register(location, texture);
     }
 
-    public void update() {
+    public void update(final SliceSavedData data) {
         final NativeImage nativeimage = texture.getPixels();
         if (nativeimage != null) {
             for (int i = 0; i < 320; i++) {
                 for (int j = 0; j < 320; j++) {
                     final int k = i * 320 + j;
-                    nativeimage.setPixel(i, j, MapColor.getColorFromPackedId(this.data.colors[k]));
+                    nativeimage.setPixel(i, j, MapColor.getColorFromPackedId(data.colors[k]));
                 }
             }
         }

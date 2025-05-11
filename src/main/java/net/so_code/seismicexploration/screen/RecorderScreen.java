@@ -38,6 +38,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
     private ForgeSlider xCoordinateField;
     private ForgeSlider zCoordinateField;
     private ForgeSlider axisField;
+    private SliceInstance sliceInstance;
 
     public RecorderScreen(final RecorderMenu menu, final Inventory inv, final Component title) {
         super(menu, inv, title);
@@ -66,26 +67,30 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         final int axisValue = savedValues.getIntOr(AXIS_SLIDER_VALUE, 0);
 
         // Initialize coordinate input fields with the block's position
-        xCoordinateField = new CustomSlider(contentX + 10, contentY + 10, 60, 20,
-                Component.literal("x: "), Component.literal(""), blockX - 64, blockX + 64, xValue,
-                1, 0, true, value -> LOGGER.info("X changed: {}", value));
-
-        zCoordinateField = new CustomSlider(contentX + 10, contentY + 35, 60, 20,
-                Component.literal("z: "), Component.literal(""), blockZ - 64, blockZ + 64, zValue,
-                1, 0, true, value -> LOGGER.info("Y changed: {}", value));
-
+        xCoordinateField =
+                new ForgeSlider(contentX + 10, contentY + 10, 60, 20, Component.literal("x: "),
+                        Component.literal(""), blockX - 64, blockX + 64, xValue, 1, 0, true);
+        zCoordinateField =
+                new ForgeSlider(contentX + 10, contentY + 35, 60, 20, Component.literal("z: "),
+                        Component.literal(""), blockZ - 64, blockZ + 64, zValue, 1, 0, true);
         axisField = new CustomSlider(contentX + 10, contentY + 60, 60, 20,
-                Component.literal("along "), Component.literal(" axis"), 0, 1, axisValue, 1, 0,
-                true, value -> LOGGER.info("Axis changed: {}", value),
+                Component.translatable("slider.seismicexploration.recorder_axis"),
+                Component.literal(""), 0, 1, axisValue, 1, 0, true,
                 value -> value == 0 ? "X" : "Z");
 
         addRenderableWidget(xCoordinateField);
         addRenderableWidget(zCoordinateField);
         addRenderableWidget(axisField);
+
+        this.sliceInstance = new SliceInstance();
     }
 
     @Override
     public void onClose() {
+        if (sliceInstance != null) {
+            sliceInstance.close();
+        }
+
         final CompoundTag valuesToSave = new CompoundTag();
         valuesToSave.putInt(X_SLIDER_VALUE, xCoordinateField.getValueInt());
         valuesToSave.putInt(Z_SLIDER_VALUE, zCoordinateField.getValueInt());
@@ -115,8 +120,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         final SliceSavedData savedData =
                 ClientLevelDataManager.get().getSliceSavedData(xCoordinateField.getValueInt(),
                         zCoordinateField.getValueInt(), Axis.values()[axisField.getValueInt()]);
-        final SliceInstance sliceInstance = new SliceInstance(savedData);
-        sliceInstance.update();
+        sliceInstance.update(savedData);
 
         final ResourceLocation location =
                 ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
@@ -163,40 +167,21 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
     }
 
     /**
-     * The CustomSlider class extends ForgeSlider to easily manage change event.
+     * The CustomSlider class extends ForgeSlider to easily manage formatter.
      */
     private final static class CustomSlider extends ForgeSlider {
 
-        public interface ChangeListener {
-            public void onValueChanged(int value);
-        }
-
-        private final ChangeListener changeListener;
         private final Function<Integer, String> customFormat;
 
         public CustomSlider(final int x, final int y, final int width, final int height,
                 final Component prefix, final Component suffix, final double minValue,
                 final double maxValue, final double currentValue, final double stepSize,
                 final int precision, final boolean drawString,
-                final ChangeListener changeListener) {
-            this(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
-                    precision, drawString, changeListener, null);
-        }
-
-        public CustomSlider(final int x, final int y, final int width, final int height,
-                final Component prefix, final Component suffix, final double minValue,
-                final double maxValue, final double currentValue, final double stepSize,
-                final int precision, final boolean drawString, final ChangeListener changeListener,
                 @Nullable final Function<Integer, String> customFormat) {
             super(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
                     precision, drawString);
-            this.changeListener = changeListener;
             this.customFormat = customFormat;
-        }
-
-        @Override
-        protected void applyValue() {
-            changeListener.onValueChanged(getValueInt());
+            this.updateMessage();
         }
 
         @Override

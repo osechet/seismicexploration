@@ -6,5 +6,6 @@
   "item.seismicexploration.boom_box": "Boom Box",
   "item.seismicexploration.dfu": "DFU",
   "item.seismicexploration.field_monitor": "Field Monitor",
-  "item.seismicexploration.recorder": "Recorder"
+  "item.seismicexploration.recorder": "Recorder",
+  "slider.seismicexploration.recorder_axis": "Along "
 }
