@@ -1,6 +1,8 @@
 package net.so_code.seismicexploration.block;
 
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,10 +27,14 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.so_code.seismicexploration.ModBlockEntities;
+import net.so_code.seismicexploration.ModNetworking;
 import net.so_code.seismicexploration.blockentity.RecorderBlockEntity;
 import net.so_code.seismicexploration.blockentity.TickableBlockEntity;
+import net.so_code.seismicexploration.network.RecorderPositionPacket;
 
 public class RecorderBlock extends HorizontalDirectionalBlock implements EntityBlock {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final MapCodec<RecorderBlock> CODEC = simpleCodec(RecorderBlock::new);
     private static final VoxelShape SHAPE_NORTH = Block.box(0, 0, 4, 16, 16, 16);
@@ -90,12 +96,26 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
                     // Start getting info recorded by sensors
                     blockEntity.powerOn();
 
+                    // Send the block's position before opening the screen
+                    sendBlockPositionToScreen((ServerPlayer) player, pos);
+
                     ((ServerPlayer) player).openMenu(blockEntity);
                     return InteractionResult.CONSUME;
                 }
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+    }
+
+    /**
+     * Sends the given position to the client. This is needed to display the recorder's position in
+     * the screen.
+     *
+     * @param pos the block's position to send.
+     */
+    private void sendBlockPositionToScreen(final ServerPlayer player, final BlockPos pos) {
+        LOGGER.debug("sendBlockPositionToScreen({})", pos);
+        ModNetworking.sendToPlayer(player, new RecorderPositionPacket(pos));
     }
 
     @Override

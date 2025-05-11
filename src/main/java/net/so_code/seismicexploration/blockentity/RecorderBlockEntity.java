@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
@@ -42,8 +43,27 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
     private Map<BlockPos, Byte> blocks = new HashMap<>();
     private boolean shouldRetrieve = false;
 
+    private int xValue;
+    private int zValue;
+    private Axis axisValue;
+
     public RecorderBlockEntity(final BlockPos pos, final BlockState state) {
         super(ModBlockEntities.RECORDER_ENTITY.get(), pos, state);
+        this.xValue = pos.getX();
+        this.zValue = pos.getZ();
+        this.axisValue = Axis.X;
+    }
+
+    public void setSliderValues(final int xValue, final int zValue, final Axis axisValue) {
+        LOGGER.debug("setSliderValues({}, {}, {})", xValue, zValue, axisValue);
+        this.xValue = xValue;
+        this.zValue = zValue;
+        this.axisValue = axisValue;
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(),
+                    Block.UPDATE_ALL);
+        }
     }
 
     public void powerOn() {
@@ -53,7 +73,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
     @Override
     public Component getDisplayName() {
-        // No need to use a translatable since the text ine never displayed
+        // No need to use a translatable since the text is never displayed
         return Component.literal("Recorder");
     }
 
@@ -76,6 +96,10 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
         super.loadAdditional(tag, registry);
 
         final CompoundTag compound = tag.getCompoundOrEmpty(SeismicExploration.MODID);
+
+        xValue = compound.getIntOr("xValue", worldPosition.getX());
+        zValue = compound.getIntOr("zValue", worldPosition.getZ());
+        axisValue = Axis.VALUES[compound.getIntOr("axisValue", Axis.X.ordinal())];
 
         blocks.clear();
         if (compound.contains("blocks")) {
@@ -102,6 +126,10 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
         super.saveAdditional(tag, registry);
 
         final CompoundTag compound = new CompoundTag();
+
+        compound.putInt("xValue", xValue);
+        compound.putInt("zValue", zValue);
+        compound.putInt("axisValue", axisValue.ordinal());
 
         final ListTag blocksList = new ListTag();
         for (final Map.Entry<BlockPos, Byte> entry : blocks.entrySet()) {

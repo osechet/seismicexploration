@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -51,6 +52,8 @@ public class SeismicExploration {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
 
+        ModNetworking.register();
+
         if (Config.logDirtBlock) {
             LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
         }
@@ -80,5 +83,9 @@ public class SeismicExploration {
 
             MenuScreens.register(ModMenus.RECORDER_MENU.get(), RecorderScreen::new);
         }
+    }
+
+    public static Component translatable(final String prefix, final String key) {
+        return Component.translatable(String.format("%s.%s.%s", prefix, MODID, key));
     }
 }

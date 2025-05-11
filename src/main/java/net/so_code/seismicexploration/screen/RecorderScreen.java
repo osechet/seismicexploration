@@ -16,9 +16,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.client.gui.widget.ForgeSlider;
+import net.so_code.seismicexploration.ModNetworking;
 import net.so_code.seismicexploration.SeismicExploration;
 import net.so_code.seismicexploration.client.ClientLevelDataManager;
 import net.so_code.seismicexploration.menu.RecorderMenu;
+import net.so_code.seismicexploration.network.RecorderPositionPacket;
+import net.so_code.seismicexploration.network.RecorderScreenValuesPacket;
 import net.so_code.seismicexploration.spread.SliceSavedData;
 
 public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
@@ -34,15 +37,27 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
     private static final String Z_SLIDER_VALUE = "zSliderValue";
     private static final String AXIS_SLIDER_VALUE = "axisSliderValue";
 
-    private final BlockPos playerPos;
-    private ForgeSlider xCoordinateField;
-    private ForgeSlider zCoordinateField;
-    private ForgeSlider axisField;
+    // The recorder position is normally sent by the server before opening the screen.
+    private static BlockPos recorderPos;
+    private CustomSlider xCoordinateField;
+    private CustomSlider zCoordinateField;
+    private CustomSlider axisField;
     private SliceInstance sliceInstance;
+
+    /**
+     * Used to set the position of the recorder used to display the screen. The position is sent by
+     * the server before opening the screen.
+     *
+     * @see RecorderPositionPacket
+     * @param recorderPos the position of the block used to open this screen.
+     */
+    public static void setRecorderPosition(final BlockPos recorderPos) {
+        LOGGER.debug("setRecorderPosition({})", recorderPos);
+        RecorderScreen.recorderPos = recorderPos;
+    }
 
     public RecorderScreen(final RecorderMenu menu, final Inventory inv, final Component title) {
         super(menu, inv, title);
-        this.playerPos = inv.player.blockPosition();
     }
 
     @Override
@@ -52,8 +67,8 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         imageHeight = GUI_TEXTURE_HEIGHT;
 
         // Retrieve the current block's position
-        final int blockX = playerPos.getX();
-        final int blockZ = playerPos.getZ();
+        final int blockX = recorderPos.getX();
+        final int blockZ = recorderPos.getZ();
 
         final int x = (width - imageWidth) / 2;
         final int y = (height - imageHeight) / 2;
@@ -64,18 +79,19 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         final CompoundTag savedValues = ClientLevelDataManager.get().getRecorderScreenValues();
         final int xValue = savedValues.getIntOr(X_SLIDER_VALUE, blockX);
         final int zValue = savedValues.getIntOr(Z_SLIDER_VALUE, blockZ);
-        final int axisValue = savedValues.getIntOr(AXIS_SLIDER_VALUE, 0);
+        final Axis axisValue =
+                Axis.VALUES[savedValues.getIntOr(AXIS_SLIDER_VALUE, Axis.X.ordinal())];
 
         // Initialize coordinate input fields with the block's position
-        xCoordinateField =
-                new ForgeSlider(contentX + 10, contentY + 10, 60, 20, Component.literal("x: "),
-                        Component.literal(""), blockX - 64, blockX + 64, xValue, 1, 0, true);
-        zCoordinateField =
-                new ForgeSlider(contentX + 10, contentY + 35, 60, 20, Component.literal("z: "),
-                        Component.literal(""), blockZ - 64, blockZ + 64, zValue, 1, 0, true);
+        xCoordinateField = new CustomSlider(contentX + 10, contentY + 10, 60, 20,
+                Component.literal("x: "), Component.literal(""), blockX - 64, blockX + 64, xValue,
+                1, 0, true, () -> sendValuesToServer());
+        zCoordinateField = new CustomSlider(contentX + 10, contentY + 35, 60, 20,
+                Component.literal("z: "), Component.literal(""), blockZ - 64, blockZ + 64, zValue,
+                1, 0, true, () -> sendValuesToServer());
         axisField = new CustomSlider(contentX + 10, contentY + 60, 60, 20,
-                Component.translatable("slider.seismicexploration.recorder_axis"),
-                Component.literal(""), 0, 1, axisValue, 1, 0, true,
+                SeismicExploration.translatable("slider", "recorder_axis"), Component.literal(""),
+                0, 1, axisValue.ordinal(), 1, 0, true, () -> sendValuesToServer(),
                 value -> value == 0 ? "X" : "Z");
 
         addRenderableWidget(xCoordinateField);
@@ -100,6 +116,12 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         super.onClose();
     }
 
+    private void sendValuesToServer() {
+        LOGGER.debug("sendValuesToServer");
+        ModNetworking.sendToServer(new RecorderScreenValuesPacket(xCoordinateField.getValueInt(),
+                zCoordinateField.getValueInt(), Axis.VALUES[axisField.getValueInt()], recorderPos));
+    }
+
     @Override
     public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
             final float f) {
@@ -119,7 +141,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
 
         final SliceSavedData savedData =
                 ClientLevelDataManager.get().getSliceSavedData(xCoordinateField.getValueInt(),
-                        zCoordinateField.getValueInt(), Axis.values()[axisField.getValueInt()]);
+                        zCoordinateField.getValueInt(), Axis.VALUES[axisField.getValueInt()]);
         sliceInstance.update(savedData);
 
         final ResourceLocation location =
@@ -171,17 +193,32 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
      */
     private final static class CustomSlider extends ForgeSlider {
 
+        private final Action onApply;
         private final Function<Integer, String> customFormat;
 
         public CustomSlider(final int x, final int y, final int width, final int height,
                 final Component prefix, final Component suffix, final double minValue,
                 final double maxValue, final double currentValue, final double stepSize,
-                final int precision, final boolean drawString,
+                final int precision, final boolean drawString, final Action onApply) {
+            this(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
+                    precision, drawString, onApply, null);
+        }
+
+        public CustomSlider(final int x, final int y, final int width, final int height,
+                final Component prefix, final Component suffix, final double minValue,
+                final double maxValue, final double currentValue, final double stepSize,
+                final int precision, final boolean drawString, final Action onApply,
                 @Nullable final Function<Integer, String> customFormat) {
             super(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
                     precision, drawString);
+            this.onApply = onApply;
             this.customFormat = customFormat;
             this.updateMessage();
+        }
+
+        @Override
+        protected void applyValue() {
+            this.onApply.execute();
         }
 
         @Override
@@ -190,6 +227,10 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
                 return super.getValueString();
             }
             return this.customFormat.apply(this.getValueInt());
+        }
+
+        interface Action {
+            void execute();
         }
     }
 }
