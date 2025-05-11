@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor.Brightness;
 import net.so_code.seismicexploration.ModBlockEntities;
 import net.so_code.seismicexploration.SeismicExploration;
+import net.so_code.seismicexploration.client.ClientLevelDataManager;
 import net.so_code.seismicexploration.menu.RecorderMenu;
 import net.so_code.seismicexploration.spread.Spread;
 
@@ -113,12 +114,6 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
     }
 
     @Override
-    public void handleUpdateTag(@Nullable final CompoundTag tag, @Nullable final Provider holders) {
-        super.handleUpdateTag(tag, holders);
-        LOGGER.debug("handleUpdateTag");
-    }
-
-    @Override
     @Nullable
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
@@ -129,6 +124,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
             @Nullable final ClientboundBlockEntityDataPacket pkt, @Nullable final Provider lookup) {
         super.onDataPacket(connection, pkt, lookup);
         LOGGER.debug("onDataPacket: {} - received {} blocks", pkt, this.blocks.size());
+        ClientLevelDataManager.get().setBlocks(this.blocks);
     }
 
     @Override
