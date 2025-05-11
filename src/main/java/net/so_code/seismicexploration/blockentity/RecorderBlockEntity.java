@@ -49,9 +49,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
     public RecorderBlockEntity(final BlockPos pos, final BlockState state) {
         super(ModBlockEntities.RECORDER_ENTITY.get(), pos, state);
-        this.xValue = pos.getX();
-        this.zValue = pos.getZ();
-        this.axisValue = Axis.X;
+        setSliderValues(pos.getX(), pos.getZ(), Axis.X);
     }
 
     public void setSliderValues(final int xValue, final int zValue, final Axis axisValue) {
@@ -92,7 +90,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
     @Override
     protected void loadAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("loadAdditional");
+        LOGGER.debug("loadAdditional - {}", level.isClientSide() ? "client" : "server");
         super.loadAdditional(tag, registry);
 
         final CompoundTag compound = tag.getCompoundOrEmpty(SeismicExploration.MODID);
@@ -122,7 +120,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
     @Override
     protected void saveAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("saveAdditional");
+        LOGGER.debug("saveAdditional - {}", level.isClientSide() ? "client" : "server");
         super.saveAdditional(tag, registry);
 
         final CompoundTag compound = new CompoundTag();
@@ -158,6 +156,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
         super.onDataPacket(connection, pkt, lookup);
         LOGGER.debug("onDataPacket: {} - received {} blocks", pkt, this.blocks.size());
         ClientLevelDataManager.get().setBlocks(this.blocks);
+        ClientLevelDataManager.get().setRecorderParameters(xValue, zValue, axisValue);
     }
 
     @Override

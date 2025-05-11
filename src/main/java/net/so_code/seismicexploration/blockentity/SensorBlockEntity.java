@@ -71,19 +71,20 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
                         recordingPos = recordingPos.above();
                     }
                 }
-                setChanged();
 
                 if (recordingPos.getY() >= maxY) {
                     recordingPos = null;
                     blocksPerTick = 0;
                 }
+
+                setChanged();
             }
         }
     }
 
     @Override
     protected void loadAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("loadAdditional");
+        LOGGER.debug("loadAdditional - {}", level.isClientSide() ? "client" : "server");
         super.loadAdditional(tag, registry);
 
         final CompoundTag compound = tag.getCompoundOrEmpty(SeismicExploration.MODID);
@@ -111,7 +112,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
 
     @Override
     protected void saveAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("saveAdditional");
+        LOGGER.debug("saveAdditional - {}", level.isClientSide() ? "client" : "server");
         super.saveAdditional(tag, registry);
 
         final CompoundTag compound = new CompoundTag();

@@ -11,7 +11,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -32,10 +31,6 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
             SeismicExploration.MODID, "textures/gui/recorder/recorder_gui.png");
     private static final int GUI_TEXTURE_WIDTH = 256;
     private static final int GUI_TEXTURE_HEIGHT = 174;
-
-    private static final String X_SLIDER_VALUE = "xSliderValue";
-    private static final String Z_SLIDER_VALUE = "zSliderValue";
-    private static final String AXIS_SLIDER_VALUE = "axisSliderValue";
 
     // The recorder position is normally sent by the server before opening the screen.
     private static BlockPos recorderPos;
@@ -66,28 +61,24 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         imageWidth = GUI_TEXTURE_WIDTH;
         imageHeight = GUI_TEXTURE_HEIGHT;
 
-        // Retrieve the current block's position
-        final int blockX = recorderPos.getX();
-        final int blockZ = recorderPos.getZ();
-
         final int x = (width - imageWidth) / 2;
         final int y = (height - imageHeight) / 2;
         final int contentX = x + 6;
         final int contentY = y + 6;
 
-        // Load saved values from ClientLevelDataManager
-        final CompoundTag savedValues = ClientLevelDataManager.get().getRecorderScreenValues();
-        final int xValue = savedValues.getIntOr(X_SLIDER_VALUE, blockX);
-        final int zValue = savedValues.getIntOr(Z_SLIDER_VALUE, blockZ);
-        final Axis axisValue =
-                Axis.VALUES[savedValues.getIntOr(AXIS_SLIDER_VALUE, Axis.X.ordinal())];
+        // The first time we use the block, we use the block's position. Later we use the latest
+        // input values
+        final ClientLevelDataManager dm = ClientLevelDataManager.get();
+        final int xValue = dm.getCenterX().orElse(recorderPos.getX());
+        final int zValue = dm.getCenterZ().orElse(recorderPos.getZ());
+        final Axis axisValue = dm.getAxis().orElse(Axis.X);
 
         // Initialize coordinate input fields with the block's position
         xCoordinateField = new CustomSlider(contentX + 10, contentY + 10, 60, 20,
-                Component.literal("x: "), Component.literal(""), blockX - 64, blockX + 64, xValue,
+                Component.literal("x: "), Component.literal(""), xValue - 64, xValue + 64, xValue,
                 1, 0, true, () -> sendValuesToServer());
         zCoordinateField = new CustomSlider(contentX + 10, contentY + 35, 60, 20,
-                Component.literal("z: "), Component.literal(""), blockZ - 64, blockZ + 64, zValue,
+                Component.literal("z: "), Component.literal(""), zValue - 64, zValue + 64, zValue,
                 1, 0, true, () -> sendValuesToServer());
         axisField = new CustomSlider(contentX + 10, contentY + 60, 60, 20,
                 SeismicExploration.translatable("slider", "recorder_axis"), Component.literal(""),
@@ -106,12 +97,6 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         if (sliceInstance != null) {
             sliceInstance.close();
         }
-
-        final CompoundTag valuesToSave = new CompoundTag();
-        valuesToSave.putInt(X_SLIDER_VALUE, xCoordinateField.getValueInt());
-        valuesToSave.putInt(Z_SLIDER_VALUE, zCoordinateField.getValueInt());
-        valuesToSave.putInt(AXIS_SLIDER_VALUE, axisField.getValueInt());
-        ClientLevelDataManager.get().setRecorderScreenValues(valuesToSave);
 
         super.onClose();
     }

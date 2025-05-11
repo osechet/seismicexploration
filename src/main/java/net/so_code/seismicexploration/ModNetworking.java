@@ -1,7 +1,5 @@
 package net.so_code.seismicexploration;
 
-import org.slf4j.Logger;
-import com.mojang.logging.LogUtils;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.ResourceLocation;
@@ -13,8 +11,6 @@ import net.so_code.seismicexploration.network.RecorderPositionPacket;
 import net.so_code.seismicexploration.network.RecorderScreenValuesPacket;
 
 public class ModNetworking {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final int PROTOCOL_VERSION = 1;
 
