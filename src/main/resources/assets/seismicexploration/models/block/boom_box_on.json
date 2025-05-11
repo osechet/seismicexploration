@@ -1,7 +1,9 @@
 {
-  "parent": "seismicexploration:block/boom_box",
-  "textures": {
-    "0": "seismicexploration:block/boom_box_on",
-    "particle": "seismicexploration:block/boom_box_on"
-  }
+	"credit": "Made with Blockbench",
+	"parent": "seismicexploration:block/boom_box",
+	"textures": {
+		"0": "seismicexploration:block/boom_box_on",
+		"particle": "seismicexploration:block/boom_box_on"
+	},
+	"display": {}
 }
