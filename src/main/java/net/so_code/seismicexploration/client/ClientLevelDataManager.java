@@ -42,15 +42,24 @@ public class ClientLevelDataManager {
         if (data == null) {
             LOGGER.debug("Creating SliceSavedData for {}, {}, {}", centerX, centerZ, axis);
             final byte[] colors = new byte[SliceSavedData.SLICE_SIZE];
-            // TODO: use axis
-            final int leftX = centerX - 160;
-            for (int x = 0; x < 320; x++) {
+            final int left;
+            if (axis == Axis.X) {
+                left = centerX - 160;
+            } else {
+                left = centerZ - 160;
+            }
+            for (int i = 0; i < 320; i++) {
                 for (int y = 255; y >= -64; y--) {
-                    Byte color = blocks.get(new BlockPos(leftX + x, y, centerZ));
+                    Byte color;
+                    if (axis == Axis.X) {
+                        color = blocks.get(new BlockPos(left + i, y, centerZ));
+                    } else {
+                        color = blocks.get(new BlockPos(centerX, y, left + i));
+                    }
                     if (color == null) {
                         color = MapColor.NONE.getPackedId(Brightness.HIGH);
                     }
-                    final int k = x * 320 + (255 - y);
+                    final int k = i * 320 + (255 - y);
                     colors[k] = color;
                 }
             }

@@ -112,8 +112,9 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         final int monitorWidth = 160;
         final int monitorHeight = 160;
 
-        final SliceSavedData savedData = ClientLevelDataManager.get().getSliceSavedData(
-                xCoordinateField.getValueInt(), zCoordinateField.getValueInt(), Axis.X);
+        final SliceSavedData savedData =
+                ClientLevelDataManager.get().getSliceSavedData(xCoordinateField.getValueInt(),
+                        zCoordinateField.getValueInt(), Axis.values()[axisField.getValueInt()]);
         final SliceInstance sliceInstance = new SliceInstance(savedData);
         sliceInstance.update();
 
