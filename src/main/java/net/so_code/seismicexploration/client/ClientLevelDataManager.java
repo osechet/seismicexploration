@@ -3,16 +3,24 @@ package net.so_code.seismicexploration.client;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.MapColor.Brightness;
 import net.so_code.seismicexploration.spread.SliceSavedData;
 
 public class ClientLevelDataManager {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static ClientLevelDataManager instance;
-    private final Map<BlockPos, Byte> blocks = new HashMap<>();
+
+    private Map<BlockPos, Byte> blocks = new HashMap<>();
+    private final Map<String, SliceSavedData> cache = new HashMap<>();
+    private CompoundTag recorderScreenValues = new CompoundTag();
 
     private ClientLevelDataManager() {}
 
@@ -23,24 +31,40 @@ public class ClientLevelDataManager {
         return instance;
     }
 
-    public void putBlocks(final Map<BlockPos, Byte> blocks) {
-
+    public void setBlocks(final Map<BlockPos, Byte> blocks) {
+        this.blocks = blocks;
+        cache.clear();
     }
 
     public SliceSavedData getSliceSavedData(final int centerX, final int centerZ, final Axis axis) {
-        final byte[] colors = new byte[SliceSavedData.SLICE_SIZE];
-        // TODO: use axis
-        final int leftX = centerX - 160;
-        for (int x = 0; x < 320; x++) {
-            for (int y = 255; y >= -64; y--) {
-                Byte color = blocks.get(new BlockPos(leftX + x, y, centerZ));
-                if (color == null) {
-                    color = MapColor.NONE.getPackedId(Brightness.HIGH);
+        SliceSavedData data =
+                cache.get(String.format("%d-%d-%s", centerX, centerZ, axis.getName()));
+        if (data == null) {
+            LOGGER.debug("Creating SliceSavedData for {}, {}, {}", centerX, centerZ, axis);
+            final byte[] colors = new byte[SliceSavedData.SLICE_SIZE];
+            // TODO: use axis
+            final int leftX = centerX - 160;
+            for (int x = 0; x < 320; x++) {
+                for (int y = 255; y >= -64; y--) {
+                    Byte color = blocks.get(new BlockPos(leftX + x, y, centerZ));
+                    if (color == null) {
+                        color = MapColor.NONE.getPackedId(Brightness.HIGH);
+                    }
+                    final int k = x * 320 + (255 - y);
+                    colors[k] = color;
                 }
-                final int k = x * 320 + (255 - y);
-                colors[k] = color;
             }
+            data = new SliceSavedData(centerX, centerZ, axis, ByteBuffer.wrap(colors));
+            cache.put(String.format("%d-%d-%s", centerX, centerZ, axis.getName()), data);
         }
-        return new SliceSavedData(centerX, centerZ, axis, ByteBuffer.wrap(colors));
+        return data;
+    }
+
+    public CompoundTag getRecorderScreenValues() {
+        return recorderScreenValues;
+    }
+
+    public void setRecorderScreenValues(final CompoundTag recorderScreenValues) {
+        this.recorderScreenValues = recorderScreenValues;
     }
 }
