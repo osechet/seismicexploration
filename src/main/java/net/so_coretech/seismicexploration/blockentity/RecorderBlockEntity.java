@@ -74,9 +74,8 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
     }
 
     @Override
-    @Nullable
-    public AbstractContainerMenu createMenu(final int containerId, final Inventory playerInventory,
-                                            final Player player) {
+    public @Nullable AbstractContainerMenu createMenu(final int containerId, final Inventory playerInventory,
+                                                      final Player player) {
         final ContainerLevelAccess access;
         if (level != null) {
             access = ContainerLevelAccess.create(level, worldPosition);
@@ -143,8 +142,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
     }
 
     @Override
-    @Nullable
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 

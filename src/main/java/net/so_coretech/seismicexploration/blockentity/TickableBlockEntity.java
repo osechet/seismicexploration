@@ -4,13 +4,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 
+import javax.annotation.Nullable;
+
 public interface TickableBlockEntity {
 
     void tick();
 
-    static <T extends BlockEntity> BlockEntityTicker<T> getTickerHelper(final Level level) {
+    static <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTickerHelper(final Level level) {
         if (level.isClientSide()) {
-            throw new IllegalStateException("getTickerHelper cannot be called on the client side");
+            return null;
         }
         return (level0, pos, state, blockEntity) -> ((TickableBlockEntity) blockEntity).tick();
     }

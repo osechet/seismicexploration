@@ -33,8 +33,7 @@ public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlo
     }
 
     @Override
-    @Nullable
-    public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
+    public @Nullable BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
         return ModBlockEntities.SENSOR_ENTITY.get().create(pos, state);
     }
 
@@ -50,8 +49,7 @@ public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlo
     }
 
     @Override
-    @Nullable
-    public BlockState getStateForPlacement(final BlockPlaceContext context) {
+    public @Nullable BlockState getStateForPlacement(final BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING,
             context.getHorizontalDirection().getOpposite());
     }
@@ -62,10 +60,9 @@ public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlo
     }
 
     @Override
-    @Nullable
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(final Level level,
-                                                                  final BlockState state,
-                                                                  final BlockEntityType<T> type) {
+    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(final Level level,
+                                                                            final BlockState state,
+                                                                            final BlockEntityType<T> type) {
         return TickableBlockEntity.getTickerHelper(level);
     }
 }

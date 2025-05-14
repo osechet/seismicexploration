@@ -21,8 +21,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    @Nullable
-    private BlockPos recordingPos;
+    private @Nullable BlockPos recordingPos;
     private int blocksPerTick = 0;
 
     private final Map<BlockPos, MapColor> blocks = new HashMap<>();
