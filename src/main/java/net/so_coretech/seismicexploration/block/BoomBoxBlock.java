@@ -1,6 +1,5 @@
 package net.so_coretech.seismicexploration.block;
 
-import javax.annotation.Nullable;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,6 +28,8 @@ import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.blockentity.BoomBoxBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.TickableBlockEntity;
 
+import javax.annotation.Nullable;
+
 public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
     private static final MapCodec<BoomBoxBlock> CODEC = simpleCodec(BoomBoxBlock::new);
@@ -43,7 +44,7 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
     public BoomBoxBlock(final BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH)
-                .setValue(POWERED, false).setValue(WORKING, false));
+                                                      .setValue(POWERED, false).setValue(WORKING, false));
     }
 
     @Override
@@ -59,26 +60,21 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
 
     @Override
     protected VoxelShape getShape(final BlockState state, final BlockGetter level,
-            final BlockPos pos, final CollisionContext context) {
+                                  final BlockPos pos, final CollisionContext context) {
         final Direction dir = state.getValue(FACING);
-        switch (dir) {
-            case EAST:
-                return SHAPE_EAST;
-            case SOUTH:
-                return SHAPE_SOUTH;
-            case WEST:
-                return SHAPE_WEST;
-            case NORTH:
-            default:
-                return SHAPE_NORTH;
-        }
+        return switch (dir) {
+            case EAST -> SHAPE_EAST;
+            case SOUTH -> SHAPE_SOUTH;
+            case WEST -> SHAPE_WEST;
+            default -> SHAPE_NORTH;
+        };
     }
 
     @Override
     @Nullable
     public BlockState getStateForPlacement(final BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING,
-                context.getHorizontalDirection().getOpposite());
+            context.getHorizontalDirection().getOpposite());
     }
 
     @Override
@@ -88,8 +84,9 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
 
     @Override
     protected InteractionResult useItemOn(final ItemStack stack, final BlockState state,
-            final Level level, final BlockPos pos, final Player player, final InteractionHand hand,
-            final BlockHitResult hitResult) {
+                                          final Level level, final BlockPos pos, final Player player,
+                                          final InteractionHand hand,
+                                          final BlockHitResult hitResult) {
         if (!level.isClientSide() && hand == InteractionHand.MAIN_HAND) {
             final BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof final BoomBoxBlockEntity blockEntity) {
@@ -103,7 +100,8 @@ public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBl
     @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(final Level level,
-            final BlockState state, final BlockEntityType<T> type) {
+                                                                  final BlockState state,
+                                                                  final BlockEntityType<T> type) {
         return TickableBlockEntity.getTickerHelper(level);
     }
 }

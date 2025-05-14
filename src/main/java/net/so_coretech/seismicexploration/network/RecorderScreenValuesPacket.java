@@ -1,6 +1,5 @@
 package net.so_coretech.seismicexploration.network;
 
-import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
@@ -9,6 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.so_coretech.seismicexploration.blockentity.RecorderBlockEntity;
+import org.slf4j.Logger;
 
 public class RecorderScreenValuesPacket {
 
@@ -20,7 +20,7 @@ public class RecorderScreenValuesPacket {
     private final BlockPos blockPos;
 
     public RecorderScreenValuesPacket(final int xValue, final int zValue, final Axis axisValue,
-            final BlockPos blockPos) {
+                                      final BlockPos blockPos) {
         this.xValue = xValue;
         this.zValue = zValue;
         this.axisValue = axisValue;

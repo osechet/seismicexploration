@@ -1,12 +1,5 @@
 package net.so_coretech.seismicexploration.blockentity;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
@@ -35,6 +28,11 @@ import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.client.ClientLevelDataManager;
 import net.so_coretech.seismicexploration.menu.RecorderMenu;
 import net.so_coretech.seismicexploration.spread.Spread;
+import org.slf4j.Logger;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RecorderBlockEntity extends BlockEntity implements MenuProvider, TickableBlockEntity {
 
@@ -60,7 +58,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
         setChanged();
         if (level != null) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(),
-                    Block.UPDATE_ALL);
+                Block.UPDATE_ALL);
         }
     }
 
@@ -78,8 +76,8 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
     @Override
     @Nullable
     public AbstractContainerMenu createMenu(final int containerId, final Inventory playerInventory,
-            final Player player) {
-        ContainerLevelAccess access;
+                                            final Player player) {
+        final ContainerLevelAccess access;
         if (level != null) {
             access = ContainerLevelAccess.create(level, worldPosition);
         } else {
@@ -90,7 +88,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
     @Override
     protected void loadAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("loadAdditional - {}", level.isClientSide() ? "client" : "server");
+        LOGGER.debug("loadAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
         super.loadAdditional(tag, registry);
 
         final CompoundTag compound = tag.getCompoundOrEmpty(SeismicExploration.MODID);
@@ -108,7 +106,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
                 final Optional<Integer> y = blockTag.getInt("y");
                 final Optional<Integer> z = blockTag.getInt("z");
                 final Optional<Byte> color = blockTag.getByte("color");
-                if (!x.isPresent() || !y.isPresent() || !z.isPresent() || !color.isPresent()) {
+                if (x.isEmpty() || y.isEmpty() || z.isEmpty() || color.isEmpty()) {
                     LOGGER.warn("Invalid block tag");
                     continue;
                 }
@@ -120,7 +118,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
     @Override
     protected void saveAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("saveAdditional - {}", level.isClientSide() ? "client" : "server");
+        LOGGER.debug("saveAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
         super.saveAdditional(tag, registry);
 
         final CompoundTag compound = new CompoundTag();
@@ -152,7 +150,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
     @Override
     public void onDataPacket(@Nullable final Connection connection,
-            @Nullable final ClientboundBlockEntityDataPacket pkt, @Nullable final Provider lookup) {
+                             @Nullable final ClientboundBlockEntityDataPacket pkt, @Nullable final Provider lookup) {
         super.onDataPacket(connection, pkt, lookup);
         LOGGER.debug("onDataPacket: {} - received {} blocks", pkt, this.blocks.size());
         ClientLevelDataManager.get().setBlocks(this.blocks);
@@ -174,21 +172,21 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
                 if (lvl instanceof final ServerLevel serverLevel) {
                     final Set<BlockPos> placedSensors =
-                            Spread.getSpread(serverLevel).getPlacedSensors();
+                        Spread.getSpread(serverLevel).getPlacedSensors();
                     this.blocks = placedSensors.stream() //
-                            .map(pos -> (SensorBlockEntity) serverLevel.getBlockEntity(pos)) //
-                            .map(sensor -> sensor.getBlocks()) //
-                            .flatMap(map -> map.entrySet().stream()) //
-                            .collect(Collectors.toMap(Map.Entry::getKey, //
-                                    entry -> entry.getValue().getPackedId(Brightness.NORMAL), //
-                                    (existing, replacement) -> existing // keep the first value
-                                                                        // found
-                            ));
+                                               .map(pos -> (SensorBlockEntity) serverLevel.getBlockEntity(pos)) //
+                                               .map(sensor -> sensor.getBlocks()) //
+                                               .flatMap(map -> map.entrySet().stream()) //
+                                               .collect(Collectors.toMap(Map.Entry::getKey, //
+                                                   entry -> entry.getValue().getPackedId(Brightness.NORMAL), //
+                                                   (existing, replacement) -> existing // keep the first value
+                                                   // found
+                                               ));
                     LOGGER.debug("Data retrieved: {} blocks", this.blocks.size());
                     setChanged();
 
                     lvl.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(),
-                            Block.UPDATE_ALL);
+                        Block.UPDATE_ALL);
                 }
             }
 

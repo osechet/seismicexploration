@@ -1,11 +1,11 @@
 package net.so_coretech.seismicexploration.network;
 
-import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.so_coretech.seismicexploration.screen.RecorderScreen;
+import org.slf4j.Logger;
 
 public class RecorderPositionPacket {
 

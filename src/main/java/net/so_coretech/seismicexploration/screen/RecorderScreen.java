@@ -1,9 +1,5 @@
 package net.so_coretech.seismicexploration.screen;
 
-import java.util.Optional;
-import java.util.function.Function;
-import javax.annotation.Nullable;
-import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -22,29 +18,35 @@ import net.so_coretech.seismicexploration.menu.RecorderMenu;
 import net.so_coretech.seismicexploration.network.RecorderPositionPacket;
 import net.so_coretech.seismicexploration.network.RecorderScreenValuesPacket;
 import net.so_coretech.seismicexploration.spread.SliceSavedData;
+import org.slf4j.Logger;
+
+import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 
 public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(
-            SeismicExploration.MODID, "textures/gui/recorder/recorder_gui.png");
+        SeismicExploration.MODID, "textures/gui/recorder/recorder_gui.png");
     private static final int GUI_TEXTURE_WIDTH = 256;
     private static final int GUI_TEXTURE_HEIGHT = 174;
 
     // The recorder position is normally sent by the server before opening the screen.
-    private static BlockPos recorderPos;
-    private CustomSlider xCoordinateField;
-    private CustomSlider zCoordinateField;
-    private CustomSlider axisField;
-    private SliceInstance sliceInstance;
+    private static @Nullable BlockPos recorderPos;
+    private @Nullable CustomSlider xCoordinateField;
+    private @Nullable CustomSlider zCoordinateField;
+    private @Nullable CustomSlider axisField;
+    private @Nullable SliceInstance sliceInstance;
 
     /**
      * Used to set the position of the recorder used to display the screen. The position is sent by
      * the server before opening the screen.
      *
-     * @see RecorderPositionPacket
      * @param recorderPos the position of the block used to open this screen.
+     * @see RecorderPositionPacket
      */
     public static void setRecorderPosition(final BlockPos recorderPos) {
         LOGGER.debug("setRecorderPosition({})", recorderPos);
@@ -69,21 +71,21 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         // The first time we use the block, we use the block's position. Later we use the latest
         // input values
         final ClientLevelDataManager dm = ClientLevelDataManager.get();
-        final int xValue = dm.getCenterX().orElse(recorderPos.getX());
+        final int xValue = dm.getCenterX().orElse(Objects.requireNonNull(recorderPos).getX());
         final int zValue = dm.getCenterZ().orElse(recorderPos.getZ());
         final Axis axisValue = dm.getAxis().orElse(Axis.X);
 
         // Initialize coordinate input fields with the block's position
         xCoordinateField = new CustomSlider(contentX + 10, contentY + 10, 60, 20,
-                Component.literal("x: "), Component.literal(""), xValue - 64, xValue + 64, xValue,
-                1, 0, true, () -> sendValuesToServer());
+            Component.literal("x: "), Component.literal(""), xValue - 64, xValue + 64, xValue,
+            1, 0, true, this::sendValuesToServer);
         zCoordinateField = new CustomSlider(contentX + 10, contentY + 35, 60, 20,
-                Component.literal("z: "), Component.literal(""), zValue - 64, zValue + 64, zValue,
-                1, 0, true, () -> sendValuesToServer());
+            Component.literal("z: "), Component.literal(""), zValue - 64, zValue + 64, zValue,
+            1, 0, true, this::sendValuesToServer);
         axisField = new CustomSlider(contentX + 10, contentY + 60, 60, 20,
-                SeismicExploration.translatable("slider", "recorder_axis"), Component.literal(""),
-                0, 1, axisValue.ordinal(), 1, 0, true, () -> sendValuesToServer(),
-                value -> value == 0 ? "X" : "Z");
+            SeismicExploration.translatable("slider", "recorder_axis"), Component.literal(""),
+            0, 1, axisValue.ordinal(), 1, 0, true, this::sendValuesToServer,
+            value -> value == 0 ? "X" : "Z");
 
         addRenderableWidget(xCoordinateField);
         addRenderableWidget(zCoordinateField);
@@ -103,13 +105,17 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
 
     private void sendValuesToServer() {
         LOGGER.debug("sendValuesToServer");
-        ModNetworking.sendToServer(new RecorderScreenValuesPacket(xCoordinateField.getValueInt(),
-                zCoordinateField.getValueInt(), Axis.VALUES[axisField.getValueInt()], recorderPos));
+        ModNetworking.sendToServer(
+            new RecorderScreenValuesPacket(
+                Objects.requireNonNull(xCoordinateField).getValueInt(),
+                Objects.requireNonNull(zCoordinateField).getValueInt(),
+                Axis.VALUES[Objects.requireNonNull(axisField).getValueInt()],
+                Objects.requireNonNull(recorderPos)));
     }
 
     @Override
     public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY,
-            final float f) {
+                       final float f) {
         super.render(guiGraphics, mouseX, mouseY, f);
 
         final int x = (width - imageWidth) / 2;
@@ -125,24 +131,24 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         final int monitorHeight = 160;
 
         final SliceSavedData savedData =
-                ClientLevelDataManager.get().getSliceSavedData(xCoordinateField.getValueInt(),
-                        zCoordinateField.getValueInt(), Axis.VALUES[axisField.getValueInt()]);
+            ClientLevelDataManager.get().getSliceSavedData(xCoordinateField.getValueInt(),
+                zCoordinateField.getValueInt(), Axis.VALUES[axisField.getValueInt()]);
         sliceInstance.update(savedData);
 
         final ResourceLocation location =
-                ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
+            ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
         guiGraphics.blit(RenderType::guiTextured, location, x + monitorX, y + monitorY, 0, 0,
-                monitorWidth, monitorHeight, 320, 320, 320, 320);
+            monitorWidth, monitorHeight, 320, 320, 320, 320);
     }
 
 
     @Override
     protected void renderBg(final GuiGraphics guiGraphics, final float partialTicks,
-            final int mouseX, final int mouseY) {
+                            final int mouseX, final int mouseY) {
         final int x = (width - imageWidth) / 2;
         final int y = (height - imageHeight) / 2;
         guiGraphics.blit(RenderType::guiTextured, GUI_TEXTURE, x, y, 0.0F, 0.0F, this.imageWidth,
-                this.imageHeight, 256, 256);
+            this.imageHeight, 256, 256);
     }
 
     @Override
@@ -156,7 +162,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
      */
     @Override
     public boolean mouseDragged(final double pMouseX, final double pMouseY, final int pButton,
-            final double pDragX, final double pDragY) {
+                                final double pDragX, final double pDragY) {
         final Optional<GuiEventListener> optional = this.getChildAt(pMouseX, pMouseY);
         if (optional.isEmpty()) {
             return false;
@@ -179,23 +185,23 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
     private final static class CustomSlider extends ForgeSlider {
 
         private final Action onApply;
-        private final Function<Integer, String> customFormat;
+        private final @Nullable Function<Integer, String> customFormat;
 
         public CustomSlider(final int x, final int y, final int width, final int height,
-                final Component prefix, final Component suffix, final double minValue,
-                final double maxValue, final double currentValue, final double stepSize,
-                final int precision, final boolean drawString, final Action onApply) {
+                            final Component prefix, final Component suffix, final double minValue,
+                            final double maxValue, final double currentValue, final double stepSize,
+                            final int precision, final boolean drawString, final Action onApply) {
             this(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
-                    precision, drawString, onApply, null);
+                precision, drawString, onApply, null);
         }
 
         public CustomSlider(final int x, final int y, final int width, final int height,
-                final Component prefix, final Component suffix, final double minValue,
-                final double maxValue, final double currentValue, final double stepSize,
-                final int precision, final boolean drawString, final Action onApply,
-                @Nullable final Function<Integer, String> customFormat) {
+                            final Component prefix, final Component suffix, final double minValue,
+                            final double maxValue, final double currentValue, final double stepSize,
+                            final int precision, final boolean drawString, final Action onApply,
+                            @Nullable final Function<Integer, String> customFormat) {
             super(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
-                    precision, drawString);
+                precision, drawString);
             this.onApply = onApply;
             this.customFormat = customFormat;
             this.updateMessage();

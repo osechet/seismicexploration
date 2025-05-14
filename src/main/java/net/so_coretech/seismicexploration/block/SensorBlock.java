@@ -1,6 +1,5 @@
 package net.so_coretech.seismicexploration.block;
 
-import javax.annotation.Nullable;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,6 +19,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.blockentity.TickableBlockEntity;
+
+import javax.annotation.Nullable;
 
 public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
@@ -44,7 +45,7 @@ public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlo
 
     @Override
     protected VoxelShape getShape(final BlockState state, final BlockGetter level,
-            final BlockPos pos, final CollisionContext context) {
+                                  final BlockPos pos, final CollisionContext context) {
         return SHAPE;
     }
 
@@ -52,7 +53,7 @@ public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlo
     @Nullable
     public BlockState getStateForPlacement(final BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING,
-                context.getHorizontalDirection().getOpposite());
+            context.getHorizontalDirection().getOpposite());
     }
 
     @Override
@@ -63,7 +64,8 @@ public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlo
     @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(final Level level,
-            final BlockState state, final BlockEntityType<T> type) {
+                                                                  final BlockState state,
+                                                                  final BlockEntityType<T> type) {
         return TickableBlockEntity.getTickerHelper(level);
     }
 }

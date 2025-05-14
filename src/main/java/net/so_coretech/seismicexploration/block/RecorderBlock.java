@@ -1,7 +1,5 @@
 package net.so_coretech.seismicexploration.block;
 
-import javax.annotation.Nullable;
-import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -31,6 +29,9 @@ import net.so_coretech.seismicexploration.ModNetworking;
 import net.so_coretech.seismicexploration.blockentity.RecorderBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.TickableBlockEntity;
 import net.so_coretech.seismicexploration.network.RecorderPositionPacket;
+import org.slf4j.Logger;
+
+import javax.annotation.Nullable;
 
 public class RecorderBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
@@ -59,26 +60,21 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
 
     @Override
     protected VoxelShape getShape(final BlockState state, final BlockGetter level,
-            final BlockPos pos, final CollisionContext context) {
+                                  final BlockPos pos, final CollisionContext context) {
         final Direction dir = state.getValue(FACING);
-        switch (dir) {
-            case EAST:
-                return SHAPE_EAST;
-            case SOUTH:
-                return SHAPE_SOUTH;
-            case WEST:
-                return SHAPE_WEST;
-            case NORTH:
-            default:
-                return SHAPE_NORTH;
-        }
+        return switch (dir) {
+            case EAST -> SHAPE_EAST;
+            case SOUTH -> SHAPE_SOUTH;
+            case WEST -> SHAPE_WEST;
+            default -> SHAPE_NORTH;
+        };
     }
 
     @Override
     @Nullable
     public BlockState getStateForPlacement(final BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING,
-                context.getHorizontalDirection().getOpposite());
+            context.getHorizontalDirection().getOpposite());
     }
 
     @Override
@@ -88,8 +84,9 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
 
     @Override
     protected InteractionResult useItemOn(final ItemStack stack, final BlockState state,
-            final Level level, final BlockPos pos, final Player player, final InteractionHand hand,
-            final BlockHitResult hitResult) {
+                                          final Level level, final BlockPos pos, final Player player,
+                                          final InteractionHand hand,
+                                          final BlockHitResult hitResult) {
         if (hand == InteractionHand.MAIN_HAND) {
             if (level.getBlockEntity(pos) instanceof final RecorderBlockEntity blockEntity) {
                 if (!level.isClientSide()) {
@@ -99,7 +96,7 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
                     // Send the block's position before opening the screen
                     sendBlockPositionToScreen((ServerPlayer) player, pos);
 
-                    ((ServerPlayer) player).openMenu(blockEntity);
+                    player.openMenu(blockEntity);
                     return InteractionResult.CONSUME;
                 }
             }
@@ -121,7 +118,8 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
     @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(final Level level,
-            final BlockState state, final BlockEntityType<T> type) {
+                                                                  final BlockState state,
+                                                                  final BlockEntityType<T> type) {
         return TickableBlockEntity.getTickerHelper(level);
     }
 }

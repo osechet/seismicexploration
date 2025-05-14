@@ -1,11 +1,5 @@
 package net.so_coretech.seismicexploration.blockentity;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import javax.annotation.Nullable;
-import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -18,6 +12,10 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.MapColor;
 import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.SeismicExploration;
+import org.slf4j.Logger;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 public class SensorBlockEntity extends BlockEntity implements TickableBlockEntity {
 
@@ -41,16 +39,18 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
     public void startRecording(final BlockPos pos) {
         LOGGER.debug("Sensor at {} starting recording at {}", worldPosition, pos);
         recordingPos = pos;
-        // Calculate how many blocks must be recorded per tick. We limit the number of blocks being
-        // browsed per tick to avoid performance issues
-        final int maxY = level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
-        final int blocksCount = maxY - pos.getY();
-        final int ticksToRecord =
+        if (level != null) {
+            // Calculate how many blocks must be recorded per tick. We limit the number of blocks being
+            // browsed per tick to avoid performance issues
+            final int maxY = level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
+            final int blocksCount = maxY - pos.getY();
+            final int ticksToRecord =
                 (BoomBoxBlockEntity.cyclesCount) * BoomBoxBlockEntity.ticksPerCycle;
-        blocksPerTick = (int) Math.ceil((float) blocksCount / (float) ticksToRecord);
+            blocksPerTick = (int) Math.ceil((float) blocksCount / (float) ticksToRecord);
 
-        LOGGER.trace("blocksCount = {} - ticksToRecord = {} - blocksPerTick = {}", blocksCount,
+            LOGGER.trace("blocksCount = {} - ticksToRecord = {} - blocksPerTick = {}", blocksCount,
                 ticksToRecord, blocksPerTick);
+        }
     }
 
     @Override
@@ -61,13 +61,13 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
             if (recordingPos != null) {
                 // When recordingPos is set, it means the sensor is recording
                 final int maxY = lvl.getHeight(Heightmap.Types.WORLD_SURFACE, recordingPos.getX(),
-                        recordingPos.getZ());
+                    recordingPos.getZ());
                 for (int i = 0; i < blocksPerTick; i++) {
                     if (recordingPos.getY() < maxY) {
                         LOGGER.trace("Sensor at {} recording block at {}", worldPosition,
-                                recordingPos);
+                            recordingPos);
                         blocks.put(recordingPos,
-                                level.getBlockState(recordingPos).getMapColor(level, recordingPos));
+                            level.getBlockState(recordingPos).getMapColor(level, recordingPos));
                         recordingPos = recordingPos.above();
                     }
                 }
@@ -84,7 +84,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
 
     @Override
     protected void loadAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("loadAdditional - {}", level.isClientSide() ? "client" : "server");
+        LOGGER.debug("loadAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
         super.loadAdditional(tag, registry);
 
         final CompoundTag compound = tag.getCompoundOrEmpty(SeismicExploration.MODID);
@@ -99,7 +99,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
                 final Optional<Integer> y = blockTag.getInt("y");
                 final Optional<Integer> z = blockTag.getInt("z");
                 final Optional<Integer> colorId = blockTag.getInt("color");
-                if (!x.isPresent() || !y.isPresent() || !z.isPresent() || !colorId.isPresent()) {
+                if (x.isEmpty() || y.isEmpty() || z.isEmpty() || colorId.isEmpty()) {
                     LOGGER.warn("Invalid block tag");
                     continue;
                 }
@@ -112,7 +112,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
 
     @Override
     protected void saveAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("saveAdditional - {}", level.isClientSide() ? "client" : "server");
+        LOGGER.debug("saveAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
         super.saveAdditional(tag, registry);
 
         final CompoundTag compound = new CompoundTag();

@@ -17,7 +17,7 @@ public class RecorderMenu extends AbstractContainerMenu {
     }
 
     public RecorderMenu(final int containerId, final Inventory inv,
-            final ContainerLevelAccess access) {
+                        final ContainerLevelAccess access) {
         super(ModMenus.RECORDER_MENU.get(), containerId);
         this.access = access;
     }

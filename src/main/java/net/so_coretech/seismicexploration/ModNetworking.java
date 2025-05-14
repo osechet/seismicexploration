@@ -15,21 +15,21 @@ public class ModNetworking {
     private static final int PROTOCOL_VERSION = 1;
 
     private static final SimpleChannel CHANNEL = ChannelBuilder
-            .named(ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "networking"))
-            .networkProtocolVersion(PROTOCOL_VERSION)
-            // .acceptedVersions((status, version) -> status == VersionTest.Status.PRESENT)
-            .simpleChannel();
+        .named(ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "networking"))
+        .networkProtocolVersion(PROTOCOL_VERSION)
+        // .acceptedVersions((status, version) -> status == VersionTest.Status.PRESENT)
+        .simpleChannel();
 
     public static void register() {
         CHANNEL.play().flow(PacketFlow.SERVERBOUND).addMain(RecorderScreenValuesPacket.class, //
-                StreamCodec.of((buf, msg) -> msg.toBytes(buf), //
-                        (buf) -> new RecorderScreenValuesPacket(buf)),
-                (msg, ctx) -> msg.handle(ctx));
+            StreamCodec.of((buf, msg) -> msg.toBytes(buf), //
+                RecorderScreenValuesPacket::new),
+            RecorderScreenValuesPacket::handle);
 
         CHANNEL.play().flow(PacketFlow.CLIENTBOUND).addMain(RecorderPositionPacket.class, //
-                StreamCodec.of((buf, msg) -> msg.toBytes(buf), //
-                        (buf) -> new RecorderPositionPacket(buf)),
-                (msg, ctx) -> msg.handle(ctx));
+            StreamCodec.of((buf, msg) -> msg.toBytes(buf), //
+                RecorderPositionPacket::new),
+            RecorderPositionPacket::handle);
     }
 
     public static void sendToPlayer(final ServerPlayer player, final Object message) {

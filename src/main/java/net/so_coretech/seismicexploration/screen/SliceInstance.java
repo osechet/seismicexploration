@@ -19,7 +19,7 @@ public class SliceInstance implements AutoCloseable {
     public SliceInstance() {
         this.texture = new DynamicTexture("slice", 320, 320, true);
         this.location =
-                ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
+            ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
         Minecraft.getInstance().textureManager.register(location, texture);
     }
 

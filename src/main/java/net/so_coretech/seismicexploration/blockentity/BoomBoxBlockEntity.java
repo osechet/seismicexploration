@@ -1,7 +1,5 @@
 package net.so_coretech.seismicexploration.blockentity;
 
-import java.util.Set;
-import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -12,6 +10,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.block.BoomBoxBlock;
 import net.so_coretech.seismicexploration.spread.Spread;
+import org.slf4j.Logger;
+
+import java.util.Set;
 
 public class BoomBoxBlockEntity extends BlockEntity implements TickableBlockEntity {
 
@@ -34,9 +35,9 @@ public class BoomBoxBlockEntity extends BlockEntity implements TickableBlockEnti
             final Level lvl = level;
             final boolean powered = !getBlockState().getValue(BoomBoxBlock.POWERED);
             lvl.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.POWERED, powered),
-                    Block.UPDATE_CLIENTS);
+                Block.UPDATE_CLIENTS);
             lvl.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.WORKING, false),
-                    Block.UPDATE_CLIENTS);
+                Block.UPDATE_CLIENTS);
 
             if (powered && lvl instanceof final ServerLevel serverLevel) {
                 LOGGER.debug("Boom box firing shot at {}", worldPosition);
@@ -59,9 +60,9 @@ public class BoomBoxBlockEntity extends BlockEntity implements TickableBlockEnti
         if (level != null) {
             final Level lvl = level;
             lvl.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.POWERED, false),
-                    Block.UPDATE_CLIENTS);
+                Block.UPDATE_CLIENTS);
             lvl.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.WORKING, false),
-                    Block.UPDATE_CLIENTS);
+                Block.UPDATE_CLIENTS);
             tickCount = 0;
         }
     }
@@ -74,7 +75,7 @@ public class BoomBoxBlockEntity extends BlockEntity implements TickableBlockEnti
         if (level != null) {
             final boolean working = getBlockState().getValue(BoomBoxBlock.WORKING);
             level.setBlock(worldPosition, getBlockState().setValue(BoomBoxBlock.WORKING, !working),
-                    Block.UPDATE_CLIENTS);
+                Block.UPDATE_CLIENTS);
         }
     }
 

@@ -9,8 +9,9 @@ public interface TickableBlockEntity {
     void tick();
 
     static <T extends BlockEntity> BlockEntityTicker<T> getTickerHelper(final Level level) {
-        return !level.isClientSide()
-                ? (level0, pos, state, blockEntity) -> ((TickableBlockEntity) blockEntity).tick()
-                : null;
+        if (level.isClientSide()) {
+            throw new IllegalStateException("getTickerHelper cannot be called on the client side");
+        }
+        return (level0, pos, state, blockEntity) -> ((TickableBlockEntity) blockEntity).tick();
     }
 }
