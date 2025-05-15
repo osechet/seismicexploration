@@ -18,7 +18,6 @@ build_mod:
   before_script:
     - apt update && apt install -y git
   script:
-    - chmod +x ./gradlew
     - ./gradlew build --stacktrace
   artifacts:
     paths:

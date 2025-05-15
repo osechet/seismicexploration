@@ -9,6 +9,7 @@ apply from: 'version.gradle'
 
 //version = mod_version
 version = "${minecraft_version}-${project.scm_version}"
+print("Building ${version}...\n")
 group = mod_group_id
 
 base {
