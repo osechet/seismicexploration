@@ -34,7 +34,6 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
         return Collections.unmodifiableMap(blocks);
     }
 
-    @SuppressWarnings("null")
     public void startRecording(final BlockPos pos) {
         LOGGER.debug("Sensor at {} starting recording at {}", worldPosition, pos);
         recordingPos = pos;
@@ -53,7 +52,6 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
     }
 
     @Override
-    @SuppressWarnings("null")
     public void tick() {
         if (level != null) {
             final Level lvl = level;
@@ -83,7 +81,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
 
     @Override
     protected void loadAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("loadAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
+        LOGGER.trace("loadAdditional - {}", level == null ? "server" : level.isClientSide() ? "client" : "server");
         super.loadAdditional(tag, registry);
 
         final CompoundTag compound = tag.getCompoundOrEmpty(SeismicExploration.MODID);
@@ -107,11 +105,13 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
                 blocks.put(pos, color);
             }
         }
+
+        LOGGER.trace("loadAdditional - {} blocks", blocks.size());
     }
 
     @Override
     protected void saveAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("saveAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
+        LOGGER.trace("saveAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
         super.saveAdditional(tag, registry);
 
         final CompoundTag compound = new CompoundTag();

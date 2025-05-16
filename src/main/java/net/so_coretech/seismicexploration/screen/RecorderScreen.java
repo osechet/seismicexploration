@@ -6,7 +6,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,7 +16,7 @@ import net.so_coretech.seismicexploration.client.ClientLevelDataManager;
 import net.so_coretech.seismicexploration.menu.RecorderMenu;
 import net.so_coretech.seismicexploration.network.RecorderPositionPacket;
 import net.so_coretech.seismicexploration.network.RecorderScreenValuesPacket;
-import net.so_coretech.seismicexploration.spread.SliceSavedData;
+import net.so_coretech.seismicexploration.spread.SliceData;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -28,6 +27,9 @@ import java.util.function.Function;
 public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    public static final int AXIS_X = 0;
+    public static final int AXIS_Z = 1;
 
     private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(
         SeismicExploration.MODID, "textures/gui/recorder/recorder_gui.png");
@@ -68,12 +70,11 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         final int contentX = x + 6;
         final int contentY = y + 6;
 
-        // The first time we use the block, we use the block's position. Later we use the latest
-        // input values
+        // The first time we use the block, we use the block's position. Later we use the latest input values
         final ClientLevelDataManager dm = ClientLevelDataManager.get();
         final int xValue = dm.getCenterX().orElse(Objects.requireNonNull(recorderPos).getX());
         final int zValue = dm.getCenterZ().orElse(recorderPos.getZ());
-        final Axis axisValue = dm.getAxis().orElse(Axis.X);
+        final int axisValue = dm.getAxis().orElse(AXIS_X);
 
         // Initialize coordinate input fields with the block's position
         xCoordinateField = new CustomSlider(contentX + 10, contentY + 10, 60, 20,
@@ -84,7 +85,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
             1, 0, true, this::sendValuesToServer);
         axisField = new CustomSlider(contentX + 10, contentY + 60, 60, 20,
             SeismicExploration.translatable("slider", "recorder_axis"), Component.literal(""),
-            0, 1, axisValue.ordinal(), 1, 0, true, this::sendValuesToServer,
+            0, 1, axisValue, 1, 0, true, this::sendValuesToServer,
             value -> value == 0 ? "X" : "Z");
 
         addRenderableWidget(xCoordinateField);
@@ -109,7 +110,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
             new RecorderScreenValuesPacket(
                 Objects.requireNonNull(xCoordinateField).getValueInt(),
                 Objects.requireNonNull(zCoordinateField).getValueInt(),
-                Axis.VALUES[Objects.requireNonNull(axisField).getValueInt()],
+                Objects.requireNonNull(axisField).getValueInt(),
                 Objects.requireNonNull(recorderPos)));
     }
 
@@ -121,19 +122,17 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         final int x = (width - imageWidth) / 2;
         final int y = (height - imageHeight) / 2;
 
-        xCoordinateField.render(guiGraphics, mouseX, mouseY, f);
-        zCoordinateField.render(guiGraphics, mouseX, mouseY, f);
-        axisField.render(guiGraphics, mouseX, mouseY, f);
+        Objects.requireNonNull(xCoordinateField).render(guiGraphics, mouseX, mouseY, f);
+        Objects.requireNonNull(zCoordinateField).render(guiGraphics, mouseX, mouseY, f);
+        Objects.requireNonNull(axisField).render(guiGraphics, mouseX, mouseY, f);
 
         final int monitorX = 89;
         final int monitorY = 7;
         final int monitorWidth = 160;
         final int monitorHeight = 160;
 
-        final SliceSavedData savedData =
-            ClientLevelDataManager.get().getSliceSavedData(xCoordinateField.getValueInt(),
-                zCoordinateField.getValueInt(), Axis.VALUES[axisField.getValueInt()]);
-        sliceInstance.update(savedData);
+        final SliceData savedData = ClientLevelDataManager.get().getSlice();
+        Objects.requireNonNull(sliceInstance).update(savedData);
 
         final ResourceLocation location =
             ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");

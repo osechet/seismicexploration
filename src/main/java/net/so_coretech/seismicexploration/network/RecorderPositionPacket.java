@@ -25,13 +25,11 @@ public class RecorderPositionPacket {
         buf.writeBlockPos(this.blockPos);
     }
 
-    public boolean handle(final CustomPayloadEvent.Context context) {
+    public void handle(final CustomPayloadEvent.Context context) {
         LOGGER.debug("RecorderPositionPacket received");
         context.enqueueWork(() -> {
             // Here we are on the client side.
             RecorderScreen.setRecorderPosition(blockPos);
         });
-
-        return true;
     }
 }

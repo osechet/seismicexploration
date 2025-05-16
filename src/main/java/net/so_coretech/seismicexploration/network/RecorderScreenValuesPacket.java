@@ -2,7 +2,6 @@ package net.so_coretech.seismicexploration.network;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -16,10 +15,10 @@ public class RecorderScreenValuesPacket {
 
     private final int xValue;
     private final int zValue;
-    private final Axis axisValue;
+    private final int axisValue;
     private final BlockPos blockPos;
 
-    public RecorderScreenValuesPacket(final int xValue, final int zValue, final Axis axisValue,
+    public RecorderScreenValuesPacket(final int xValue, final int zValue, final int axisValue,
                                       final BlockPos blockPos) {
         this.xValue = xValue;
         this.zValue = zValue;
@@ -30,18 +29,18 @@ public class RecorderScreenValuesPacket {
     public RecorderScreenValuesPacket(final FriendlyByteBuf buf) {
         this.xValue = buf.readInt();
         this.zValue = buf.readInt();
-        this.axisValue = Axis.VALUES[buf.readInt()];
+        this.axisValue = buf.readInt();
         this.blockPos = buf.readBlockPos();
     }
 
     public void toBytes(final FriendlyByteBuf buf) {
         buf.writeInt(this.xValue);
         buf.writeInt(this.zValue);
-        buf.writeInt(this.axisValue.ordinal());
+        buf.writeInt(this.axisValue);
         buf.writeBlockPos(this.blockPos);
     }
 
-    public boolean handle(final CustomPayloadEvent.Context context) {
+    public void handle(final CustomPayloadEvent.Context context) {
         LOGGER.debug("RecorderScreenValuesPacket received");
         context.enqueueWork(() -> {
             // Here we are on the server side.
@@ -58,7 +57,5 @@ public class RecorderScreenValuesPacket {
                 LOGGER.debug("blockEntity not found");
             }
         });
-
-        return true;
     }
 }

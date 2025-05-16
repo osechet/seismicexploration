@@ -2,11 +2,9 @@ package net.so_coretech.seismicexploration.blockentity;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -27,11 +25,16 @@ import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.client.ClientLevelDataManager;
 import net.so_coretech.seismicexploration.menu.RecorderMenu;
+import net.so_coretech.seismicexploration.screen.RecorderScreen;
+import net.so_coretech.seismicexploration.spread.SliceData;
 import net.so_coretech.seismicexploration.spread.Spread;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RecorderBlockEntity extends BlockEntity implements MenuProvider, TickableBlockEntity {
@@ -43,22 +46,26 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
     private int xValue;
     private int zValue;
-    private Axis axisValue;
+    private int axisValue;
+    private SliceData sliceData = new SliceData();
 
     public RecorderBlockEntity(final BlockPos pos, final BlockState state) {
         super(ModBlockEntities.RECORDER_ENTITY.get(), pos, state);
-        setSliderValues(pos.getX(), pos.getZ(), Axis.X);
+        setSliderValues(pos.getX(), pos.getZ(), RecorderScreen.AXIS_X);
     }
 
-    public void setSliderValues(final int xValue, final int zValue, final Axis axisValue) {
+    public void setSliderValues(final int xValue, final int zValue, final int axisValue) {
         LOGGER.debug("setSliderValues({}, {}, {})", xValue, zValue, axisValue);
         this.xValue = xValue;
         this.zValue = zValue;
         this.axisValue = axisValue;
+        this.sliceData = SliceData.fromBlocks(xValue, zValue, axisValue, blocks);
         setChanged();
         if (level != null) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(),
                 Block.UPDATE_ALL);
+        } else {
+            LOGGER.warn("level not yet initialized");
         }
     }
 
@@ -87,32 +94,17 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
     @Override
     protected void loadAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-        LOGGER.debug("loadAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
+        LOGGER.debug("loadAdditional - {}", level == null ? "server" : level.isClientSide() ? "client" : "server");
         super.loadAdditional(tag, registry);
 
         final CompoundTag compound = tag.getCompoundOrEmpty(SeismicExploration.MODID);
 
         xValue = compound.getIntOr("xValue", worldPosition.getX());
         zValue = compound.getIntOr("zValue", worldPosition.getZ());
-        axisValue = Axis.VALUES[compound.getIntOr("axisValue", Axis.X.ordinal())];
+        axisValue = compound.getIntOr("axisValue", RecorderScreen.AXIS_X);
+        sliceData = SliceData.fromNBT(compound.getCompoundOrEmpty("sliceData"));
 
-        blocks.clear();
-        if (compound.contains("blocks")) {
-            final ListTag blocksList = compound.getListOrEmpty("blocks");
-            for (int i = 0; i < blocksList.size(); i++) {
-                final CompoundTag blockTag = blocksList.getCompoundOrEmpty(i);
-                final Optional<Integer> x = blockTag.getInt("x");
-                final Optional<Integer> y = blockTag.getInt("y");
-                final Optional<Integer> z = blockTag.getInt("z");
-                final Optional<Byte> color = blockTag.getByte("color");
-                if (x.isEmpty() || y.isEmpty() || z.isEmpty() || color.isEmpty()) {
-                    LOGGER.warn("Invalid block tag");
-                    continue;
-                }
-                final BlockPos pos = new BlockPos(x.get(), y.get(), z.get());
-                blocks.put(pos, color.get());
-            }
-        }
+        LOGGER.debug("loaded - xValue = {}, zValue = {}, axisValue = {}, sliceData = {}", xValue, zValue, axisValue, sliceData);
     }
 
     @Override
@@ -120,23 +112,13 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
         LOGGER.debug("saveAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
         super.saveAdditional(tag, registry);
 
+        LOGGER.debug("saving - xValue = {}, zValue = {}, axisValue = {}, sliceData = {}", xValue, zValue, axisValue, sliceData);
         final CompoundTag compound = new CompoundTag();
 
         compound.putInt("xValue", xValue);
         compound.putInt("zValue", zValue);
-        compound.putInt("axisValue", axisValue.ordinal());
-
-        final ListTag blocksList = new ListTag();
-        for (final Map.Entry<BlockPos, Byte> entry : blocks.entrySet()) {
-            final CompoundTag blockTag = new CompoundTag();
-            final BlockPos pos = entry.getKey();
-            blockTag.putInt("x", pos.getX());
-            blockTag.putInt("y", pos.getY());
-            blockTag.putInt("z", pos.getZ());
-            blockTag.putInt("color", entry.getValue());
-            blocksList.add(blockTag);
-        }
-        compound.put("blocks", blocksList);
+        compound.putInt("axisValue", axisValue);
+        compound.put("sliceData", sliceData.serializeNBT());
 
         tag.put(SeismicExploration.MODID, compound);
     }
@@ -146,20 +128,48 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    /**
+     * Called when the block is updated. This is called on the client side when the server calls sendBlockUpdated.
+     *
+     * @param connection The connection to use.
+     * @param pkt        The received packet.
+     * @param lookup     The lookup to use.
+     */
     @Override
     public void onDataPacket(@Nullable final Connection connection,
                              @Nullable final ClientboundBlockEntityDataPacket pkt, @Nullable final Provider lookup) {
         super.onDataPacket(connection, pkt, lookup);
-        LOGGER.debug("onDataPacket: {} - received {} blocks", pkt, this.blocks.size());
-        ClientLevelDataManager.get().setBlocks(this.blocks);
-        ClientLevelDataManager.get().setRecorderParameters(xValue, zValue, axisValue);
+        LOGGER.debug("onDataPacket - received {}", this.sliceData);
+        ClientLevelDataManager.get().setRecorderParameters(this.sliceData.centerX,
+            this.sliceData.centerZ,
+            this.sliceData.axis);
+        ClientLevelDataManager.get().setSlice(this.sliceData);
     }
 
+    /**
+     * Called when the block is updated. This is used to send the data to the client.
+     *
+     * @param registries The registries to use.
+     * @return The update tag.
+     */
     @Override
     public CompoundTag getUpdateTag(final Provider registries) {
+        LOGGER.debug("getUpdateTag - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
         final CompoundTag tag = super.getUpdateTag(registries);
         this.saveAdditional(tag, registries);
         return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(final CompoundTag tag, final Provider holders) {
+        super.handleUpdateTag(tag, holders);
+
+        if (level != null && level.isClientSide()) {
+            ClientLevelDataManager.get().setRecorderParameters(this.sliceData.centerX,
+                this.sliceData.centerZ,
+                this.sliceData.axis);
+            ClientLevelDataManager.get().setSlice(this.sliceData);
+        }
     }
 
     @Override
@@ -173,7 +183,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
                         Spread.getSpread(serverLevel).getPlacedSensors();
                     this.blocks = placedSensors.stream() //
                                                .map(pos -> (SensorBlockEntity) serverLevel.getBlockEntity(pos)) //
-                                               .map(sensor -> sensor.getBlocks()) //
+                                               .map(sensor -> Objects.requireNonNull(sensor).getBlocks()) //
                                                .flatMap(map -> map.entrySet().stream()) //
                                                .collect(Collectors.toMap(Map.Entry::getKey, //
                                                    entry -> entry.getValue().getPackedId(Brightness.NORMAL), //

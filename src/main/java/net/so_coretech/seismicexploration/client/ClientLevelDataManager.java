@@ -1,17 +1,10 @@
 package net.so_coretech.seismicexploration.client;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction.Axis;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.material.MapColor.Brightness;
-import net.so_coretech.seismicexploration.spread.SliceSavedData;
+import net.so_coretech.seismicexploration.spread.SliceData;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 public final class ClientLevelDataManager {
@@ -20,11 +13,10 @@ public final class ClientLevelDataManager {
 
     private static @Nullable ClientLevelDataManager instance = null;
 
-    private Map<BlockPos, Byte> blocks = new HashMap<>();
-    private final Map<String, SliceSavedData> cache = new HashMap<>();
+    private SliceData sliceData = new SliceData();
     private @Nullable Integer centerX = null;
     private @Nullable Integer centerZ = null;
-    private @Nullable Axis axis = null;
+    private @Nullable Integer axis = null;
 
     private ClientLevelDataManager() {
     }
@@ -36,9 +28,13 @@ public final class ClientLevelDataManager {
         return instance;
     }
 
-    public void setBlocks(final Map<BlockPos, Byte> blocks) {
-        this.blocks = blocks;
-        cache.clear();
+    public SliceData getSlice() {
+        return sliceData;
+    }
+
+    public void setSlice(final SliceData sliceData) {
+        LOGGER.debug("Storing new slice in ClientLevelDataManager");
+        this.sliceData = sliceData;
     }
 
     public Optional<Integer> getCenterX() {
@@ -49,46 +45,13 @@ public final class ClientLevelDataManager {
         return Optional.ofNullable(centerZ);
     }
 
-    public Optional<Axis> getAxis() {
+    public Optional<Integer> getAxis() {
         return Optional.ofNullable(axis);
     }
 
-    public void setRecorderParameters(final int centerX, final int centerZ, final Axis axis) {
+    public void setRecorderParameters(final int centerX, final int centerZ, final int axis) {
         this.centerX = centerX;
         this.centerZ = centerZ;
         this.axis = axis;
-    }
-
-    public SliceSavedData getSliceSavedData(final int centerX, final int centerZ, final Axis axis) {
-        SliceSavedData data =
-            cache.get(String.format("%d-%d-%s", centerX, centerZ, axis.getName()));
-        if (data == null) {
-            LOGGER.debug("Creating SliceSavedData for {}, {}, {}", centerX, centerZ, axis);
-            final byte[] colors = new byte[SliceSavedData.SLICE_SIZE];
-            final int left;
-            if (axis == Axis.X) {
-                left = centerX - 160;
-            } else {
-                left = centerZ - 160;
-            }
-            for (int i = 0; i < 320; i++) {
-                for (int y = 255; y >= -64; y--) {
-                    Byte color;
-                    if (axis == Axis.X) {
-                        color = blocks.get(new BlockPos(left + i, y, centerZ));
-                    } else {
-                        color = blocks.get(new BlockPos(centerX, y, left + i));
-                    }
-                    if (color == null) {
-                        color = MapColor.NONE.getPackedId(Brightness.HIGH);
-                    }
-                    final int k = i * 320 + (255 - y);
-                    colors[k] = color;
-                }
-            }
-            data = new SliceSavedData(centerX, centerZ, axis, ByteBuffer.wrap(colors));
-            cache.put(String.format("%d-%d-%s", centerX, centerZ, axis.getName()), data);
-        }
-        return data;
     }
 }

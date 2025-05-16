@@ -8,7 +8,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.so_coretech.seismicexploration.SeismicExploration;
-import net.so_coretech.seismicexploration.spread.SliceSavedData;
+import net.so_coretech.seismicexploration.spread.SliceData;
 
 @OnlyIn(Dist.CLIENT)
 public class SliceInstance implements AutoCloseable {
@@ -23,7 +23,7 @@ public class SliceInstance implements AutoCloseable {
         Minecraft.getInstance().textureManager.register(location, texture);
     }
 
-    public void update(final SliceSavedData data) {
+    public void update(final SliceData data) {
         final NativeImage nativeimage = texture.getPixels();
         if (nativeimage != null) {
             for (int i = 0; i < 320; i++) {
