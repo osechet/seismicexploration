@@ -9,7 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.client.gui.widget.ForgeSlider;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.so_coretech.seismicexploration.ModNetworking;
 import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.client.ClientLevelDataManager;
@@ -22,8 +23,8 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
+@OnlyIn(Dist.CLIENT)
 public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -175,52 +176,6 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
             }
 
             return true;
-        }
-    }
-
-    /**
-     * The CustomSlider class extends ForgeSlider to easily manage formatter.
-     */
-    private final static class CustomSlider extends ForgeSlider {
-
-        private final Action onApply;
-        private final @Nullable Function<Integer, String> customFormat;
-
-        public CustomSlider(final int x, final int y, final int width, final int height,
-                            final Component prefix, final Component suffix, final double minValue,
-                            final double maxValue, final double currentValue, final double stepSize,
-                            final int precision, final boolean drawString, final Action onApply) {
-            this(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
-                precision, drawString, onApply, null);
-        }
-
-        public CustomSlider(final int x, final int y, final int width, final int height,
-                            final Component prefix, final Component suffix, final double minValue,
-                            final double maxValue, final double currentValue, final double stepSize,
-                            final int precision, final boolean drawString, final Action onApply,
-                            @Nullable final Function<Integer, String> customFormat) {
-            super(x, y, width, height, prefix, suffix, minValue, maxValue, currentValue, stepSize,
-                precision, drawString);
-            this.onApply = onApply;
-            this.customFormat = customFormat;
-            this.updateMessage();
-        }
-
-        @Override
-        protected void applyValue() {
-            this.onApply.execute();
-        }
-
-        @Override
-        public String getValueString() {
-            if (this.customFormat == null) {
-                return super.getValueString();
-            }
-            return this.customFormat.apply(this.getValueInt());
-        }
-
-        interface Action {
-            void execute();
         }
     }
 }

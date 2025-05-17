@@ -1,6 +1,7 @@
 package net.so_coretech.seismicexploration;
 
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -20,6 +21,15 @@ public class ModItems {
     //
     // Register items
     //
+
+    public static final RegistryObject<Item> BOOM_BOX =
+        registerBlock(ModBlocks.BOOM_BOX, BlockItem::new, new Item.Properties());
+
+    public static final RegistryObject<Item> DFU =
+        registerBlock(ModBlocks.DFU, BlockItem::new, new Item.Properties());
+
+    public static final RegistryObject<Item> RECORDER =
+        registerBlock(ModBlocks.RECORDER, BlockItem::new, new Item.Properties());
 
     public static final RegistryObject<Item> FIELD_MONITOR =
         registerItem("field_monitor", Item::new, new Item.Properties());
@@ -43,10 +53,10 @@ public class ModItems {
         return ITEMS.register(name, () -> factory.apply(properties.setId(itemId(name))));
     }
 
-    protected static <T extends Block> void registerBlock(
+    private static <T extends Block> RegistryObject<Item> registerBlock(
         final RegistryObject<T> ro, final BiFunction<T, Item.Properties, Item> factory,
         final Item.Properties properties) {
-        registerItem(blockIdToItemId(Objects.requireNonNull(ro.getKey())).location().getPath(),
+        return registerItem(blockIdToItemId(Objects.requireNonNull(ro.getKey())).location().getPath(),
             (final Item.Properties props) -> factory.apply(ro.get(), props),
             properties.useBlockDescriptionPrefix());
     }

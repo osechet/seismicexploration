@@ -34,10 +34,11 @@ public class SeismicExploration {
         modEventBus.addListener(this::commonSetup);
 
         // Register the blocks and items to the mod event bus
-        ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
-        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
         ModCreativeModeTabs.register(modEventBus);
+        ModEntities.register(modEventBus);
+        ModItems.register(modEventBus);
         ModMenus.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in
@@ -58,7 +59,7 @@ public class SeismicExploration {
             LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
         }
 
-        LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
+        LOGGER.info("{} {}", Config.magicNumberIntroduction, Config.magicNumber);
 
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
     }
