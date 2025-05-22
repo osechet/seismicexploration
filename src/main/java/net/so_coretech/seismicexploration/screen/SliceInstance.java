@@ -5,12 +5,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.spread.SliceData;
 
-@OnlyIn(Dist.CLIENT)
 public class SliceInstance implements AutoCloseable {
 
     private final DynamicTexture texture;
@@ -19,8 +16,8 @@ public class SliceInstance implements AutoCloseable {
     public SliceInstance() {
         this.texture = new DynamicTexture("slice", 320, 320, true);
         this.location =
-            ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
-        Minecraft.getInstance().textureManager.register(location, texture);
+                ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
+        Minecraft.getInstance().getTextureManager().register(location, texture);
     }
 
     public void update(final SliceData data) {

@@ -9,9 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.so_coretech.seismicexploration.ModNetworking;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.client.ClientLevelDataManager;
 import net.so_coretech.seismicexploration.menu.RecorderMenu;
@@ -24,7 +22,6 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
-@OnlyIn(Dist.CLIENT)
 public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -33,7 +30,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
     public static final int AXIS_Z = 1;
 
     private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(
-        SeismicExploration.MODID, "textures/gui/recorder/recorder_gui.png");
+            SeismicExploration.MODID, "textures/gui/recorder/recorder_gui.png");
     private static final int GUI_TEXTURE_WIDTH = 256;
     private static final int GUI_TEXTURE_HEIGHT = 174;
 
@@ -79,15 +76,15 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
 
         // Initialize coordinate input fields with the block's position
         xCoordinateField = new CustomSlider(contentX + 10, contentY + 10, 60, 20,
-            Component.literal("x: "), Component.literal(""), xValue - 64, xValue + 64, xValue,
-            1, 0, true, this::sendValuesToServer);
+                Component.literal("x: "), Component.literal(""), xValue - 64, xValue + 64, xValue,
+                1, 0, true, this::sendValuesToServer);
         zCoordinateField = new CustomSlider(contentX + 10, contentY + 35, 60, 20,
-            Component.literal("z: "), Component.literal(""), zValue - 64, zValue + 64, zValue,
-            1, 0, true, this::sendValuesToServer);
+                Component.literal("z: "), Component.literal(""), zValue - 64, zValue + 64, zValue,
+                1, 0, true, this::sendValuesToServer);
         axisField = new CustomSlider(contentX + 10, contentY + 60, 60, 20,
-            SeismicExploration.translatable("slider", "recorder_axis"), Component.literal(""),
-            0, 1, axisValue, 1, 0, true, this::sendValuesToServer,
-            value -> value == 0 ? "X" : "Z");
+                SeismicExploration.translatable("slider", "recorder_axis"), Component.literal(""),
+                0, 1, axisValue, 1, 0, true, this::sendValuesToServer,
+                value -> value == 0 ? "X" : "Z");
 
         addRenderableWidget(xCoordinateField);
         addRenderableWidget(zCoordinateField);
@@ -107,12 +104,12 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
 
     private void sendValuesToServer() {
         LOGGER.debug("sendValuesToServer");
-        ModNetworking.sendToServer(
-            new RecorderScreenValuesPacket(
-                Objects.requireNonNull(xCoordinateField).getValueInt(),
-                Objects.requireNonNull(zCoordinateField).getValueInt(),
-                Objects.requireNonNull(axisField).getValueInt(),
-                Objects.requireNonNull(recorderPos)));
+        PacketDistributor.sendToServer(
+                new RecorderScreenValuesPacket(
+                        Objects.requireNonNull(xCoordinateField).getValueInt(),
+                        Objects.requireNonNull(zCoordinateField).getValueInt(),
+                        Objects.requireNonNull(axisField).getValueInt(),
+                        Objects.requireNonNull(recorderPos)));
     }
 
     @Override
@@ -136,9 +133,9 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         Objects.requireNonNull(sliceInstance).update(savedData);
 
         final ResourceLocation location =
-            ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
+                ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "slice/unique");
         guiGraphics.blit(RenderType::guiTextured, location, x + monitorX, y + monitorY, 0, 0,
-            monitorWidth, monitorHeight, 320, 320, 320, 320);
+                monitorWidth, monitorHeight, 320, 320, 320, 320);
     }
 
 
@@ -148,7 +145,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
         final int x = (width - imageWidth) / 2;
         final int y = (height - imageHeight) / 2;
         guiGraphics.blit(RenderType::guiTextured, GUI_TEXTURE, x, y, 0.0F, 0.0F, this.imageWidth,
-            this.imageHeight, 256, 256);
+                this.imageHeight, 256, 256);
     }
 
     @Override

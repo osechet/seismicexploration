@@ -1,63 +1,57 @@
 package net.so_coretech.seismicexploration.network;
 
 import com.mojang.logging.LogUtils;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.entity.WorkerEntity;
 import org.slf4j.Logger;
 
-public class DeploySensorsOrderPacket {
+public record DeploySensorsOrderPacket(int entityId, BlockPos startPos, Direction direction, int count,
+                                       int gap) implements CustomPacketPayload {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private final int entityId;
-    private final BlockPos startPos;
-    private final Direction direction;
-    private final int count;
-    private final int gap;
+    public static final CustomPacketPayload.Type<DeploySensorsOrderPacket> TYPE =
+            new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "deploy_sensors_order"));
 
-    public DeploySensorsOrderPacket(final int entityId, final BlockPos startPos, final Direction direction,
-                                    final int count,
-                                    final int gap) {
-        this.entityId = entityId;
-        this.startPos = startPos;
-        this.direction = direction;
-        this.count = count;
-        this.gap = gap;
+    public static final StreamCodec<ByteBuf, DeploySensorsOrderPacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT,
+            DeploySensorsOrderPacket::entityId,
+            ByteBufCodecs.fromCodec(BlockPos.CODEC),
+            DeploySensorsOrderPacket::startPos,
+            ByteBufCodecs.fromCodec(Direction.CODEC),
+            DeploySensorsOrderPacket::direction,
+            ByteBufCodecs.VAR_INT,
+            DeploySensorsOrderPacket::count,
+            ByteBufCodecs.VAR_INT,
+            DeploySensorsOrderPacket::gap,
+            DeploySensorsOrderPacket::new
+    );
+
+    @Override
+    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public DeploySensorsOrderPacket(final FriendlyByteBuf buf) {
-        this.entityId = buf.readInt();
-        this.startPos = buf.readBlockPos();
-        this.direction = buf.readEnum(Direction.class);
-        this.count = buf.readInt();
-        this.gap = buf.readInt();
-    }
-
-    public void toBytes(final FriendlyByteBuf buf) {
-        buf.writeInt(this.entityId);
-        buf.writeBlockPos(this.startPos);
-        buf.writeEnum(this.direction);
-        buf.writeInt(this.count);
-        buf.writeInt(this.gap);
-    }
-
-    public void handle(final CustomPayloadEvent.Context context) {
+    public static void handle(final DeploySensorsOrderPacket data, final IPayloadContext context) {
         LOGGER.debug("DeploySensorsOrderPacket received");
         context.enqueueWork(() -> {
             // Get the player who sent the packet
-            final var player = context.getSender();
-            if (player == null) {
-                return;
-            }
+            final Player player = context.player();
 
             // Find the NPC entity by entityId
-            final var entity = player.level().getEntity(entityId);
+            final var entity = player.level().getEntity(data.entityId);
             if (entity instanceof final WorkerEntity workerEntity) {
                 workerEntity.setFrozen(false);
-                workerEntity.setDeploySensors(player, this.startPos, this.direction, this.count, this.gap);
+                workerEntity.setDeploySensors(player, data.startPos, data.direction, data.count, data.gap);
             }
         });
     }

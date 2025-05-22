@@ -1,14 +1,10 @@
 def getVersionFromGit() {
-  def stdout = new ByteArrayOutputStream()
-  exec {
-    commandLine 'git', 'describe', '--tags', '--long', '--always', '--dirty'
-    standardOutput = stdout
-    ignoreExitValue = true
-  }
-  def desc = stdout.toString().trim()
-  if (desc.startsWith("v")) desc = desc.substring(1)
-  desc = desc.replaceFirst(/-0-g[0-9a-f]+$/, '')
-  return desc
+    def desc = providers.exec {
+        commandLine 'git', 'describe', '--tags', '--long', '--always', '--dirty'
+    }.standardOutput.asText.get().trim()
+    if (desc.startsWith("v")) desc = desc.substring(1)
+    desc = desc.replaceFirst(/-0-g[0-9a-f]+$/, '')
+    return desc
 }
 
 ext.scm_version = getVersionFromGit()

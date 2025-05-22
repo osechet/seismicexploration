@@ -6,8 +6,8 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.so_coretech.seismicexploration.util.InventoryUtils;
 import org.slf4j.Logger;
 
@@ -28,8 +28,8 @@ public class GetItemGoal extends Goal {
     private enum Phase {CHECK_INVENTORY, FETCH_FROM_CONTAINER, DONE}
 
     private Phase phase = Phase.CHECK_INVENTORY;
-    private @Nullable BlockPos nextPos;
-    private @Nullable BlockEntity container;
+    private @Nullable BlockPos containerPos;
+    private @Nullable IItemHandler container;
 
     public GetItemGoal(final PathfinderMob mob, final IItemHandler inventory, final Item item, final int count,
                        final GoalListener listener) {
@@ -77,17 +77,22 @@ public class GetItemGoal extends Goal {
         if (inventoryCount < this.count) {
             LOGGER.debug("Looking for {} items.", this.count - inventoryCount);
             final Optional<BlockEntity> blockEntity = InventoryUtils.findContainerWithSensor(
-                mob.level(), mob.blockPosition(), 25, item, this.count - inventoryCount);
+                    mob.level(), mob.blockPosition(), 25, item, this.count - inventoryCount);
             if (blockEntity.isEmpty()) {
                 LOGGER.debug("No item found in nearby chests. Aborting.");
                 phase = Phase.DONE;
-                nextPos = null;
+                containerPos = null;
                 listener.onFailure("No item found in nearby chests. Aborting.");
             } else {
                 LOGGER.debug("Going to chest to get more items.");
                 phase = Phase.FETCH_FROM_CONTAINER;
-                nextPos = blockEntity.get().getBlockPos();
-                container = blockEntity.get();
+                containerPos = blockEntity.get().getBlockPos();
+                container = mob.level().getCapability(Capabilities.ItemHandler.BLOCK, containerPos, null);
+                if (container == null) {
+                    LOGGER.warn("Container not available.");
+                    phase = Phase.DONE;
+                    listener.onFailure("Container not available.");
+                }
             }
         } else {
             LOGGER.debug("Mob already has enough items in inventory.");
@@ -97,27 +102,24 @@ public class GetItemGoal extends Goal {
     }
 
     private void handleFetchFromContainer() {
+        if (containerPos == null || container == null) {
+            LOGGER.debug("Destination container not set. Restart search.");
+            phase = Phase.CHECK_INVENTORY;
+            return;
+        }
+
         final double walkingSpeed = 1.0;
-        if (nextPos != null && !mob.blockPosition().closerThan(nextPos, 1.2)) {
+        if (!mob.blockPosition().closerThan(containerPos, 1.2)) {
             LOGGER.debug("At {}, moving to container: {} ({} blocks away)",
-                mob.blockPosition(), nextPos, mob.blockPosition().distSqr(nextPos));
-            mob.getNavigation().moveTo(nextPos.getX(), nextPos.getY(), nextPos.getZ(), walkingSpeed);
+                    mob.blockPosition(), containerPos, mob.blockPosition().distSqr(containerPos));
+            mob.getNavigation().moveTo(containerPos.getX(), containerPos.getY(), containerPos.getZ(), walkingSpeed);
         } else {
-            if (container != null) {
-                container.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
-                    final int inventoryCount = InventoryUtils.countItem(inventory, item);
-                    final int grabbed = InventoryUtils.moveItemsBetweenHandlers(
-                        handler, inventory, item, this.count - inventoryCount);
-                    LOGGER.debug("Grabbed {} items from chest", grabbed);
-                });
-                LOGGER.debug("Got the items.");
-                phase = Phase.DONE;
-                listener.onSucess();
-            } else {
-                LOGGER.warn("Container not available.");
-                phase = Phase.DONE;
-                listener.onFailure("Container not available.");
-            }
+            final int inventoryCount = InventoryUtils.countItem(inventory, item);
+            final int grabbed = InventoryUtils.moveItemsBetweenHandlers(
+                    container, inventory, item, this.count - inventoryCount);
+            LOGGER.debug("Grabbed {} items from chest", grabbed);
+            phase = Phase.DONE;
+            listener.onSucess();
         }
     }
 }

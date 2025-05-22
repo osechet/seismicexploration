@@ -24,8 +24,8 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.so_coretech.seismicexploration.ModBlockEntities;
-import net.so_coretech.seismicexploration.ModNetworking;
 import net.so_coretech.seismicexploration.blockentity.RecorderBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.TickableBlockEntity;
 import net.so_coretech.seismicexploration.network.RecorderPositionPacket;
@@ -73,7 +73,7 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
     @Override
     public @Nullable BlockState getStateForPlacement(final BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING,
-            context.getHorizontalDirection().getOpposite());
+                context.getHorizontalDirection().getOpposite());
     }
 
     @Override
@@ -111,7 +111,7 @@ public class RecorderBlock extends HorizontalDirectionalBlock implements EntityB
      */
     private void sendBlockPositionToScreen(final ServerPlayer player, final BlockPos pos) {
         LOGGER.debug("sendBlockPositionToScreen({})", pos);
-        ModNetworking.sendToPlayer(player, new RecorderPositionPacket(pos));
+        PacketDistributor.sendToPlayer(player, new RecorderPositionPacket(pos));
     }
 
     @Override

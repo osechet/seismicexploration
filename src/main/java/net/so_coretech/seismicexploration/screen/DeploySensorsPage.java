@@ -6,7 +6,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.gui.widget.ForgeSlider;
 import net.so_coretech.seismicexploration.entity.ai.goal.OrderType;
 
 import java.util.List;
@@ -17,18 +16,18 @@ public class DeploySensorsPage extends Page {
     private final EditBox startZField;
     private final EditBox countField;
     private final EditBox gapField;
-    private final ForgeSlider directionField;
+    private final CustomSlider directionField;
 
     protected DeploySensorsPage(final WorkerOrderScreen screen, final int left, final int top, final int initialX,
                                 final int initialZ) {
         super("Deploy sensors", screen);
 
         directionField = new CustomSlider(
-            left + 10, top + 5, 60, 20,
-            Component.literal(""), Component.literal(""),
-            Direction.NORTH.ordinal(), Direction.EAST.ordinal(), Direction.NORTH.ordinal(), 1, 0, true,
-            null,
-            value -> Direction.values()[value].toString()
+                left + 10, top + 5, 60, 20,
+                Component.literal(""), Component.literal(""),
+                Direction.NORTH.ordinal(), Direction.EAST.ordinal(), Direction.NORTH.ordinal(), 1, 0, true,
+                null,
+                value -> Direction.values()[value].toString()
         );
         startXField = new EditBox(screen.getFont(), left + 10, top + 5 + 20 + 5, 60, 20, Component.literal("start"));
         startXField.setValue(Integer.toString(initialX));
@@ -74,24 +73,24 @@ public class DeploySensorsPage extends Page {
     public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY, final float f, final int left,
                        final int top) {
         layout(guiGraphics, new Object[][]{
-            {"Start", startXField, startZField},
-            {"Direction", directionField},
-            {"Count", countField},
-            {"Gap", gapField},
+                {"Start", startXField, startZField},
+                {"Direction", directionField},
+                {"Count", countField},
+                {"Gap", gapField},
         }, left, top);
     }
 
     private void layout(final GuiGraphics guiGraphics, final Object[][] widgets, final int left, final int top) {
         final int[] colX = {
-            left + 10,
-            left + 10 + 50,
-            left + 10 + 50 + 65,
+                left + 10,
+                left + 10 + 50,
+                left + 10 + 50 + 65,
         };
         final int[] rowY = {
-            top + 5,
-            top + 5 + 25,
-            top + 5 + 25 + 25,
-            top + 5 + 25 + 25 + 25,
+                top + 5,
+                top + 5 + 25,
+                top + 5 + 25 + 25,
+                top + 5 + 25 + 25 + 25,
         };
         final int fontHeight = screen.getFont().lineHeight;
         final int widgetHeight = 20; // Default height for widgets

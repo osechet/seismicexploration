@@ -1,60 +1,59 @@
 package net.so_coretech.seismicexploration.network;
 
 import com.mojang.logging.LogUtils;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.blockentity.RecorderBlockEntity;
 import org.slf4j.Logger;
 
-public class RecorderScreenValuesPacket {
+public record RecorderScreenValuesPacket(int xValue, int zValue, int axisValue,
+                                         BlockPos blockPos) implements CustomPacketPayload {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private final int xValue;
-    private final int zValue;
-    private final int axisValue;
-    private final BlockPos blockPos;
+    public static final CustomPacketPayload.Type<RecorderScreenValuesPacket> TYPE =
+            new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "recorder_screen_values"));
 
-    public RecorderScreenValuesPacket(final int xValue, final int zValue, final int axisValue,
-                                      final BlockPos blockPos) {
-        this.xValue = xValue;
-        this.zValue = zValue;
-        this.axisValue = axisValue;
-        this.blockPos = blockPos;
+    public static final StreamCodec<ByteBuf, RecorderScreenValuesPacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT,
+            RecorderScreenValuesPacket::xValue,
+            ByteBufCodecs.VAR_INT,
+            RecorderScreenValuesPacket::zValue,
+            ByteBufCodecs.VAR_INT,
+            RecorderScreenValuesPacket::axisValue,
+            ByteBufCodecs.fromCodec(BlockPos.CODEC),
+            RecorderScreenValuesPacket::blockPos,
+            RecorderScreenValuesPacket::new
+    );
+
+    @Override
+    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public RecorderScreenValuesPacket(final FriendlyByteBuf buf) {
-        this.xValue = buf.readInt();
-        this.zValue = buf.readInt();
-        this.axisValue = buf.readInt();
-        this.blockPos = buf.readBlockPos();
-    }
-
-    public void toBytes(final FriendlyByteBuf buf) {
-        buf.writeInt(this.xValue);
-        buf.writeInt(this.zValue);
-        buf.writeInt(this.axisValue);
-        buf.writeBlockPos(this.blockPos);
-    }
-
-    public void handle(final CustomPayloadEvent.Context context) {
+    /*
+     * This method is called on the server side when the packet is received.
+     * It updates the the new values input by the player.
+     */
+    public static void handle(final RecorderScreenValuesPacket data, final IPayloadContext context) {
         LOGGER.debug("RecorderScreenValuesPacket received");
         context.enqueueWork(() -> {
             // Here we are on the server side.
-            final ServerPlayer player = context.getSender();
-            if (player == null) {
-                return;
-            }
-
-            final BlockEntity blockEntity = player.level().getBlockEntity(blockPos);
+            final Player player = context.player();
+            final BlockEntity blockEntity = player.level().getBlockEntity(data.blockPos);
             if (blockEntity instanceof final RecorderBlockEntity recorderBlockEntity) {
                 LOGGER.debug("blockEntity found - updating");
-                recorderBlockEntity.setSliderValues(xValue, zValue, axisValue);
+                recorderBlockEntity.setSliderValues(data.xValue, data.zValue, data.axisValue);
             } else {
-                LOGGER.debug("blockEntity not found");
+                LOGGER.warn("blockEntity not found");
             }
         });
     }

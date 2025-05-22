@@ -7,9 +7,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.so_coretech.seismicexploration.ModNetworking;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.so_coretech.seismicexploration.entity.ai.goal.OrderType;
 import net.so_coretech.seismicexploration.network.DeploySensorsOrderPacket;
 import net.so_coretech.seismicexploration.network.OnCloseWorkerOrderMenuPacket;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@OnlyIn(Dist.CLIENT)
 public class WorkerOrderScreen extends Screen {
 
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -54,7 +52,7 @@ public class WorkerOrderScreen extends Screen {
         super.onClose();
 
         // Notify the server the screen has been closed
-        ModNetworking.sendToServer(new OnCloseWorkerOrderMenuPacket(entityId));
+        PacketDistributor.sendToServer(new OnCloseWorkerOrderMenuPacket(entityId));
     }
 
     private void setCurrentPage(final int pageIndex) {
@@ -78,25 +76,25 @@ public class WorkerOrderScreen extends Screen {
 
     private void sendOrder() {
         LOGGER.debug("sendOrder");
-        final Object packet;
+        final CustomPacketPayload packet;
         final OrderType orderType = pages.get(pageIndex).getOrderType();
         switch (orderType) {
-            case FOLLOW_ME -> packet = new WorkerOrdersPacket(entityId, orderType);
-            case FREE_ROAMING -> packet = new WorkerOrdersPacket(entityId, orderType);
+            case FOLLOW_ME -> packet = new WorkerOrdersPacket(entityId, OrderType.FOLLOW_ME.ordinal());
+            case FREE_ROAMING -> packet = new WorkerOrdersPacket(entityId, OrderType.FREE_ROAMING.ordinal());
             case DEPLOY_SENSORS -> {
                 final DeploySensorsPage page = (DeploySensorsPage) pages.get(pageIndex);
                 packet = new DeploySensorsOrderPacket(entityId,
-                    page.getStartPos(), page.getDirection(),
-                    page.getCount(), page.getGap());
+                        page.getStartPos(), page.getDirection(),
+                        page.getCount(), page.getGap());
             }
-            case DEPLOY_CHARGES -> packet = new WorkerOrdersPacket(entityId, orderType);
-            case OPERATE_BOOM_BOX -> packet = new WorkerOrdersPacket(entityId, orderType);
+            case DEPLOY_CHARGES -> packet = new WorkerOrdersPacket(entityId, OrderType.DEPLOY_CHARGES.ordinal());
+            case OPERATE_BOOM_BOX -> packet = new WorkerOrdersPacket(entityId, OrderType.OPERATE_BOOM_BOX.ordinal());
             default -> {
                 LOGGER.error("Unknown order type: {}", orderType);
                 return;
             }
         }
-        ModNetworking.sendToServer(packet);
+        PacketDistributor.sendToServer(packet);
     }
 
     @Override
@@ -110,18 +108,18 @@ public class WorkerOrderScreen extends Screen {
         pages.add(new FollowMePage(this));
         pages.add(new FreeRoamingPage(this));
         pages.add(new DeploySensorsPage(this, left, top + 10 + this.font.lineHeight + 5 + 20,
-            playerPos.getX(), playerPos.getZ()));
+                playerPos.getX(), playerPos.getZ()));
         pages.add(new DeployChargesPage(this));
         pages.add(new OperateBoomBoxPage(this));
 
         // Slider for pages: 0, 1, 2
         pageSlider = new CustomSlider(
-            left + 10, top + 10 + this.font.lineHeight + 5,
-            this.imageWidth - 20, 20,
-            Component.literal(""), Component.literal(""),
-            0, pages.size() - 1, 0, 0, pageIndex, true,
-            () -> setCurrentPage(Objects.requireNonNull(pageSlider).getValueInt()),
-            value -> pages.get(value).getTitle()
+                left + 10, top + 10 + this.font.lineHeight + 5,
+                this.imageWidth - 20, 20,
+                Component.literal(""), Component.literal(""),
+                0, pages.size() - 1, 0, 0, pageIndex, true,
+                () -> setCurrentPage(Objects.requireNonNull(pageSlider).getValueInt()),
+                value -> pages.get(value).getTitle()
         );
 
         // Apply button

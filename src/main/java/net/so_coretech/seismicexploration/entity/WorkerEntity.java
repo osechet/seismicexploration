@@ -15,27 +15,27 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.ItemStackHandler;
-import net.so_coretech.seismicexploration.ModNetworking;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.so_coretech.seismicexploration.entity.ai.goal.DeploySensorsGoal;
 import net.so_coretech.seismicexploration.entity.ai.goal.FollowPlayerGoal;
 import net.so_coretech.seismicexploration.network.OpenWorkerOrderMenuPacket;
 
-import javax.annotation.Nullable;
-
 public class WorkerEntity extends PathfinderMob {
 
     private final String name;
-    private final ItemStackHandler inventory = new ItemStackHandler(9);
-    private final LazyOptional<ItemStackHandler> inventoryCap = LazyOptional.of(() -> inventory);
+    private final ItemStackHandler inventory;
     private boolean frozen;
 
     public WorkerEntity(final EntityType<? extends PathfinderMob> type, final Level level) {
         super(type, level);
         this.name = "Bob";
+        this.inventory = new ItemStackHandler(9);
+    }
+
+    public IItemHandler getInventory() {
+        return inventory;
     }
 
     public void setFrozen(final boolean frozen) {
@@ -92,14 +92,6 @@ public class WorkerEntity extends PathfinderMob {
     }
 
     @Override
-    public <T> LazyOptional<T> getCapability(final Capability<T> cap, @Nullable final Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return inventoryCap.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
     public void readAdditionalSaveData(final CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains("Inventory")) {
@@ -138,8 +130,8 @@ public class WorkerEntity extends PathfinderMob {
             // Make the NPC stop moving
             setFrozen(true);
             // Open the worker order menu
-            ModNetworking.sendToPlayer((ServerPlayer) player,
-                new OpenWorkerOrderMenuPacket(this.getId(), player.blockPosition()));
+            PacketDistributor.sendToPlayer((ServerPlayer) player,
+                    new OpenWorkerOrderMenuPacket(this.getId(), player.blockPosition()));
             return InteractionResult.SUCCESS;
         }
         return super.interactAt(player, vec, hand);

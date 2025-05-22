@@ -1,47 +1,39 @@
 package net.so_coretech.seismicexploration;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import net.so_coretech.seismicexploration.blockentity.BoomBoxBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.RecorderBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.SensorBlockEntity;
 
-import java.util.Set;
 import java.util.function.Supplier;
 
 public class ModBlockEntities {
 
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
-        DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, SeismicExploration.MODID);
+            DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, SeismicExploration.MODID);
 
     //
     // Register block entities
     //
 
-    public static final RegistryObject<BlockEntityType<BlockEntity>> BOOM_BOX_ENTITY = register(
-        "boom_box_entity", BoomBoxBlockEntity::new, () -> Set.of(ModBlocks.BOOM_BOX.get()));
+    public static final Supplier<BlockEntityType<BoomBoxBlockEntity>> BOOM_BOX_ENTITY = BLOCK_ENTITIES.register(
+            "boom_box_entity",
+            () -> new BlockEntityType<>(BoomBoxBlockEntity::new, ModBlocks.BOOM_BOX.get()));
 
-    public static final RegistryObject<BlockEntityType<BlockEntity>> SENSOR_ENTITY =
-        register("sensor_entity", SensorBlockEntity::new, () -> Set.of(ModBlocks.DFU.get()));
+    public static final Supplier<BlockEntityType<SensorBlockEntity>> SENSOR_ENTITY = BLOCK_ENTITIES.register(
+            "sensor_entity",
+            () -> new BlockEntityType<>(SensorBlockEntity::new, ModBlocks.DFU.get()));
 
-    public static final RegistryObject<BlockEntityType<BlockEntity>> RECORDER_ENTITY = register(
-        "recorder_entity", RecorderBlockEntity::new, () -> Set.of(ModBlocks.RECORDER.get()));
+    public static final Supplier<BlockEntityType<RecorderBlockEntity>> RECORDER_ENTITY = BLOCK_ENTITIES.register(
+            "recorder_entity",
+            () -> new BlockEntityType<>(RecorderBlockEntity::new, ModBlocks.RECORDER.get()));
 
     //
     // Utilities
     //
-
-    private static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> register(
-        final String name, final BlockEntityType.BlockEntitySupplier<T> factory,
-        final Supplier<Set<Block>> validBlocks) {
-        return BLOCK_ENTITIES.register(name,
-            () -> new BlockEntityType<>(factory, validBlocks.get()));
-    }
 
     protected static void register(final IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);

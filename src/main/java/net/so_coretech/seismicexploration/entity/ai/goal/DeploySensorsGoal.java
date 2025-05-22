@@ -11,9 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.so_coretech.seismicexploration.ModItems;
 import net.so_coretech.seismicexploration.util.InventoryUtils;
 import org.slf4j.Logger;
@@ -76,13 +75,20 @@ public class DeploySensorsGoal extends Goal {
     }
 
     private void handleCheckingInventory() {
-        final LazyOptional<IItemHandler> mobInventory = mob.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        final int inventoryCount = InventoryUtils.countItem(mobInventory, ModItems.DFU.get());
+        final IItemHandler mobInventory = mob.getCapability(Capabilities.ItemHandler.ENTITY);
+        if (mobInventory == null) {
+            LOGGER.debug("No inventory found. Aborting.");
+            phase = Phase.DONE;
+            nextPos = null;
+            listener.onGoalFinished("No inventory found. Aborting.");
+            return;
+        }
 
+        final int inventoryCount = InventoryUtils.countItem(mobInventory, ModItems.DFU.get());
         if (inventoryCount < this.count) {
             LOGGER.debug("Looking for {} DFUs.", this.count - inventoryCount);
             final Optional<BlockEntity> blockEntity = InventoryUtils.findContainerWithSensor(
-                mob.level(), mob.blockPosition(), 25, ModItems.DFU.get(), this.count - inventoryCount);
+                    mob.level(), mob.blockPosition(), 25, ModItems.DFU.get(), this.count - inventoryCount);
             if (blockEntity.isEmpty()) {
                 LOGGER.debug("No DFU found in nearby chests. Aborting.");
                 phase = Phase.DONE;
@@ -104,16 +110,23 @@ public class DeploySensorsGoal extends Goal {
         final double walkingSpeed = 1.0;
         if (nextPos != null && !mob.blockPosition().closerThan(nextPos, 1.2)) {
             LOGGER.debug("At {}, moving to next position: {} ({} blocks away)",
-                mob.blockPosition(), nextPos, mob.blockPosition().distSqr(nextPos));
+                    mob.blockPosition(), nextPos, mob.blockPosition().distSqr(nextPos));
             mob.getNavigation().moveTo(nextPos.getX(), nextPos.getY(), nextPos.getZ(), walkingSpeed);
         } else {
             if (grabContainer != null) {
-                final LazyOptional<IItemHandler> mobInventory = mob.getCapability(ForgeCapabilities.ITEM_HANDLER);
+                final IItemHandler mobInventory = mob.getCapability(Capabilities.ItemHandler.ENTITY);
+                if (mobInventory == null) {
+                    LOGGER.debug("No inventory found. Aborting.");
+                    phase = Phase.DONE;
+                    nextPos = null;
+                    listener.onGoalFinished("No inventory found. Aborting.");
+                    return;
+                }
                 final int inventoryCount = InventoryUtils.countItem(mobInventory, ModItems.DFU.get());
                 final int grabbed = InventoryUtils.moveItemsBetweenHandlers(
-                    grabContainer.getCapability(ForgeCapabilities.ITEM_HANDLER),
-                    mobInventory,
-                    ModItems.DFU.get(), this.count - inventoryCount);
+                        mob.level().getCapability(Capabilities.ItemHandler.BLOCK, grabContainer.getBlockPos(), null),
+                        mobInventory,
+                        ModItems.DFU.get(), this.count - inventoryCount);
                 LOGGER.debug("Grabbed {} items from chest", grabbed);
             }
             LOGGER.debug("Got the sensors. Starting deployment.");
@@ -123,13 +136,21 @@ public class DeploySensorsGoal extends Goal {
     }
 
     private void handleDeploy() {
-        final LazyOptional<IItemHandler> mobInventory = mob.getCapability(ForgeCapabilities.ITEM_HANDLER);
+        final IItemHandler mobInventory = mob.getCapability(Capabilities.ItemHandler.ENTITY);
+        if (mobInventory == null) {
+            LOGGER.debug("No inventory found. Aborting.");
+            phase = Phase.DONE;
+            nextPos = null;
+            listener.onGoalFinished("No inventory found. Aborting.");
+            return;
+        }
+
         if (nextPos == null) {
             nextPos = startPos;
         }
         if (!mob.blockPosition().closerThan(nextPos, 1.5)) {
             LOGGER.debug("At {}, moving to next position: {} ({} blocks away)",
-                mob.blockPosition(), nextPos, mob.blockPosition().distSqr(nextPos));
+                    mob.blockPosition(), nextPos, mob.blockPosition().distSqr(nextPos));
             mob.getNavigation().moveTo(nextPos.getX(), nextPos.getY(), nextPos.getZ(), 1.0);
         } else {
             LOGGER.debug("Arrived at next position. Deploying a sensor.");
@@ -139,9 +160,9 @@ public class DeploySensorsGoal extends Goal {
             LOGGER.debug("Finding next destination.");
             if (sensorsDeployed < count) {
                 nextPos = getHighestBlock(this.mob.level(),
-                    mob.blockPosition().relative(direction, gap + 1));
+                        mob.blockPosition().relative(direction, gap + 1));
                 LOGGER.debug("Next destination: {} ({} blocks away)",
-                    nextPos, mob.blockPosition().distSqr(nextPos));
+                        nextPos, mob.blockPosition().distSqr(nextPos));
             } else {
                 LOGGER.debug("All sensors deployed. Starting to return.");
                 phase = Phase.RETURN_TO_START;
@@ -153,7 +174,7 @@ public class DeploySensorsGoal extends Goal {
     private void handleReturn() {
         if (!mob.blockPosition().closerThan(startPos, 1.2)) {
             LOGGER.debug("At {}, returning to start position: {} ({} blocks away)",
-                mob.blockPosition(), startPos, mob.blockPosition().distSqr(startPos));
+                    mob.blockPosition(), startPos, mob.blockPosition().distSqr(startPos));
             mob.getNavigation().moveTo(startPos.getX(), startPos.getY(), startPos.getZ(), 1.0);
         } else {
             LOGGER.debug("Arrived at start position. Task complete.");
@@ -175,7 +196,7 @@ public class DeploySensorsGoal extends Goal {
     private static BlockPos getHighestBlock(final Level level, final BlockPos pos) {
         // Find the first non-air block at (x, z) that is not a full block
         final BlockPos block = getHighestBlock(level, pos,
-            state -> !state.isAir() && state.getShape(level, pos).bounds().maxY > 0.5);
+                state -> !state.isAir() && state.getShape(level, pos).bounds().maxY > 0.5);
         return new BlockPos(block.getX(), block.getY() + 1, block.getZ());
     }
 
@@ -207,13 +228,12 @@ public class DeploySensorsGoal extends Goal {
         return pos;
     }
 
-    public static void placeSensor(final Level level, final LazyOptional<IItemHandler> inventory, final BlockPos pos,
+    public static void placeSensor(final Level level, final IItemHandler from, final BlockPos pos,
                                    final Item sensorItem) {
         if (level.isClientSide) return; // Only run on server
 
-        final IItemHandler handler = inventory.orElse(InventoryUtils.EMPTY);
-        for (int slot = 0; slot < handler.getSlots(); slot++) {
-            final ItemStack stack = handler.getStackInSlot(slot);
+        for (int slot = 0; slot < from.getSlots(); slot++) {
+            final ItemStack stack = from.getStackInSlot(slot);
             if (stack.is(sensorItem) && stack.getCount() > 0) {
                 if (sensorItem instanceof final BlockItem blockItem) {
                     final BlockState state = blockItem.getBlock().defaultBlockState();
@@ -225,7 +245,7 @@ public class DeploySensorsGoal extends Goal {
                     if (level.getBlockState(pos).canBeReplaced()) {
                         final boolean placed = level.setBlock(pos, state, 3);
                         if (placed) {
-                            handler.extractItem(slot, 1, false);
+                            from.extractItem(slot, 1, false);
                             // Optionally: play sound, trigger animation, etc.
                         }
                     }
