@@ -38,3 +38,23 @@ Example: `feat!: change sensor API`
 - Provide as much detail as possible.
 
 Please respect the project’s code of conduct.
+
+## Release Process
+
+To publish a new release of the mod:
+
+1. **Validate changes**
+   Make sure all changes are tested and the build passes locally:
+   `./gradlew build`
+
+2. **Create a Git tag**
+   Create an annotated tag that follows [SemVer](https://semver.org/) and starts with the `v` prefix (for example,
+   `v1.2.3`):
+
+  ```sh
+  git tag -a vX.Y.Z -m "Release vX.Y.Z"
+  git push origin vX.Y.Z
+  ```
+
+Note: The version is automatically calculated from the SCM using `git describe`. The release page on GitHub is created
+by the release workflow. No manual update is required.
