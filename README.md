@@ -20,3 +20,7 @@ exploration experience in Minecraft.
 3. Place the mod file in the `mods` folder of your Minecraft installation.
 4. Launch Minecraft with NeoForge.
 5. Enjoy exploring the world with seismic waves!
+
+## Contribution
+
+Want to contribute? Please read the [contribution guide](CONTRIBUTING.md) before you start.
