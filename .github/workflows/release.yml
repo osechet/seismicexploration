@@ -27,6 +27,17 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+      - name: Install conventional-changelog
+        run: npm install -g conventional-changelog-cli
+
+      - name: Generate release notes
+        id: changelog
+        run: |
+          conventional-changelog -p conventionalcommits -r 1 > RELEASE_NOTES.md
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          cat RELEASE_NOTES.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Find JAR file
         id: find_jar
         run: |
@@ -39,6 +50,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.notes }}
           draft: false
           prerelease: false
           files: ${{ steps.find_jar.outputs.jar_path }}
