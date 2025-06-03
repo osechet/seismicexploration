@@ -10,38 +10,38 @@ import net.so_coretech.seismicexploration.ModMenus;
 
 public class RecorderMenu extends AbstractContainerMenu {
 
-    private final ContainerLevelAccess access;
+  private final ContainerLevelAccess access;
 
-    /**
-     * This constructor is called on the client side when yje order to receive the menu is received.
-     *
-     * @param containerId N/A
-     * @param inv         N/A
-     */
-    public RecorderMenu(final int containerId, final Inventory inv) {
-        this(containerId, inv, ContainerLevelAccess.NULL);
-    }
+  /**
+   * This constructor is called on the client side when yje order to receive the menu is received.
+   *
+   * @param containerId N/A
+   * @param inv N/A
+   */
+  public RecorderMenu(final int containerId, final Inventory inv) {
+    this(containerId, inv, ContainerLevelAccess.NULL);
+  }
 
-    /**
-     * This constructor is called on the server side when the player opens the menu.
-     *
-     * @param containerId N/A
-     * @param inv         N/A
-     * @param access      N/A
-     */
-    public RecorderMenu(final int containerId, final Inventory inv,
-                        final ContainerLevelAccess access) {
-        super(ModMenus.RECORDER_MENU.get(), containerId);
-        this.access = access;
-    }
+  /**
+   * This constructor is called on the server side when the player opens the menu.
+   *
+   * @param containerId N/A
+   * @param inv N/A
+   * @param access N/A
+   */
+  public RecorderMenu(
+      final int containerId, final Inventory inv, final ContainerLevelAccess access) {
+    super(ModMenus.RECORDER_MENU.get(), containerId);
+    this.access = access;
+  }
 
-    @Override
-    public boolean stillValid(final Player player) {
-        return stillValid(this.access, player, ModBlocks.RECORDER.get());
-    }
+  @Override
+  public boolean stillValid(final Player player) {
+    return stillValid(this.access, player, ModBlocks.RECORDER.get());
+  }
 
-    @Override
-    public ItemStack quickMoveStack(final Player player, final int index) {
-        return ItemStack.EMPTY;
-    }
+  @Override
+  public ItemStack quickMoveStack(final Player player, final int index) {
+    return ItemStack.EMPTY;
+  }
 }

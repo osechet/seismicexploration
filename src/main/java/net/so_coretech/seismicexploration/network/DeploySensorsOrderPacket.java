@@ -14,46 +14,49 @@ import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.entity.WorkerEntity;
 import org.slf4j.Logger;
 
-public record DeploySensorsOrderPacket(int entityId, BlockPos startPos, Direction direction, int count,
-                                       int gap) implements CustomPacketPayload {
+public record DeploySensorsOrderPacket(
+    int entityId, BlockPos startPos, Direction direction, int count, int gap)
+    implements CustomPacketPayload {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+  private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final CustomPacketPayload.Type<DeploySensorsOrderPacket> TYPE =
-            new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "deploy_sensors_order"));
+  public static final CustomPacketPayload.Type<DeploySensorsOrderPacket> TYPE =
+      new CustomPacketPayload.Type<>(
+          ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "deploy_sensors_order"));
 
-    public static final StreamCodec<ByteBuf, DeploySensorsOrderPacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT,
-            DeploySensorsOrderPacket::entityId,
-            ByteBufCodecs.fromCodec(BlockPos.CODEC),
-            DeploySensorsOrderPacket::startPos,
-            ByteBufCodecs.fromCodec(Direction.CODEC),
-            DeploySensorsOrderPacket::direction,
-            ByteBufCodecs.VAR_INT,
-            DeploySensorsOrderPacket::count,
-            ByteBufCodecs.VAR_INT,
-            DeploySensorsOrderPacket::gap,
-            DeploySensorsOrderPacket::new
-    );
+  public static final StreamCodec<ByteBuf, DeploySensorsOrderPacket> STREAM_CODEC =
+      StreamCodec.composite(
+          ByteBufCodecs.VAR_INT,
+          DeploySensorsOrderPacket::entityId,
+          ByteBufCodecs.fromCodec(BlockPos.CODEC),
+          DeploySensorsOrderPacket::startPos,
+          ByteBufCodecs.fromCodec(Direction.CODEC),
+          DeploySensorsOrderPacket::direction,
+          ByteBufCodecs.VAR_INT,
+          DeploySensorsOrderPacket::count,
+          ByteBufCodecs.VAR_INT,
+          DeploySensorsOrderPacket::gap,
+          DeploySensorsOrderPacket::new);
 
-    @Override
-    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+  @Override
+  public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+    return TYPE;
+  }
 
-    public static void handle(final DeploySensorsOrderPacket data, final IPayloadContext context) {
-        LOGGER.debug("DeploySensorsOrderPacket received");
-        context.enqueueWork(() -> {
-            // Get the player who sent the packet
-            final Player player = context.player();
+  public static void handle(final DeploySensorsOrderPacket data, final IPayloadContext context) {
+    LOGGER.debug("DeploySensorsOrderPacket received");
+    context.enqueueWork(
+        () -> {
+          // Get the player who sent the packet
+          final Player player = context.player();
 
-            // Find the NPC entity by entityId
-            final var entity = player.level().getEntity(data.entityId);
-            if (entity instanceof final WorkerEntity workerEntity) {
-                workerEntity.setFrozen(false);
-                workerEntity.setDeploySensors(player, data.startPos, data.direction, data.count, data.gap);
-            }
+          // Find the NPC entity by entityId
+          final var entity = player.level().getEntity(data.entityId);
+          if (entity instanceof final WorkerEntity workerEntity) {
+            workerEntity.setFrozen(false);
+            workerEntity.setDeploySensors(
+                player, data.startPos, data.direction, data.count, data.gap);
+          }
         });
-    }
-
+  }
 }

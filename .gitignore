@@ -6,6 +6,9 @@ bin
 .classpath
 .project
 
+# vscode
+.vscode/launch.json
+
 # idea
 out
 *.ipr

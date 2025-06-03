@@ -2,6 +2,7 @@ plugins {
   id 'java-library'
   id 'maven-publish'
   id 'net.neoforged.gradle.userdev' version '7.0.184'
+  id 'com.diffplug.spotless' version '7.0.4'
 }
 
 apply from: 'version.gradle'
@@ -18,7 +19,7 @@ tasks.named('wrapper', Wrapper).configure {
 // The calculated mod version
 def mod_version = "${project.scm_version}"
 version = mod_version
-print("Building ${version}...\n")
+//print("Building ${version}...\n")
 group = mod_group_id
 
 repositories {
@@ -172,5 +173,14 @@ idea {
   module {
     downloadSources = true
     downloadJavadoc = true
+  }
+}
+
+spotless {
+  java {
+    googleJavaFormat()
+    removeUnusedImports()
+    trimTrailingWhitespace()
+    endWithNewline()
   }
 }

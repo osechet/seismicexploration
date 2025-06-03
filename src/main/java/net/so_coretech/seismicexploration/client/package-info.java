@@ -3,7 +3,6 @@
 @FieldsAreNonnullByDefault
 package net.so_coretech.seismicexploration.client;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
-
-import javax.annotation.ParametersAreNonnullByDefault;

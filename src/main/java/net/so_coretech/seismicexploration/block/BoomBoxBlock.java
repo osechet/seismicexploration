@@ -1,6 +1,7 @@
 package net.so_coretech.seismicexploration.block;
 
 import com.mojang.serialization.MapCodec;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -28,77 +29,86 @@ import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.blockentity.BoomBoxBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.TickableBlockEntity;
 
-import javax.annotation.Nullable;
-
 public class BoomBoxBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
-    private static final MapCodec<BoomBoxBlock> CODEC = simpleCodec(BoomBoxBlock::new);
-    private static final VoxelShape SHAPE_NORTH = Block.box(3, 0, 7, 13, 12, 10);
-    private static final VoxelShape SHAPE_EAST = Block.box(6, 0, 3, 9, 12, 13);
-    private static final VoxelShape SHAPE_SOUTH = Block.box(3, 0, 6, 13, 12, 9);
-    private static final VoxelShape SHAPE_WEST = Block.box(7, 0, 3, 10, 12, 13);
+  private static final MapCodec<BoomBoxBlock> CODEC = simpleCodec(BoomBoxBlock::new);
+  private static final VoxelShape SHAPE_NORTH = Block.box(3, 0, 7, 13, 12, 10);
+  private static final VoxelShape SHAPE_EAST = Block.box(6, 0, 3, 9, 12, 13);
+  private static final VoxelShape SHAPE_SOUTH = Block.box(3, 0, 6, 13, 12, 9);
+  private static final VoxelShape SHAPE_WEST = Block.box(7, 0, 3, 10, 12, 13);
 
-    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-    public static final BooleanProperty WORKING = BooleanProperty.create("working");
+  public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+  public static final BooleanProperty WORKING = BooleanProperty.create("working");
 
-    public BoomBoxBlock(final BlockBehaviour.Properties properties) {
-        super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH)
-                                                      .setValue(POWERED, false).setValue(WORKING, false));
+  public BoomBoxBlock(final BlockBehaviour.Properties properties) {
+    super(properties);
+    this.registerDefaultState(
+        this.stateDefinition
+            .any()
+            .setValue(FACING, Direction.NORTH)
+            .setValue(POWERED, false)
+            .setValue(WORKING, false));
+  }
+
+  @Override
+  public @Nullable BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
+    return ModBlockEntities.BOOM_BOX_ENTITY.get().create(pos, state);
+  }
+
+  @Override
+  protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+    return CODEC;
+  }
+
+  @Override
+  protected VoxelShape getShape(
+      final BlockState state,
+      final BlockGetter level,
+      final BlockPos pos,
+      final CollisionContext context) {
+    final Direction dir = state.getValue(FACING);
+    return switch (dir) {
+      case EAST -> SHAPE_EAST;
+      case SOUTH -> SHAPE_SOUTH;
+      case WEST -> SHAPE_WEST;
+      default -> SHAPE_NORTH;
+    };
+  }
+
+  @Override
+  public @Nullable BlockState getStateForPlacement(final BlockPlaceContext context) {
+    return this.defaultBlockState()
+        .setValue(FACING, context.getHorizontalDirection().getOpposite());
+  }
+
+  @Override
+  protected void createBlockStateDefinition(final Builder<Block, BlockState> builder) {
+    builder.add(FACING, POWERED, WORKING);
+  }
+
+  @Override
+  protected InteractionResult useItemOn(
+      final ItemStack stack,
+      final BlockState state,
+      final Level level,
+      final BlockPos pos,
+      final Player player,
+      final InteractionHand hand,
+      final BlockHitResult hitResult) {
+    if (!level.isClientSide() && hand == InteractionHand.MAIN_HAND) {
+      final BlockEntity be = level.getBlockEntity(pos);
+      if (be instanceof final BoomBoxBlockEntity blockEntity) {
+        blockEntity.switchPower();
+        return InteractionResult.CONSUME;
+      }
     }
+    return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+  }
 
-    @Override
-    public @Nullable BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
-        return ModBlockEntities.BOOM_BOX_ENTITY.get().create(pos, state);
-    }
-
-    @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-        return CODEC;
-    }
-
-    @Override
-    protected VoxelShape getShape(final BlockState state, final BlockGetter level,
-                                  final BlockPos pos, final CollisionContext context) {
-        final Direction dir = state.getValue(FACING);
-        return switch (dir) {
-            case EAST -> SHAPE_EAST;
-            case SOUTH -> SHAPE_SOUTH;
-            case WEST -> SHAPE_WEST;
-            default -> SHAPE_NORTH;
-        };
-    }
-
-    @Override
-    public @Nullable BlockState getStateForPlacement(final BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING,
-            context.getHorizontalDirection().getOpposite());
-    }
-
-    @Override
-    protected void createBlockStateDefinition(final Builder<Block, BlockState> builder) {
-        builder.add(FACING, POWERED, WORKING);
-    }
-
-    @Override
-    protected InteractionResult useItemOn(final ItemStack stack, final BlockState state,
-                                          final Level level, final BlockPos pos, final Player player,
-                                          final InteractionHand hand,
-                                          final BlockHitResult hitResult) {
-        if (!level.isClientSide() && hand == InteractionHand.MAIN_HAND) {
-            final BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof final BoomBoxBlockEntity blockEntity) {
-                blockEntity.switchPower();
-                return InteractionResult.CONSUME;
-            }
-        }
-        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-    }
-
-    @Override
-    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(final Level level,
-                                                                            final BlockState state,
-                                                                            final BlockEntityType<T> type) {
-        return TickableBlockEntity.getTickerHelper(level);
-    }
+  @Nullable
+  @Override
+  public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+      final Level level, final BlockState state, final BlockEntityType<T> type) {
+    return TickableBlockEntity.getTickerHelper(level);
+  }
 }

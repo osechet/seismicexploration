@@ -29,100 +29,99 @@ import org.slf4j.Logger;
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(SeismicExploration.MODID)
 public class SeismicExploration {
-    // Define mod id in a common place for everything to reference
-    public static final String MODID = "seismicexploration";
-    // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
+  // Define mod id in a common place for everything to reference
+  public static final String MODID = "seismicexploration";
+  // Directly reference a slf4j logger
+  private static final Logger LOGGER = LogUtils.getLogger();
 
-    public SeismicExploration(final IEventBus modEventBus, final ModContainer modContainer) {
-        // Register the commonSetup method for modloading
-        modEventBus.addListener(this::commonSetup);
+  public SeismicExploration(final IEventBus modEventBus, final ModContainer modContainer) {
+    // Register the commonSetup method for modloading
+    modEventBus.addListener(this::commonSetup);
 
-        // Register the blocks and items to the mod event bus
-        ModBlockEntities.register(modEventBus);
-        ModBlocks.register(modEventBus);
-        ModCreativeModeTabs.register(modEventBus);
-        ModEntities.register(modEventBus);
-        ModItems.register(modEventBus);
-        ModMenus.register(modEventBus);
+    // Register the blocks and items to the mod event bus
+    ModBlockEntities.register(modEventBus);
+    ModBlocks.register(modEventBus);
+    ModCreativeModeTabs.register(modEventBus);
+    ModEntities.register(modEventBus);
+    ModItems.register(modEventBus);
+    ModMenus.register(modEventBus);
 
-        // Register ourselves for server and other game events we are interested in
-        NeoForge.EVENT_BUS.register(this);
+    // Register ourselves for server and other game events we are interested in
+    NeoForge.EVENT_BUS.register(this);
 
-//        // Register the item to a creative tab
-//        modEventBus.addListener(this::addCreative);
+    //        // Register the item to a creative tab
+    //        modEventBus.addListener(this::addCreative);
 
-        modEventBus.addListener(this::registerCapabilities);
+    modEventBus.addListener(this::registerCapabilities);
 
-        // Register our mod's ForgeConfigSpec so that Forge can create and load the
-        // config file for us
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+    // Register our mod's ForgeConfigSpec so that Forge can create and load the
+    // config file for us
+    modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+  }
+
+  private void commonSetup(final FMLCommonSetupEvent event) {
+    // Some common setup code
+    LOGGER.info("HELLO FROM COMMON SETUP");
+
+    if (Config.logDirtBlock) {
+      LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event) {
-        // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
+    LOGGER.info("{} {}", Config.magicNumberIntroduction, Config.magicNumber);
 
-        if (Config.logDirtBlock) {
-            LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
-        }
+    Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
+  }
 
-        LOGGER.info("{} {}", Config.magicNumberIntroduction, Config.magicNumber);
+  //    // Add the example block item to the building blocks tab
+  //    private void addCreative(BuildCreativeModeTabContentsEvent event)
+  //    {
+  //        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
+  //            event.accept(EXAMPLE_BLOCK_ITEM);
+  //    }
 
-        Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
-    }
+  private void registerCapabilities(final RegisterCapabilitiesEvent event) {
+    event.registerEntity(
+        Capabilities.ItemHandler.ENTITY,
+        ModEntities.WORKER.get(),
+        (entity, context) -> entity.getInventory());
+  }
 
-//    // Add the example block item to the building blocks tab
-//    private void addCreative(BuildCreativeModeTabContentsEvent event)
-//    {
-//        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
-//            event.accept(EXAMPLE_BLOCK_ITEM);
-//    }
+  // You can use SubscribeEvent and let the Event Bus discover methods to call
+  @SubscribeEvent
+  public void onServerStarting(final ServerStartingEvent event) {
+    // Do something when the server starts
+    LOGGER.info("HELLO from server starting");
+  }
 
-    private void registerCapabilities(final RegisterCapabilitiesEvent event) {
-        event.registerEntity(
-                Capabilities.ItemHandler.ENTITY,
-                ModEntities.WORKER.get(),
-                (entity, context) -> entity.getInventory()
-        );
-    }
+  // You can use EventBusSubscriber to automatically register all static methods
+  // in the class annotated with @SubscribeEvent
+  @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+  public static class ClientModEvents {
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
-    public void onServerStarting(final ServerStartingEvent event) {
-        // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
+    public static void onClientSetup(final FMLClientSetupEvent event) {
+      // Some client setup code
+      LOGGER.info("HELLO FROM CLIENT SETUP");
+      LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
     }
 
-    // You can use EventBusSubscriber to automatically register all static methods
-    // in the class annotated with @SubscribeEvent
-    @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents {
-
-        @SubscribeEvent
-        public static void onClientSetup(final FMLClientSetupEvent event) {
-            // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-        }
-
-        @SubscribeEvent
-        public static void registerScreens(final RegisterMenuScreensEvent event) {
-            event.register(ModMenus.RECORDER_MENU.get(), RecorderScreen::new);
-        }
-
-        @SubscribeEvent
-        public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(ModEntities.WORKER.get(), WorkerRenderer::new);
-        }
-
-        @SubscribeEvent
-        public static void onEntityAttributeCreation(final EntityAttributeCreationEvent event) {
-            event.put(ModEntities.WORKER.get(), WorkerEntity.createAttributes().build());
-        }
+    @SubscribeEvent
+    public static void registerScreens(final RegisterMenuScreensEvent event) {
+      event.register(ModMenus.RECORDER_MENU.get(), RecorderScreen::new);
     }
 
-    public static Component translatable(final String prefix, final String key) {
-        return Component.translatable(String.format("%s.%s.%s", prefix, MODID, key));
+    @SubscribeEvent
+    public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+      event.registerEntityRenderer(ModEntities.WORKER.get(), WorkerRenderer::new);
     }
+
+    @SubscribeEvent
+    public static void onEntityAttributeCreation(final EntityAttributeCreationEvent event) {
+      event.put(ModEntities.WORKER.get(), WorkerEntity.createAttributes().build());
+    }
+  }
+
+  public static Component translatable(final String prefix, final String key) {
+    return Component.translatable(String.format("%s.%s.%s", prefix, MODID, key));
+  }
 }

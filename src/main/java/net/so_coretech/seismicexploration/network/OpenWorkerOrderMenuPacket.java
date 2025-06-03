@@ -13,35 +13,39 @@ import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.screen.WorkerOrderScreen;
 import org.slf4j.Logger;
 
-public record OpenWorkerOrderMenuPacket(int entityId, BlockPos playerPos) implements CustomPacketPayload {
+public record OpenWorkerOrderMenuPacket(int entityId, BlockPos playerPos)
+    implements CustomPacketPayload {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+  private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final CustomPacketPayload.Type<OpenWorkerOrderMenuPacket> TYPE =
-            new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "open_worker_order_menu"));
+  public static final CustomPacketPayload.Type<OpenWorkerOrderMenuPacket> TYPE =
+      new CustomPacketPayload.Type<>(
+          ResourceLocation.fromNamespaceAndPath(
+              SeismicExploration.MODID, "open_worker_order_menu"));
 
-    public static final StreamCodec<ByteBuf, OpenWorkerOrderMenuPacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT,
-            OpenWorkerOrderMenuPacket::entityId,
-            ByteBufCodecs.fromCodec(BlockPos.CODEC),
-            OpenWorkerOrderMenuPacket::playerPos,
-            OpenWorkerOrderMenuPacket::new
-    );
+  public static final StreamCodec<ByteBuf, OpenWorkerOrderMenuPacket> STREAM_CODEC =
+      StreamCodec.composite(
+          ByteBufCodecs.VAR_INT,
+          OpenWorkerOrderMenuPacket::entityId,
+          ByteBufCodecs.fromCodec(BlockPos.CODEC),
+          OpenWorkerOrderMenuPacket::playerPos,
+          OpenWorkerOrderMenuPacket::new);
 
-    @Override
-    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+  @Override
+  public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+    return TYPE;
+  }
 
-    /*
-     * This method is called on the client side when the packet is received.
-     * It opens the WorkerOrderScreen for the worker with the given entityId and provide the player position for the UI.
-     */
-    public static void handle(final OpenWorkerOrderMenuPacket data, final IPayloadContext context) {
-        LOGGER.debug("OpenWorkerOrderMenuPacket received");
-        context.enqueueWork(() -> {
-            final Minecraft mc = Minecraft.getInstance();
-            mc.setScreen(new WorkerOrderScreen(data.entityId, data.playerPos));
+  /*
+   * This method is called on the client side when the packet is received.
+   * It opens the WorkerOrderScreen for the worker with the given entityId and provide the player position for the UI.
+   */
+  public static void handle(final OpenWorkerOrderMenuPacket data, final IPayloadContext context) {
+    LOGGER.debug("OpenWorkerOrderMenuPacket received");
+    context.enqueueWork(
+        () -> {
+          final Minecraft mc = Minecraft.getInstance();
+          mc.setScreen(new WorkerOrderScreen(data.entityId, data.playerPos));
         });
-    }
+  }
 }

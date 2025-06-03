@@ -1,5 +1,6 @@
 package net.so_coretech.seismicexploration;
 
+import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -8,30 +9,28 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.so_coretech.seismicexploration.menu.RecorderMenu;
 
-import java.util.function.Supplier;
-
 public class ModMenus {
 
-    private static final DeferredRegister<MenuType<?>> MENUS =
-            DeferredRegister.create(Registries.MENU, SeismicExploration.MODID);
+  private static final DeferredRegister<MenuType<?>> MENUS =
+      DeferredRegister.create(Registries.MENU, SeismicExploration.MODID);
 
-    //
-    // Register menu types
-    //
+  //
+  // Register menu types
+  //
 
-    public static final Supplier<MenuType<RecorderMenu>> RECORDER_MENU =
-            register("recorder_menu", RecorderMenu::new);
+  public static final Supplier<MenuType<RecorderMenu>> RECORDER_MENU =
+      register("recorder_menu", RecorderMenu::new);
 
-    //
-    // Utilities
-    //
+  //
+  // Utilities
+  //
 
-    private static <T extends AbstractContainerMenu> Supplier<MenuType<T>> register(
-            final String name, final MenuType.MenuSupplier<T> factory) {
-        return MENUS.register(name, () -> new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS));
-    }
+  private static <T extends AbstractContainerMenu> Supplier<MenuType<T>> register(
+      final String name, final MenuType.MenuSupplier<T> factory) {
+    return MENUS.register(name, () -> new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS));
+  }
 
-    protected static void register(final IEventBus eventBus) {
-        MENUS.register(eventBus);
-    }
+  protected static void register(final IEventBus eventBus) {
+    MENUS.register(eventBus);
+  }
 }

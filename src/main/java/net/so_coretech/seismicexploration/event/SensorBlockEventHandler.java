@@ -14,25 +14,25 @@ import org.slf4j.Logger;
 @EventBusSubscriber
 public class SensorBlockEventHandler {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+  private static final Logger LOGGER = LogUtils.getLogger();
 
-    @SubscribeEvent
-    public static void onBlockPlaced(final BlockEvent.EntityPlaceEvent event) {
-        final BlockState state = event.getPlacedBlock();
-        final Block block = state.getBlock();
-        if (block instanceof SensorBlock && event.getLevel() instanceof final ServerLevel level) {
-            Spread.getSpread(level).add(event.getPos());
-            LOGGER.debug("Sensor added at {}", event.getPos());
-        }
+  @SubscribeEvent
+  public static void onBlockPlaced(final BlockEvent.EntityPlaceEvent event) {
+    final BlockState state = event.getPlacedBlock();
+    final Block block = state.getBlock();
+    if (block instanceof SensorBlock && event.getLevel() instanceof final ServerLevel level) {
+      Spread.getSpread(level).add(event.getPos());
+      LOGGER.debug("Sensor added at {}", event.getPos());
     }
+  }
 
-    @SubscribeEvent
-    public static void onBlockBroken(final BlockEvent.BreakEvent event) {
-        final BlockState state = event.getState();
-        final Block block = state.getBlock();
-        if (block instanceof SensorBlock && event.getLevel() instanceof final ServerLevel level) {
-            Spread.getSpread(level).remove(event.getPos());
-            LOGGER.debug("Sensor removed at {}", event.getPos());
-        }
+  @SubscribeEvent
+  public static void onBlockBroken(final BlockEvent.BreakEvent event) {
+    final BlockState state = event.getState();
+    final Block block = state.getBlock();
+    if (block instanceof SensorBlock && event.getLevel() instanceof final ServerLevel level) {
+      Spread.getSpread(level).remove(event.getPos());
+      LOGGER.debug("Sensor removed at {}", event.getPos());
     }
+  }
 }

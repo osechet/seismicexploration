@@ -1,0 +1,14 @@
+{
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.format.enabled": false, // Disable other Java formatters to avoid conflicts
+  "[java]": {
+    "files.trimTrailingWhitespace": false, // Spotless handles this
+    "spotlessGradle.diagnostics.enable": true,
+    "spotlessGradle.format.enable": true,
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.spotlessGradle": "explicit"
+    }
+  },
+  "java.compile.nullAnalysis.mode": "automatic"
+}

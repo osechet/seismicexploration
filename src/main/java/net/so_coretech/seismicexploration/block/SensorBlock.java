@@ -1,6 +1,7 @@
 package net.so_coretech.seismicexploration.block;
 
 import com.mojang.serialization.MapCodec;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,49 +21,50 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.blockentity.TickableBlockEntity;
 
-import javax.annotation.Nullable;
-
 public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
-    private static final MapCodec<SensorBlock> CODEC = simpleCodec(SensorBlock::new);
-    private static final VoxelShape SHAPE = Block.box(6, 0, 6, 10, 4, 10);
+  private static final MapCodec<SensorBlock> CODEC = simpleCodec(SensorBlock::new);
+  private static final VoxelShape SHAPE = Block.box(6, 0, 6, 10, 4, 10);
 
-    public SensorBlock(final BlockBehaviour.Properties properties) {
-        super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
-    }
+  public SensorBlock(final BlockBehaviour.Properties properties) {
+    super(properties);
+    this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+  }
 
-    @Override
-    public @Nullable BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
-        return ModBlockEntities.SENSOR_ENTITY.get().create(pos, state);
-    }
+  @Override
+  public @Nullable BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
+    return ModBlockEntities.SENSOR_ENTITY.get().create(pos, state);
+  }
 
-    @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-        return CODEC;
-    }
+  @Override
+  protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+    return CODEC;
+  }
 
-    @Override
-    protected VoxelShape getShape(final BlockState state, final BlockGetter level,
-                                  final BlockPos pos, final CollisionContext context) {
-        return SHAPE;
-    }
+  @Override
+  protected VoxelShape getShape(
+      final BlockState state,
+      final BlockGetter level,
+      final BlockPos pos,
+      final CollisionContext context) {
+    return SHAPE;
+  }
 
-    @Override
-    public @Nullable BlockState getStateForPlacement(final BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING,
-            context.getHorizontalDirection().getOpposite());
-    }
+  @Override
+  public @Nullable BlockState getStateForPlacement(final BlockPlaceContext context) {
+    return this.defaultBlockState()
+        .setValue(FACING, context.getHorizontalDirection().getOpposite());
+  }
 
-    @Override
-    protected void createBlockStateDefinition(final Builder<Block, BlockState> builder) {
-        builder.add(FACING);
-    }
+  @Override
+  protected void createBlockStateDefinition(final Builder<Block, BlockState> builder) {
+    builder.add(FACING);
+  }
 
-    @Override
-    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(final Level level,
-                                                                            final BlockState state,
-                                                                            final BlockEntityType<T> type) {
-        return TickableBlockEntity.getTickerHelper(level);
-    }
+  @Nullable
+  @Override
+  public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+      final Level level, final BlockState state, final BlockEntityType<T> type) {
+    return TickableBlockEntity.getTickerHelper(level);
+  }
 }

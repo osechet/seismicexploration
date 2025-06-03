@@ -15,50 +15,51 @@ import org.slf4j.Logger;
 
 public record WorkerOrdersPacket(int entityId, int orderType) implements CustomPacketPayload {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+  private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final CustomPacketPayload.Type<WorkerOrdersPacket> TYPE =
-            new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "worker_orders"));
+  public static final CustomPacketPayload.Type<WorkerOrdersPacket> TYPE =
+      new CustomPacketPayload.Type<>(
+          ResourceLocation.fromNamespaceAndPath(SeismicExploration.MODID, "worker_orders"));
 
-    public static final StreamCodec<ByteBuf, WorkerOrdersPacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT,
-            WorkerOrdersPacket::entityId,
-            ByteBufCodecs.VAR_INT,
-            WorkerOrdersPacket::orderType,
-            WorkerOrdersPacket::new
-    );
+  public static final StreamCodec<ByteBuf, WorkerOrdersPacket> STREAM_CODEC =
+      StreamCodec.composite(
+          ByteBufCodecs.VAR_INT,
+          WorkerOrdersPacket::entityId,
+          ByteBufCodecs.VAR_INT,
+          WorkerOrdersPacket::orderType,
+          WorkerOrdersPacket::new);
 
-    @Override
-    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+  @Override
+  public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+    return TYPE;
+  }
 
-    public static void handle(final WorkerOrdersPacket data, final IPayloadContext context) {
-        LOGGER.debug("WorkerOrdersPacket received");
-        context.enqueueWork(() -> {
-            // Get the player who sent the packet
-            final Player player = context.player();
+  public static void handle(final WorkerOrdersPacket data, final IPayloadContext context) {
+    LOGGER.debug("WorkerOrdersPacket received");
+    context.enqueueWork(
+        () -> {
+          // Get the player who sent the packet
+          final Player player = context.player();
 
-            // Find the NPC entity from the entityId
-            final var entity = player.level().getEntity(data.entityId);
-            if (entity instanceof final WorkerEntity workerEntity) {
-                workerEntity.setFrozen(false);
+          // Find the NPC entity from the entityId
+          final var entity = player.level().getEntity(data.entityId);
+          if (entity instanceof final WorkerEntity workerEntity) {
+            workerEntity.setFrozen(false);
 
-                switch (OrderType.values()[data.orderType]) {
-                    case FOLLOW_ME:
-                        workerEntity.setFollowTarget(player);
-                        break;
-                    case DEPLOY_SENSORS:
-                    case DEPLOY_CHARGES:
-                    case OPERATE_BOOM_BOX:
-                        LOGGER.error("Invalid order type: DEPLOY_SENSORS");
-                        break;
-                    default:
-                        workerEntity.setFree(player);
-                        break;
-                }
+            switch (OrderType.values()[data.orderType]) {
+              case FOLLOW_ME:
+                workerEntity.setFollowTarget(player);
+                break;
+              case DEPLOY_SENSORS:
+              case DEPLOY_CHARGES:
+              case OPERATE_BOOM_BOX:
+                LOGGER.error("Invalid order type: DEPLOY_SENSORS");
+                break;
+              default:
+                workerEntity.setFree(player);
+                break;
             }
+          }
         });
-    }
-
+  }
 }
