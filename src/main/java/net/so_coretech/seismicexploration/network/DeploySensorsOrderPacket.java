@@ -1,5 +1,6 @@
 package net.so_coretech.seismicexploration.network;
 
+import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
@@ -12,6 +13,9 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.entity.WorkerEntity;
+import net.so_coretech.seismicexploration.entity.ai.goal.OrderType;
+import net.so_coretech.seismicexploration.entity.ai.task.ITask;
+import net.so_coretech.seismicexploration.entity.ai.task.TaskFactory;
 import org.slf4j.Logger;
 
 public record DeploySensorsOrderPacket(
@@ -54,8 +58,29 @@ public record DeploySensorsOrderPacket(
           final var entity = player.level().getEntity(data.entityId);
           if (entity instanceof final WorkerEntity workerEntity) {
             workerEntity.setFrozen(false);
-            workerEntity.setDeploySensors(
-                player, data.startPos, data.direction, data.count, data.gap);
+
+            final JsonObject params = new JsonObject();
+            params.addProperty("startX", data.startPos().getX());
+            // Assuming startPos from packet is ground level or DeployTask's getGroundLevel handles
+            // Y.
+            // For TaskFactory, we need to provide a Y. Let's use the Y from the packet for now.
+            params.addProperty("startY", data.startPos().getY());
+            params.addProperty("startZ", data.startPos().getZ());
+            params.addProperty("direction", data.direction().getName());
+            params.addProperty("count", data.count());
+            params.addProperty("gap", data.gap());
+
+            final ITask deployTask =
+                TaskFactory.createTask(OrderType.DEPLOY_SENSORS, workerEntity, player, params);
+
+            if (deployTask != null) {
+              workerEntity.assignTask(deployTask, player);
+            } else {
+              LOGGER.error(
+                  "Failed to create DeployTask for DEPLOY_SENSORS order. Worker: {}",
+                  workerEntity.getId());
+              // Optionally assign a default task or send a failure message to player
+            }
           }
         });
   }

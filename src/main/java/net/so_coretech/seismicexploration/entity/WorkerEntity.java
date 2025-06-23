@@ -1,12 +1,13 @@
 package net.so_coretech.seismicexploration.entity;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -14,24 +15,46 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.so_coretech.seismicexploration.entity.ai.goal.DeploySensorsGoal;
-import net.so_coretech.seismicexploration.entity.ai.goal.FollowPlayerGoal;
+import net.so_coretech.seismicexploration.entity.ai.goal.ExecuteComplexTaskGoal;
+import net.so_coretech.seismicexploration.entity.ai.goal.FleeWhenAttackedGoal;
+import net.so_coretech.seismicexploration.entity.ai.task.ITask;
+import net.so_coretech.seismicexploration.entity.ai.task.TaskStatus;
 import net.so_coretech.seismicexploration.network.OpenWorkerOrderMenuPacket;
 
 public class WorkerEntity extends PathfinderMob {
 
-  private final String name;
+  private static final String[] NAMES = {
+    "Alan", "Bob", "Charlie", "Dave", "Edward", "Frank", "Garry", "Hector", "Igor", "Jack",
+    "Kevin", "Liam", "Mike", "Nate", "Oscar", "Paul", "Quentin", "Rick", "Sam", "Tom",
+    "Ulysses", "Victor", "Winston", "Xander", "Yuri", "Zane"
+  };
   private final ItemStackHandler inventory;
   private boolean frozen;
+  private float lastDamageTaken;
+
+  private @Nullable ITask currentTask;
+  private @Nullable Player taskOrderingPlayer;
 
   public WorkerEntity(final EntityType<? extends PathfinderMob> type, final Level level) {
     super(type, level);
-    this.name = "Bob";
+    String nickname = NAMES[this.random.nextInt(NAMES.length)];
+    this.setCustomName(
+        Component.translatable("message.seismicexploration.worker_custom_name", nickname));
+    this.setCustomNameVisible(true);
     this.inventory = new ItemStackHandler(9);
+
+    // Prevent swimming completely by setting it to a negative value (unwalkable)
+    setPathfindingMalus(PathType.WATER, -1.0F);
+    setPathfindingMalus(PathType.WATER_BORDER, 100.0F); // Set a high penalty for water edges
+  }
+
+  public String getNickname() {
+    return this.getCustomName() != null ? this.getCustomName().getString() : "Unnamed Worker";
   }
 
   public IItemHandler getInventory() {
@@ -43,67 +66,51 @@ public class WorkerEntity extends PathfinderMob {
   }
 
   /**
-   * Orders the NPC to follow the player, removing all goals and adding a follow player goal.
+   * Assigns a new task to this worker. If a task is already running, it will be stopped with {@link
+   * TaskStatus#CANCELLED_BY_NEW_TASK}. The new task will then be started.
    *
-   * @param player The player who interacted with the NPC.
+   * @param newTask The new task to assign.
+   * @param orderingPlayer The player who ordered this task, if any.
    */
-  public void setFollowTarget(final Player player) {
-    this.goalSelector.removeAllGoals(goal -> true);
-    final FollowPlayerGoal goal = new FollowPlayerGoal(this, 1.2D, 2.0F);
-    goal.setTarget(player);
-    this.goalSelector.addGoal(1, goal);
-
-    player.displayClientMessage(
-        Component.literal(String.format("<%s> Alright, I'll follow you.", name)), false);
+  public void assignTask(final ITask newTask, @Nullable final Player orderingPlayer) {
+    if (this.currentTask != null && this.currentTask.getStatus() != TaskStatus.SUCCESS) {
+      this.currentTask.stop(this, TaskStatus.CANCELLED_BY_NEW_TASK);
+    }
+    this.currentTask = newTask;
+    this.taskOrderingPlayer = orderingPlayer;
+    if (this.currentTask != null) {
+      this.currentTask.start(this, this.taskOrderingPlayer);
+    }
   }
 
-  /**
-   * Orders the NPC to deploy sensors, removing all goals and adding a move out and return goal.
-   *
-   * @param player The player who interacted with the NPC.
-   * @param startPos The starting position for the deployment.
-   * @param direction The direction to deploy the sensors.
-   * @param count The number of sensors to deploy.
-   * @param gap The gap between each sensor.
-   */
-  public void setDeploySensors(
-      final Player player,
-      final BlockPos startPos,
-      final Direction direction,
-      final int count,
-      final int gap) {
-    this.goalSelector.removeAllGoals(goal -> true);
-
-    // TODO: use a goal where the NPC drops sensors
-    final DeploySensorsGoal goal =
-        new DeploySensorsGoal(
-            this,
-            startPos,
-            direction,
-            count,
-            gap,
-            (reason) -> {
-              player.displayClientMessage(
-                  Component.literal(String.format("<%s> I completed my task!", name)), false);
-              setFree(player);
-            });
-    this.goalSelector.addGoal(1, goal);
-
-    player.displayClientMessage(
-        Component.literal(String.format("<%s> Understood, I'll start right away!.", name)), false);
+  @Nullable
+  public ITask getCurrentTask() {
+    return currentTask;
   }
 
-  /**
-   * Orders the NPC to free roam mode, removing all goals and adding a random stroll goal.
-   *
-   * @param player The player who interacted with the NPC.
-   */
-  public void setFree(final Player player) {
-    this.goalSelector.removeAllGoals(goal -> true);
-    this.goalSelector.addGoal(1, new RandomStrollGoal(this, 1.0D));
+  @Nullable
+  public Player getTaskOrderingPlayer() {
+    return taskOrderingPlayer;
+  }
 
-    player.displayClientMessage(
-        Component.literal(String.format("<%s> See you later!", name)), false);
+  public float getLastDamageTaken() {
+    return lastDamageTaken;
+  }
+
+  @Override
+  protected void actuallyHurt(
+      final ServerLevel level, final DamageSource damageSrc, final float damageAmount) {
+    // This method is called by LivingEntity.hurt after damage reduction (armor, effects)
+    // and invulnerability checks. damageAmount is the final amount of damage to be applied.
+    super.actuallyHurt(level, damageSrc, damageAmount); // Apply the damage
+
+    // Now that damage has been applied, record it and notify tasks.
+    if (this.isAlive()) { // Check if still alive after damage
+      this.lastDamageTaken = damageAmount; // Store the actual damage amount
+      if (this.currentTask != null) {
+        this.currentTask.onDamaged(this, damageSrc, damageAmount, this.taskOrderingPlayer);
+      }
+    }
   }
 
   @Override
@@ -131,7 +138,12 @@ public class WorkerEntity extends PathfinderMob {
 
   @Override
   protected void registerGoals() {
-    this.goalSelector.addGoal(1, new RandomStrollGoal(this, 1.0D));
+    // Highest priority: Flee if attacked and an ordering player is known
+    this.goalSelector.addGoal(0, new FleeWhenAttackedGoal(this));
+    // Next priority: Execute the currently assigned complex task
+    this.goalSelector.addGoal(1, new ExecuteComplexTaskGoal(this));
+    // Default low-priority behavior: Wander around
+    this.goalSelector.addGoal(8, new RandomStrollGoal(this, 1.0D));
   }
 
   @Override

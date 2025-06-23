@@ -26,7 +26,7 @@ public class InventoryUtils {
     return count;
   }
 
-  public static Optional<BlockEntity> findContainerWithSensor(
+  public static Optional<BlockEntity> findContainerWithItem(
       final Level level,
       final BlockPos origin,
       final int radius,
