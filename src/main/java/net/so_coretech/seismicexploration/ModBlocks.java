@@ -8,11 +8,11 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.so_coretech.seismicexploration.block.BoomBoxBlock;
+import net.so_coretech.seismicexploration.block.PetroleBlock;
 import net.so_coretech.seismicexploration.block.RecorderBlock;
 import net.so_coretech.seismicexploration.block.SensorBlock;
 
 public class ModBlocks {
-
   private static final DeferredRegister.Blocks BLOCKS =
       DeferredRegister.createBlocks(SeismicExploration.MODID);
 
@@ -40,6 +40,26 @@ public class ModBlocks {
               .noOcclusion() // avoid display issues with bigger surrounding blocks
           );
 
+  public static final DeferredBlock<Block> DFU3C =
+      BLOCKS.registerBlock(
+          "dfu3c",
+          SensorBlock::new,
+          BlockBehaviour.Properties.of() // Properties:
+              .mapColor(MapColor.COLOR_BLUE) // the color on the map
+              .sound(SoundType.CROP) // the sound made when placed or destroyed
+              .noOcclusion() // avoid display issues with bigger surrounding blocks
+          );
+
+  public static final DeferredBlock<Block> AFU =
+      BLOCKS.registerBlock(
+          "afu",
+          SensorBlock::new,
+          BlockBehaviour.Properties.of() // Properties:
+              .mapColor(MapColor.COLOR_BLUE) // the color on the map
+              .sound(SoundType.CROP) // the sound made when placed or destroyed
+              .noOcclusion() // avoid display issues with bigger surrounding blocks
+          );
+
   public static final DeferredBlock<Block> RECORDER =
       BLOCKS.registerBlock(
           "recorder",
@@ -49,6 +69,14 @@ public class ModBlocks {
               .sound(SoundType.STONE) // the sound made when placed or destroyed
               .noOcclusion() // avoid display issues with bigger surrounding blocks
           );
+  public static final DeferredBlock<Block> PETROLE =
+      BLOCKS.registerBlock(
+          "petrole",
+          PetroleBlock::new,
+          BlockBehaviour.Properties.of() // Properties:
+              .mapColor(MapColor.COLOR_BLACK) // the color on the map
+              .sound(SoundType.CROP) // the sound made when placed or destroyed
+              .noOcclusion());
 
   //
   // Utilities
@@ -56,5 +84,9 @@ public class ModBlocks {
 
   protected static void register(final IEventBus eventBus) {
     BLOCKS.register(eventBus);
+  }
+
+  public static DeferredRegister.Blocks getBLOCKS() {
+    return BLOCKS;
   }
 }

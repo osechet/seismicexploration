@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "seismicexploration:block/afu"
+    },
+    "facing=south": {
+      "model": "seismicexploration:block/afu",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "seismicexploration:block/afu",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "seismicexploration:block/afu",
+      "y": 270
+    }
+  }
+}

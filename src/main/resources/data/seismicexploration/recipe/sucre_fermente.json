@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "a",
+    "b",
+    "c"
+  ],
+  "key": {
+    "a": "minecraft:water_bucket",
+    "b": "minecraft:sugar_cane",
+    "c": "minecraft:glass_bottle"
+  },
+  "result": {
+    "id": "seismicexploration:sucre_fermente",
+    "count": 1
+  }
+}
