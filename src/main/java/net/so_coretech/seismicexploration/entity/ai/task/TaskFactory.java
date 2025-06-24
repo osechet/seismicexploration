@@ -1,27 +1,29 @@
 package net.so_coretech.seismicexploration.entity.ai.task;
 
 import com.google.gson.JsonObject;
+import com.mojang.logging.LogUtils;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.so_coretech.seismicexploration.ModItems; // Assuming DFU is the sensor item for now
+import net.so_coretech.seismicexploration.ModItems;
 import net.so_coretech.seismicexploration.entity.WorkerEntity;
+import net.so_coretech.seismicexploration.entity.ai.action.PlaceItemAction.BlockPlacedListener;
 import net.so_coretech.seismicexploration.entity.ai.goal.OrderType;
-
-// FreeRoamTask is no longer used
-
-// TODO: Import other concrete task implementations as they are created
-// import net.so_coretech.seismicexploration.entity.ai.task.type.OperateBoomBoxTask;
+import net.so_coretech.seismicexploration.spread.Spread;
+import org.slf4j.Logger;
 
 /**
  * Factory class for creating {@link ITask} instances based on an {@link OrderType} and parameters.
  */
 public class TaskFactory {
+
+  private static final Logger LOGGER = LogUtils.getLogger();
 
   /**
    * Creates a new {@link ITask} for the given worker based on the order type and parameters.
@@ -50,7 +52,7 @@ public class TaskFactory {
         return null;
       case FOLLOW_ME:
         if (orderingPlayer == null) {
-          System.err.println(
+          LOGGER.error(
               "TaskFactory: Cannot create FollowPlayerTask without an orderingPlayer to follow.");
           return null;
         }
@@ -58,8 +60,8 @@ public class TaskFactory {
       case DEPLOY_SENSORS:
       case DEPLOY_CHARGES: // Both use DeployTask, just with different items/params
         if (parameters == null) {
-          System.err.println(
-              "TaskFactory: Cannot create DeployTask without parameters for " + orderType);
+          LOGGER.error(
+              "TaskFactory: Cannot create DeployTask without parameters for {}", orderType);
           return null;
         }
         try {
@@ -71,9 +73,9 @@ public class TaskFactory {
 
           final Direction direction = Direction.byName(parameters.get("direction").getAsString());
           if (direction == null) {
-            System.err.println(
-                "TaskFactory: Invalid direction for DeployTask: "
-                    + parameters.get("direction").getAsString());
+            LOGGER.error(
+                "TaskFactory: Invalid direction for DeployTask: {}",
+                parameters.get("direction").getAsString());
             return null;
           }
 
@@ -81,14 +83,24 @@ public class TaskFactory {
           final int gap = parameters.get("gap").getAsInt();
 
           final Item itemToDeploy;
+          final BlockPlacedListener listener;
           if (orderType == OrderType.DEPLOY_SENSORS) {
             // Assuming DFU is the sensor item. This might need to be more flexible later.
             itemToDeploy = ModItems.DFU.get();
+            listener =
+                new BlockPlacedListener() {
+                  @Override
+                  public void onBlockPlaced(ServerLevel serverLevel, BlockPos pos) {
+                    Spread.getSpread(serverLevel).add(pos);
+                    LOGGER.debug("Sensor added at {}", pos);
+                  }
+                };
           } else { // DEPLOY_CHARGES
             // TODO: Replace with actual charge item once it exists
-            System.err.println(
+            LOGGER.warn(
                 "TaskFactory: DEPLOY_CHARGES item not yet defined. Using DFU as placeholder.");
             itemToDeploy = ModItems.DFU.get(); // Placeholder
+            listener = null;
           }
 
           return new DeployTask(
@@ -97,35 +109,34 @@ public class TaskFactory {
               direction,
               count,
               gap,
-              orderType);
+              orderType,
+              listener);
         } catch (final Exception e) {
-          System.err.println(
-              "TaskFactory: Error parsing parameters for DeployTask for "
-                  + orderType
-                  + ": "
-                  + e.getMessage());
-          e.printStackTrace();
+          LOGGER.error(
+              "TaskFactory: Error parsing parameters for DeployTask for {}: {}",
+              orderType,
+              e.getMessage(),
+              e);
           return null;
         }
       case OPERATE_BOOM_BOX:
         // TODO: Extract params from JsonObject for OPERATE_BOOM_BOX
         // TODO: return new OperateBoomBoxTask(params);
-        System.err.println("TaskFactory: OPERATE_BOOM_BOX task not yet implemented.");
+        LOGGER.warn("TaskFactory: OPERATE_BOOM_BOX task not yet implemented.");
         break; // Fall-through to default or return null if not implemented
       default:
         // Log an error for unhandled order type if it wasn't OPERATE_BOOM_BOX (which has its own
         // message)
         if (orderType != OrderType.OPERATE_BOOM_BOX) {
-          System.err.println("TaskFactory: Unhandled OrderType: " + orderType);
+          LOGGER.error("TaskFactory: Unhandled OrderType: {}", orderType);
         }
         return null; // Return null for unhandled or not-yet-implemented tasks
     }
     // This part of the code will only be reached if an OrderType has a 'break' without a 'return'
     // (e.g., OPERATE_BOOM_BOX if not yet returning a task).
-    System.err.println(
-        "TaskFactory: No task returned for OrderType (fall-through): "
-            + orderType
-            + ". Returning null.");
+    LOGGER.warn(
+        "TaskFactory: No task returned for OrderType (fall-through): {}. Returning null.",
+        orderType);
     return null;
   }
 

@@ -26,6 +26,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.MapColor.Brightness;
 import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.SeismicExploration;
@@ -195,16 +196,19 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
         if (lvl instanceof final ServerLevel serverLevel) {
           final Set<BlockPos> placedSensors = Spread.getSpread(serverLevel).getPlacedSensors();
           this.blocks =
-              placedSensors.stream() //
-                  .map(pos -> (SensorBlockEntity) serverLevel.getBlockEntity(pos)) //
-                  .map(sensor -> Objects.requireNonNull(sensor).getBlocks()) //
-                  .flatMap(map -> map.entrySet().stream()) //
+              placedSensors.stream()
+                  .map(pos -> getSensor(serverLevel, pos))
+                  .map(
+                      sensor ->
+                          sensor != null
+                              ? sensor.getBlocks()
+                              : (Map<BlockPos, MapColor>) new HashMap<BlockPos, MapColor>())
+                  .flatMap(map -> map.entrySet().stream())
                   .collect(
                       Collectors.toMap(
-                          Map.Entry::getKey, //
-                          entry -> entry.getValue().getPackedId(Brightness.NORMAL), //
-                          (existing, replacement) -> existing // keep the first value
-                          // found
+                          Map.Entry::getKey,
+                          entry -> entry.getValue().getPackedId(Brightness.NORMAL),
+                          (existing, replacement) -> existing // keep the first value found
                           ));
           LOGGER.debug("Data retrieved: {} blocks", this.blocks.size());
           setChanged();
@@ -215,5 +219,14 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
       shouldRetrieve = false;
     }
+  }
+
+  // For debug purposes to understand how a sensor can be null.
+  private SensorBlockEntity getSensor(ServerLevel serverLevel, BlockPos pos) {
+    SensorBlockEntity sensor = (SensorBlockEntity) serverLevel.getBlockEntity(pos);
+    if (sensor == null) {
+      LOGGER.warn("SensorBlockEntity at {} is null.", pos);
+    }
+    return sensor;
   }
 }

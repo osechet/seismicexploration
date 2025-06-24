@@ -3,6 +3,7 @@ package net.so_coretech.seismicexploration.entity.ai.action;
 import com.mojang.logging.LogUtils;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -24,10 +25,15 @@ public class PlaceItemAction implements IAction {
 
   private final Item itemToPlace;
   private final BlockPos targetPos;
+  private @Nullable BlockPlacedListener blockPlacedListener;
 
   public PlaceItemAction(final Item itemToPlace, final BlockPos targetPos) {
     this.itemToPlace = itemToPlace;
     this.targetPos = targetPos;
+  }
+
+  public void setBlockPlacedListener(@Nullable final BlockPlacedListener blockPlacedListener) {
+    this.blockPlacedListener = blockPlacedListener;
   }
 
   @Override
@@ -138,7 +144,11 @@ public class PlaceItemAction implements IAction {
             this.itemToPlace.getDescriptionId(),
             this.targetPos);
         npcInventory.extractItem(itemSlot, 1, false); // Consume item
-        // TODO: Play sound, particle effect?
+
+        if (blockPlacedListener != null) {
+          blockPlacedListener.onBlockPlaced((ServerLevel) level, this.targetPos);
+        }
+
         return ActionStatus.SUCCESS;
       } else {
         LOGGER.warn(
@@ -176,5 +186,9 @@ public class PlaceItemAction implements IAction {
   @Override
   public String getDebugName() {
     return "PlaceItemAction[item=" + itemToPlace.getDescriptionId() + ", pos=" + targetPos + "]";
+  }
+
+  public static interface BlockPlacedListener {
+    void onBlockPlaced(ServerLevel serverLevel, BlockPos pos);
   }
 }

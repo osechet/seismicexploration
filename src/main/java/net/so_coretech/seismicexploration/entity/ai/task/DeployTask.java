@@ -20,6 +20,7 @@ import net.so_coretech.seismicexploration.entity.ai.action.IAction;
 import net.so_coretech.seismicexploration.entity.ai.action.MoveToPositionAction;
 import net.so_coretech.seismicexploration.entity.ai.action.PickUpItemAction;
 import net.so_coretech.seismicexploration.entity.ai.action.PlaceItemAction;
+import net.so_coretech.seismicexploration.entity.ai.action.PlaceItemAction.BlockPlacedListener;
 import net.so_coretech.seismicexploration.entity.ai.goal.OrderType;
 import org.slf4j.Logger;
 
@@ -34,6 +35,7 @@ public class DeployTask implements ITask {
   private final int count;
   private final int gap;
   private final OrderType orderType; // To distinguish between SENSORS and CHARGES if needed
+  private final @Nullable BlockPlacedListener blockPlacedListener;
 
   private final Queue<IAction> actionQueue = new LinkedList<>();
   private @Nullable IAction currentAction;
@@ -51,7 +53,8 @@ public class DeployTask implements ITask {
       final Direction direction,
       final int count,
       final int gap,
-      final OrderType orderType) {
+      final OrderType orderType,
+      final @Nullable BlockPlacedListener blockPlacedListener) {
     this.status = TaskStatus.PENDING;
     this.itemToDeploy = itemToDeploy;
     this.startPos = startPos;
@@ -59,6 +62,7 @@ public class DeployTask implements ITask {
     this.count = count;
     this.gap = gap;
     this.orderType = orderType;
+    this.blockPlacedListener = blockPlacedListener;
   }
 
   @Override
@@ -104,7 +108,9 @@ public class DeployTask implements ITask {
     BlockPos currentDeploymentPos = actualStartPos;
     for (int i = 0; i < count; i++) {
       final BlockPos placePos = getGroundLevel(npc.level(), currentDeploymentPos);
-      actionQueue.add(new PlaceItemAction(itemToDeploy, placePos));
+      PlaceItemAction action = new PlaceItemAction(itemToDeploy, placePos);
+      action.setBlockPlacedListener(this.blockPlacedListener);
+      actionQueue.add(action);
       if (i < count - 1) { // Don't move after placing the last item in this sequence
         currentDeploymentPos = currentDeploymentPos.relative(direction, gap + 1);
         final BlockPos nextMoveTarget = getGroundLevel(npc.level(), currentDeploymentPos);

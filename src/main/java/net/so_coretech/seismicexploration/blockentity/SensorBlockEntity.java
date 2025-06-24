@@ -1,7 +1,13 @@
 package net.so_coretech.seismicexploration.blockentity;
 
 import com.mojang.logging.LogUtils;
-import java.util.*;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
