@@ -132,6 +132,7 @@ public class DeployTask implements ITask {
     return state.isAir() || state.canBeReplaced() || shape.isEmpty() || shape.max(Axis.Y) < 0.5;
   }
 
+  // TODO: merge with TaskFactory.getHighestBlock
   private BlockPos getGroundLevel(final Level level, final BlockPos pos) {
     // Simple "highest solid block" logic. Could be more sophisticated.
     BlockPos currentPos = new BlockPos(pos.getX(), level.getHeight(), pos.getZ());

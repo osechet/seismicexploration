@@ -129,11 +129,18 @@ public class TaskFactory {
     return null;
   }
 
+  // TODO: merge with DeployTask.getGroundLevel
   private static BlockPos getHighestBlock(final Level level, final BlockPos pos) {
     // Find the first non-air block at (x, z) that is not a full block
     final BlockPos block =
         getHighestBlock(
-            level, pos, state -> !state.isAir() && state.getShape(level, pos).bounds().maxY > 0.5);
+            level,
+            pos,
+            state ->
+                !state.isAir()
+                    && !state.getShape(level, pos).isEmpty()
+                    && !state.canBeReplaced()
+                    && state.getShape(level, pos).bounds().maxY > 0.5);
     return new BlockPos(block.getX(), block.getY() + 1, block.getZ());
   }
 
