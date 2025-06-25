@@ -17,8 +17,7 @@ tasks.named('wrapper', Wrapper).configure {
 }
 
 // The calculated mod version
-//def mod_version = "${project.scm_version}"
-def mod_version = "0.1.11-dev"
+def mod_version = "${project.scm_version}"
 version = mod_version
 //print("Building ${version}...\n")
 group = mod_group_id
