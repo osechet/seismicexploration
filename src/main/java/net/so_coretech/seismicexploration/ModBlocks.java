@@ -8,8 +8,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.so_coretech.seismicexploration.block.ChargeBlock;
+import net.so_coretech.seismicexploration.block.DFUBlock;
 import net.so_coretech.seismicexploration.block.RecorderBlock;
-import net.so_coretech.seismicexploration.block.SensorBlock;
 
 public class ModBlocks {
 
@@ -23,7 +23,7 @@ public class ModBlocks {
   public static final DeferredBlock<Block> DFU =
       BLOCKS.registerBlock(
           "dfu",
-          SensorBlock::new,
+          DFUBlock::new,
           BlockBehaviour.Properties.of() // Properties:
               .mapColor(MapColor.COLOR_BLUE) // the color on the map
               .sound(SoundType.CROP) // the sound made when placed or destroyed

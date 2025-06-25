@@ -1,11 +1,9 @@
 package net.so_coretech.seismicexploration.block;
 
-import com.mojang.serialization.MapCodec;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -16,38 +14,35 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.blockentity.TickableBlockEntity;
 
-public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlock {
+public abstract class SensorBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
-  private static final MapCodec<SensorBlock> CODEC = simpleCodec(SensorBlock::new);
-  private static final VoxelShape SHAPE = Block.box(6, 0, 6, 10, 4, 10);
+  protected int radius;
 
-  public SensorBlock(final BlockBehaviour.Properties properties) {
+  /**
+   * Creates a new sensor block with the specified radius and properties. The radius defines how
+   * many blocks around the sensor will be recorded. A radius of 0 means only one block column will
+   * be recorded. A radius of 1 means a 3x3 area, radius of 2 means a 5x5 area, etc. Pay attention,
+   * a higher radius will impact the performances.
+   *
+   * @param radius the radius of the recorded area.
+   * @param properties
+   */
+  public SensorBlock(int radius, final BlockBehaviour.Properties properties) {
     super(properties);
+    this.radius = radius;
     this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+  }
+
+  public int getRadius() {
+    return radius;
   }
 
   @Override
   public @Nullable BlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
     return ModBlockEntities.SENSOR_ENTITY.get().create(pos, state);
-  }
-
-  @Override
-  protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-    return CODEC;
-  }
-
-  @Override
-  protected VoxelShape getShape(
-      final BlockState state,
-      final BlockGetter level,
-      final BlockPos pos,
-      final CollisionContext context) {
-    return SHAPE;
   }
 
   @Override

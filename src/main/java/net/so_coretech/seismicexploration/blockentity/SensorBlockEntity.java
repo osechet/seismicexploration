@@ -18,21 +18,26 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.MapColor;
 import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.SeismicExploration;
+import net.so_coretech.seismicexploration.block.SensorBlock;
 import org.slf4j.Logger;
 
 public class SensorBlockEntity extends BlockEntity implements TickableBlockEntity {
 
   private static final Logger LOGGER = LogUtils.getLogger();
-  private static final int ticksPerCycle = 20;
-  private static final int cyclesCount = 5;
+  private static final int ticksToRecord = 40; // 2 seconds at 20 ticks per second
 
   private @Nullable BlockPos recordingPos;
   private int blocksPerTick = 0;
+  private int maxY;
 
   private final Map<BlockPos, MapColor> blocks = new HashMap<>();
 
   public SensorBlockEntity(final BlockPos pos, final BlockState state) {
     super(ModBlockEntities.SENSOR_ENTITY.get(), pos, state);
+  }
+
+  private int getRadius() {
+    return ((SensorBlock) level.getBlockState(worldPosition).getBlock()).getRadius();
   }
 
   public Map<BlockPos, MapColor> getBlocks() {
@@ -41,14 +46,25 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
 
   public void startRecording(final BlockPos pos) {
     LOGGER.debug("Sensor at {} starting recording at {}", worldPosition, pos);
-    recordingPos = pos;
     if (level != null) {
       // Calculate how many blocks must be recorded per tick. We limit the number of blocks being
       // browsed per tick to avoid performance issues
-      final int maxY = level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
-      final int blocksCount = maxY - pos.getY();
-      final int ticksToRecord = (cyclesCount) * ticksPerCycle;
+
+      final int radius = getRadius();
+      maxY = level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
+      for (int dx = -radius; dx <= radius; dx++) {
+        for (int dz = -radius; dz <= radius; dz++) {
+          int x = pos.getX() + dx;
+          int z = pos.getZ() + dz;
+          int max = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
+          if (max > maxY) {
+            maxY = max;
+          }
+        }
+      }
+      final int blocksCount = (maxY - pos.getY()) * (int) Math.pow(radius * 2 + 1, 2);
       blocksPerTick = (int) Math.ceil((float) blocksCount / (float) ticksToRecord);
+      recordingPos = pos;
 
       LOGGER.trace(
           "blocksCount = {} - ticksToRecord = {} - blocksPerTick = {}",
@@ -64,13 +80,23 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
       final Level lvl = level;
       if (recordingPos != null) {
         // When recordingPos is set, it means the sensor is recording
-        final int maxY =
-            lvl.getHeight(Heightmap.Types.WORLD_SURFACE, recordingPos.getX(), recordingPos.getZ());
-        for (int i = 0; i < blocksPerTick; i++) {
+        final int radius = getRadius();
+        for (int i = 0; i < blocksPerTick; i += Math.pow(radius * 2 + 1, 2)) {
           if (recordingPos.getY() < maxY) {
-            LOGGER.trace("Sensor at {} recording block at {}", worldPosition, recordingPos);
-            blocks.put(
-                recordingPos, level.getBlockState(recordingPos).getMapColor(level, recordingPos));
+            LOGGER.trace(
+                "Sensor at {} recording layer at y={}", worldPosition, recordingPos.getY());
+            int y = recordingPos.getY();
+            int centerX = recordingPos.getX();
+            int centerZ = recordingPos.getZ();
+            for (int dx = -radius; dx <= radius; dx++) {
+              for (int dz = -radius; dz <= radius; dz++) {
+                BlockPos pos = new BlockPos(centerX + dx, y, centerZ + dz);
+                if (!blocks.containsKey(pos)) {
+                  MapColor color = lvl.getBlockState(pos).getMapColor(lvl, pos);
+                  blocks.put(pos, color);
+                }
+              }
+            }
             recordingPos = recordingPos.above();
           }
         }
