@@ -22,6 +22,12 @@ public class ModNetworking {
     // Sets the current network version
     final PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
 
+    // Packet to display smoke particles on a primed charge
+    if (net.neoforged.fml.loading.FMLEnvironment.dist.isClient()) {
+      registrar.playToClient(
+          PrimedSmokePacket.TYPE, PrimedSmokePacket.STREAM_CODEC, PrimedSmokePacket::handle);
+    }
+
     // Packet to send the values from the RecorderScreen to the RecorderBlockEntity
     registrar.playToServer(
         RecorderScreenValuesPacket.TYPE,

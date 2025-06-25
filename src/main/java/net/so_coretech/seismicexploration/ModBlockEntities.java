@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.so_coretech.seismicexploration.blockentity.BoomBoxBlockEntity;
+import net.so_coretech.seismicexploration.blockentity.ChargeBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.RecorderBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.SensorBlockEntity;
 
@@ -32,6 +33,11 @@ public class ModBlockEntities {
       BLOCK_ENTITIES.register(
           "recorder_entity",
           () -> new BlockEntityType<>(RecorderBlockEntity::new, ModBlocks.RECORDER.get()));
+
+  public static final Supplier<BlockEntityType<ChargeBlockEntity>> CHARGE_ENTITY =
+      BLOCK_ENTITIES.register(
+          "charge_entity",
+          () -> new BlockEntityType<>(ChargeBlockEntity::new, ModBlocks.CHARGE.get()));
 
   //
   // Utilities

@@ -27,6 +27,9 @@ public class ModItems {
   public static final DeferredItem<Item> RECORDER =
       registerBlock(ModBlocks.RECORDER, BlockItem::new, new Item.Properties());
 
+  public static final DeferredItem<Item> CHARGE =
+      registerBlock(ModBlocks.CHARGE, BlockItem::new, new Item.Properties());
+
   public static final DeferredItem<Item> FIELD_MONITOR =
       ITEMS.registerSimpleItem("field_monitor", new Item.Properties());
 

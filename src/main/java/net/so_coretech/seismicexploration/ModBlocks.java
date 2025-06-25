@@ -8,6 +8,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.so_coretech.seismicexploration.block.BoomBoxBlock;
+import net.so_coretech.seismicexploration.block.ChargeBlock;
 import net.so_coretech.seismicexploration.block.RecorderBlock;
 import net.so_coretech.seismicexploration.block.SensorBlock;
 
@@ -46,6 +47,16 @@ public class ModBlocks {
           RecorderBlock::new,
           BlockBehaviour.Properties.of() // Properties:
               .mapColor(MapColor.METAL) // the color on the map
+              .sound(SoundType.STONE) // the sound made when placed or destroyed
+              .noOcclusion() // avoid display issues with bigger surrounding blocks
+          );
+
+  public static final DeferredBlock<Block> CHARGE =
+      BLOCKS.registerBlock(
+          "charge",
+          ChargeBlock::new,
+          BlockBehaviour.Properties.of() // Properties:
+              .mapColor(MapColor.COLOR_ORANGE) // the color on the map
               .sound(SoundType.STONE) // the sound made when placed or destroyed
               .noOcclusion() // avoid display issues with bigger surrounding blocks
           );

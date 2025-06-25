@@ -28,7 +28,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.DFU.get());
                         output.accept(ModBlocks.BOOM_BOX.get());
                         output.accept(ModBlocks.RECORDER.get());
-                        output.accept(ModItems.FIELD_MONITOR.get());
+                        output.accept(ModBlocks.CHARGE.get());
                       })
                   .build());
 
