@@ -43,7 +43,7 @@ public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlo
   }
 
   @Override
-  public VoxelShape getShape(
+  protected VoxelShape getShape(
       final BlockState state,
       final BlockGetter level,
       final BlockPos pos,
@@ -76,22 +76,4 @@ public class SensorBlock extends HorizontalDirectionalBlock implements EntityBlo
     // Interdire de poser un SensorBlock sur un autre SensorBlock
     return !(below.getBlock() instanceof SensorBlock);
   }
-
-  /*@Override
-  protected InteractionResult useItemOn(
-      final ItemStack stack,
-      final BlockState state,
-      final Level level,
-      final BlockPos pos,
-      final Player player,
-      final InteractionHand hand,
-      final BlockHitResult hitResult) {
-    if (hand == InteractionHand.MAIN_HAND) {
-      if (!level.isClientSide()) {
-        // Interdire de poser un block sur un SensorBlock
-        return InteractionResult.CONSUME;
-      }
-    }
-    return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-  }*/
 }
