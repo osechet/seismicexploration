@@ -2,16 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "seismicexploration:mems",
+    "G": "seismicexploration:geophone",
     "P": "seismicexploration:pla"
   },
   "pattern": [
     "P P",
-    "PMP",
+    "PGP",
     "P P"
   ],
   "result": {
     "count": 1,
-    "id": "seismicexploration:dfu"
+    "id": "seismicexploration:afu"
   }
 }

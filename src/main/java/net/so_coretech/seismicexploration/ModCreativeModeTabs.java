@@ -26,9 +26,16 @@ public class ModCreativeModeTabs {
                   .displayItems(
                       (parameters, output) -> {
                         output.accept(ModBlocks.DFU.get());
+                        output.accept(ModBlocks.DFU3C.get());
+                        output.accept(ModBlocks.AFU.get());
                         output.accept(ModBlocks.BOOM_BOX.get());
                         output.accept(ModBlocks.RECORDER.get());
                         output.accept(ModBlocks.CHARGE.get());
+                        output.accept(ModItems.PETROLEUM.get());
+                        output.accept(ModItems.MEMS.get());
+                        output.accept(ModItems.PLA.get());
+                        output.accept(ModItems.GEOPHONE.get());
+                        output.accept(ModItems.FERMENTED_SUGAR.get());
                       })
                   .build());
 

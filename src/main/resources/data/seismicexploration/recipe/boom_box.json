@@ -4,7 +4,7 @@
   "key": {
     "G": "minecraft:glass",
     "C": "minecraft:copper_ingot",
-    "P": "minecraft:paper"
+    "P": "seismicexploration:pla"
   },
   "pattern": [
     "PGP",
