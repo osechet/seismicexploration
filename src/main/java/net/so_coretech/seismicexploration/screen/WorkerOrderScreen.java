@@ -88,8 +88,8 @@ public class WorkerOrderScreen extends Screen {
       }
       case DEPLOY_CHARGES ->
           packet = new WorkerOrdersPacket(entityId, OrderType.DEPLOY_CHARGES.ordinal());
-      case OPERATE_BOOM_BOX ->
-          packet = new WorkerOrdersPacket(entityId, OrderType.OPERATE_BOOM_BOX.ordinal());
+      case OPERATE_BLASTER ->
+          packet = new WorkerOrdersPacket(entityId, OrderType.OPERATE_BLASTER.ordinal());
       default -> {
         LOGGER.error("Unknown order type: {}", orderType);
         return;
@@ -116,7 +116,7 @@ public class WorkerOrderScreen extends Screen {
             playerPos.getX(),
             playerPos.getZ()));
     pages.add(new DeployChargesPage(this));
-    pages.add(new OperateBoomBoxPage(this));
+    pages.add(new OperateBlasterPage(this));
 
     // Slider for pages: 0, 1, 2
     pageSlider =

@@ -1,8 +1,0 @@
-{
-	"credit": "Made with Blockbench",
-	"parent": "seismicexploration:block/boom_box",
-	"textures": {
-		"0": "seismicexploration:block/boom_box_working",
-		"particle": "seismicexploration:block/boom_box_working"
-	}
-}

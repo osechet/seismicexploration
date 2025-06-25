@@ -57,7 +57,7 @@ public record WorkerOrdersPacket(int entityId, int orderType) implements CustomP
               newTask = TaskFactory.createTask(orderType, workerEntity, player, null);
             } else if (orderType == OrderType.DEPLOY_SENSORS
                 || orderType == OrderType.DEPLOY_CHARGES
-                || orderType == OrderType.OPERATE_BOOM_BOX) {
+                || orderType == OrderType.OPERATE_BLASTER) {
               LOGGER.error(
                   "Received WorkerOrdersPacket for complex order type {} which should have its own dedicated packet. This packet will be ignored.",
                   orderType);

@@ -7,7 +7,6 @@ import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.so_coretech.seismicexploration.block.BoomBoxBlock;
 import net.so_coretech.seismicexploration.block.ChargeBlock;
 import net.so_coretech.seismicexploration.block.RecorderBlock;
 import net.so_coretech.seismicexploration.block.SensorBlock;
@@ -20,16 +19,6 @@ public class ModBlocks {
   //
   // Register blocks
   //
-
-  public static final DeferredBlock<Block> BOOM_BOX =
-      BLOCKS.registerBlock(
-          "boom_box",
-          BoomBoxBlock::new,
-          BlockBehaviour.Properties.of() // Properties:
-              .mapColor(MapColor.COLOR_BLUE) // the color on the map
-              .sound(SoundType.CROP) // the sound made when placed or destroyed
-              .noOcclusion() // avoid display issues with bigger surrounding blocks
-          );
 
   public static final DeferredBlock<Block> DFU =
       BLOCKS.registerBlock(

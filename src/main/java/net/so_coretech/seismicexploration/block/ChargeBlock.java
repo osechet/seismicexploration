@@ -23,7 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.so_coretech.seismicexploration.ModBlockEntities;
-import net.so_coretech.seismicexploration.ModBlocks;
+import net.so_coretech.seismicexploration.ModItems;
 import net.so_coretech.seismicexploration.blockentity.ChargeBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.TickableBlockEntity;
 
@@ -78,8 +78,8 @@ public class ChargeBlock extends Block implements EntityBlock {
     if (!level.isClientSide) {
       if (!state.getValue(PRIMED)) {
         ItemStack heldItem = player.getItemInHand(hand);
-        // Check if the player is holding a BoomBox
-        if (heldItem.is(ModBlocks.BOOM_BOX.get().asItem())) {
+        // Check if the player is holding a Blaster
+        if (heldItem.is(ModItems.BLASTER.get().asItem())) {
 
           BlockEntity be = level.getBlockEntity(pos);
           if (be instanceof ChargeBlockEntity chargeEntity) {

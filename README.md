@@ -11,12 +11,13 @@ exploration experience in Minecraft.
 - **Seismic Waves**: Players can generate seismic waves to detect ores and other resources underground.
 - **Slice View**: The mod provides a slice view of the world, allowing players to see the underground resources.
 - **Sensors**: Players can use sensors to detect seismic waves and locate resources.
-- **Boom Box**: A special item that generates seismic waves when used.
+- **Explosive Charge**: Players can use charges to generate seismic waves.
+- **Blaster**: Primes explosive charges and makes them explode.
 
 ## Installation
 
 1. Install NeoForge for Minecraft.
-2. Download the Seismic Exploration mod from the official website.
+2. Download the Seismic Exploration mod from the releases page on GitHub.
 3. Place the mod file in the `mods` folder of your Minecraft installation.
 4. Launch Minecraft with NeoForge.
 5. Enjoy exploring the world with seismic waves!

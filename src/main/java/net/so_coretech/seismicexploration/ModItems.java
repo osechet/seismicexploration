@@ -18,9 +18,6 @@ public class ModItems {
   // Register items
   //
 
-  public static final DeferredItem<Item> BOOM_BOX =
-      registerBlock(ModBlocks.BOOM_BOX, BlockItem::new, new Item.Properties());
-
   public static final DeferredItem<Item> DFU =
       registerBlock(ModBlocks.DFU, BlockItem::new, new Item.Properties());
 
@@ -32,6 +29,9 @@ public class ModItems {
 
   public static final DeferredItem<Item> FIELD_MONITOR =
       ITEMS.registerSimpleItem("field_monitor", new Item.Properties());
+
+  public static final DeferredItem<Item> BLASTER =
+      ITEMS.registerSimpleItem("blaster", new Item.Properties());
 
   //
   // Utilities

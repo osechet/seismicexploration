@@ -150,9 +150,9 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
    */
   @Override
   public void onDataPacket(
-      @Nullable final Connection connection,
-      @Nullable final ClientboundBlockEntityDataPacket pkt,
-      @Nullable final Provider lookup) {
+      final Connection connection,
+      final ClientboundBlockEntityDataPacket pkt,
+      final Provider lookup) {
     super.onDataPacket(connection, pkt, lookup);
     LOGGER.debug("onDataPacket - received {}", this.sliceData);
     ClientLevelDataManager.get()

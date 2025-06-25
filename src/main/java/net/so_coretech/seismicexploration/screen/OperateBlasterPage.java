@@ -4,10 +4,10 @@ import java.util.List;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.so_coretech.seismicexploration.entity.ai.goal.OrderType;
 
-public class OperateBoomBoxPage extends Page {
+public class OperateBlasterPage extends Page {
 
-  public OperateBoomBoxPage(final WorkerOrderScreen screen) {
-    super("Operate Boom Box", screen);
+  public OperateBlasterPage(final WorkerOrderScreen screen) {
+    super("Operate Blaster", screen);
   }
 
   @Override
@@ -17,6 +17,6 @@ public class OperateBoomBoxPage extends Page {
 
   @Override
   public OrderType getOrderType() {
-    return OrderType.DEPLOY_CHARGES;
+    return OrderType.OPERATE_BLASTER;
   }
 }

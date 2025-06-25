@@ -5,7 +5,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.so_coretech.seismicexploration.blockentity.BoomBoxBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.ChargeBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.RecorderBlockEntity;
 import net.so_coretech.seismicexploration.blockentity.SensorBlockEntity;
@@ -18,11 +17,6 @@ public class ModBlockEntities {
   //
   // Register block entities
   //
-
-  public static final Supplier<BlockEntityType<BoomBoxBlockEntity>> BOOM_BOX_ENTITY =
-      BLOCK_ENTITIES.register(
-          "boom_box_entity",
-          () -> new BlockEntityType<>(BoomBoxBlockEntity::new, ModBlocks.BOOM_BOX.get()));
 
   public static final Supplier<BlockEntityType<SensorBlockEntity>> SENSOR_ENTITY =
       BLOCK_ENTITIES.register(

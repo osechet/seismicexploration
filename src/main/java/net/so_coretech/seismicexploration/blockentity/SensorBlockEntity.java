@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 public class SensorBlockEntity extends BlockEntity implements TickableBlockEntity {
 
   private static final Logger LOGGER = LogUtils.getLogger();
+  private static final int ticksPerCycle = 20;
+  private static final int cyclesCount = 5;
 
   private @Nullable BlockPos recordingPos;
   private int blocksPerTick = 0;
@@ -45,7 +47,7 @@ public class SensorBlockEntity extends BlockEntity implements TickableBlockEntit
       // browsed per tick to avoid performance issues
       final int maxY = level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ());
       final int blocksCount = maxY - pos.getY();
-      final int ticksToRecord = (BoomBoxBlockEntity.cyclesCount) * BoomBoxBlockEntity.ticksPerCycle;
+      final int ticksToRecord = (cyclesCount) * ticksPerCycle;
       blocksPerTick = (int) Math.ceil((float) blocksCount / (float) ticksToRecord);
 
       LOGGER.trace(

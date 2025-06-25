@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "seismicexploration:block/boom_box"
+    "model": "seismicexploration:item/blaster"
   }
 }

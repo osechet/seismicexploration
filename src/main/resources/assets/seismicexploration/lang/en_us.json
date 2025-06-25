@@ -1,5 +1,4 @@
 {
-  "block.seismicexploration.boom_box": "Boom Box",
   "block.seismicexploration.dfu": "DFU",
   "block.seismicexploration.recorder": "Recorder",
   "block.seismicexploration.charge": "Explosive Charge",
@@ -8,7 +7,7 @@
   "direction.seismicexploration.north": "North",
   "direction.seismicexploration.south": "South",
   "direction.seismicexploration.west": "West",
-  "item.seismicexploration.boom_box": "Boom Box",
+  "item.seismicexploration.blaster": "Blaster",
   "item.seismicexploration.dfu": "DFU",
   "item.seismicexploration.field_monitor": "Field Monitor",
   "item.seismicexploration.recorder": "Recorder",

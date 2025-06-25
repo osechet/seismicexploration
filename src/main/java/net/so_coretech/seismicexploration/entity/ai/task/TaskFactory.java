@@ -119,21 +119,21 @@ public class TaskFactory {
               e);
           return null;
         }
-      case OPERATE_BOOM_BOX:
-        // TODO: Extract params from JsonObject for OPERATE_BOOM_BOX
-        // TODO: return new OperateBoomBoxTask(params);
-        LOGGER.warn("TaskFactory: OPERATE_BOOM_BOX task not yet implemented.");
+      case OPERATE_BLASTER:
+        // TODO: Extract params from JsonObject for OPERATE_BLASTER
+        // TODO: return new OperateBlasterTask(params);
+        LOGGER.warn("TaskFactory: OPERATE_BLASTER task not yet implemented.");
         break; // Fall-through to default or return null if not implemented
       default:
-        // Log an error for unhandled order type if it wasn't OPERATE_BOOM_BOX (which has its own
+        // Log an error for unhandled order type if it wasn't OPERATE_BLASTER (which has its own
         // message)
-        if (orderType != OrderType.OPERATE_BOOM_BOX) {
+        if (orderType != OrderType.OPERATE_BLASTER) {
           LOGGER.error("TaskFactory: Unhandled OrderType: {}", orderType);
         }
         return null; // Return null for unhandled or not-yet-implemented tasks
     }
     // This part of the code will only be reached if an OrderType has a 'break' without a 'return'
-    // (e.g., OPERATE_BOOM_BOX if not yet returning a task).
+    // (e.g., OPERATE_BLASTER if not yet returning a task).
     LOGGER.warn(
         "TaskFactory: No task returned for OrderType (fall-through): {}. Returning null.",
         orderType);
