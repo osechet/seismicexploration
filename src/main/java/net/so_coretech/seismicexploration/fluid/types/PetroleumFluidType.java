@@ -18,8 +18,8 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.so_coretech.seismicexploration.ModFluidTypes;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
-public class PetroleFluidType extends FluidType {
-  public PetroleFluidType() {
+public class PetroleumFluidType extends FluidType {
+  public PetroleumFluidType() {
     super(
         FluidType.Properties.create()
             .canSwim(false)
@@ -37,9 +37,9 @@ public class PetroleFluidType extends FluidType {
     event.registerFluidType(
         new IClientFluidTypeExtensions() {
           private static final ResourceLocation STILL_TEXTURE =
-              ResourceLocation.parse("seismicexploration:block/petrole_flowing");
+              ResourceLocation.parse("seismicexploration:block/petroleum_flowing");
           private static final ResourceLocation FLOWING_TEXTURE =
-              ResourceLocation.parse("seismicexploration:block/still_petrol_16x16");
+              ResourceLocation.parse("seismicexploration:block/still_petroleum_16x16");
 
           @Override
           public ResourceLocation getStillTexture() {
@@ -72,6 +72,6 @@ public class PetroleFluidType extends FluidType {
                 fogParameters.alpha());
           }
         },
-        ModFluidTypes.PETROLE_TYPE.get());
+        ModFluidTypes.PETROLEUM_TYPE.get());
   }
 }

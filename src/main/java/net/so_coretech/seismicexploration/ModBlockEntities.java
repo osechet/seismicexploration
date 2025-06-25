@@ -33,11 +33,6 @@ public class ModBlockEntities {
                   SensorBlockEntity::new,
                   Set.of(ModBlocks.DFU.get(), ModBlocks.DFU3C.get(), ModBlocks.AFU.get())));
 
-  /*public static final Supplier<BlockEntityType<SensorBlockEntity>> SENSOR_ENTITY =
-  BLOCK_ENTITIES.register(
-      "sensor_entity",
-      () -> new BlockEntityType<>(SensorBlockEntity::new, ModBlocks.DFU.get()));*/
-
   public static final Supplier<BlockEntityType<RecorderBlockEntity>> RECORDER_ENTITY =
       BLOCK_ENTITIES.register(
           "recorder_entity",

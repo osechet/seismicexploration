@@ -14,22 +14,34 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.so_coretech.seismicexploration.fluid.PetroleFluid;
+import net.so_coretech.seismicexploration.fluid.PetroleumFluid;
 
 public class ModFluids {
+
   public static final DeferredRegister<Fluid> REGISTRY =
       DeferredRegister.create(BuiltInRegistries.FLUID, SeismicExploration.MODID);
-  public static final DeferredHolder<Fluid, FlowingFluid> PETROLE =
-      REGISTRY.register("petrole", () -> new PetroleFluid.Source());
-  public static final DeferredHolder<Fluid, FlowingFluid> FLOWING_PETROLE =
-      REGISTRY.register("flowing_petrole", () -> new PetroleFluid.Flowing());
+
+  //
+  // Register fluids
+  //
+
+  public static final DeferredHolder<Fluid, FlowingFluid> PETROLEUM =
+      REGISTRY.register("petroleum", () -> new PetroleumFluid.Source());
+
+  public static final DeferredHolder<Fluid, FlowingFluid> FLOWING_PETROLEUM =
+      REGISTRY.register("flowing_petroleum", () -> new PetroleumFluid.Flowing());
+
+  //
+  // Events
+  //
 
   @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
   public static class FluidsClientSideHandler {
+
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
-      ItemBlockRenderTypes.setRenderLayer(PETROLE.get(), RenderType.translucent());
-      ItemBlockRenderTypes.setRenderLayer(FLOWING_PETROLE.get(), RenderType.translucent());
+      ItemBlockRenderTypes.setRenderLayer(PETROLEUM.get(), RenderType.translucent());
+      ItemBlockRenderTypes.setRenderLayer(FLOWING_PETROLEUM.get(), RenderType.translucent());
     }
   }
 }

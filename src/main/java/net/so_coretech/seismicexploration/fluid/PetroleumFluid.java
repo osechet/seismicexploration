@@ -12,17 +12,18 @@ import net.so_coretech.seismicexploration.ModFluidTypes;
 import net.so_coretech.seismicexploration.ModFluids;
 import net.so_coretech.seismicexploration.ModItems;
 
-public abstract class PetroleFluid extends BaseFlowingFluid {
+public abstract class PetroleumFluid extends BaseFlowingFluid {
+
   public static final BaseFlowingFluid.Properties PROPERTIES =
       new BaseFlowingFluid.Properties(
-              () -> ModFluidTypes.PETROLE_TYPE.get(),
-              () -> ModFluids.PETROLE.get(),
-              () -> ModFluids.FLOWING_PETROLE.get())
+              () -> ModFluidTypes.PETROLEUM_TYPE.get(),
+              () -> ModFluids.PETROLEUM.get(),
+              () -> ModFluids.FLOWING_PETROLEUM.get())
           .explosionResistance(100f)
-          .bucket(() -> ModItems.PETROLE.get())
-          .block(() -> (LiquidBlock) ModBlocks.PETROLE.get());
+          .bucket(() -> ModItems.PETROLEUM.get())
+          .block(() -> (LiquidBlock) ModBlocks.PETROLEUM.get());
 
-  private PetroleFluid() {
+  private PetroleumFluid() {
     super(PROPERTIES);
   }
 
@@ -31,7 +32,7 @@ public abstract class PetroleFluid extends BaseFlowingFluid {
     return ParticleTypes.ASH;
   }
 
-  public static class Source extends PetroleFluid {
+  public static class Source extends PetroleumFluid {
     public int getAmount(FluidState state) {
       return 8;
     }
@@ -41,7 +42,7 @@ public abstract class PetroleFluid extends BaseFlowingFluid {
     }
   }
 
-  public static class Flowing extends PetroleFluid {
+  public static class Flowing extends PetroleumFluid {
     protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
       super.createFluidStateDefinition(builder);
       builder.add(LEVEL);

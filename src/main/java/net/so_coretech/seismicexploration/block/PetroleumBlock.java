@@ -7,10 +7,10 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.so_coretech.seismicexploration.ModFluids;
 
-public class PetroleBlock extends LiquidBlock {
-  public PetroleBlock(BlockBehaviour.Properties properties) {
+public class PetroleumBlock extends LiquidBlock {
+  public PetroleumBlock(BlockBehaviour.Properties properties) {
     super(
-        ModFluids.PETROLE.get(),
+        ModFluids.PETROLEUM.get(),
         properties
             .mapColor(MapColor.COLOR_BLACK)
             .strength(100f)

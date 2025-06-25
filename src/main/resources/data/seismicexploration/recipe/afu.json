@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "G": "seismicexploration:geophone",
-    "P": "seismicexploration:plastique"
+    "P": "seismicexploration:pla"
   },
   "pattern": [
     "P P",

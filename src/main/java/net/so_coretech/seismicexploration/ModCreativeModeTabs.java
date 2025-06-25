@@ -31,11 +31,11 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.BOOM_BOX.get());
                         output.accept(ModBlocks.RECORDER.get());
                         output.accept(ModBlocks.CHARGE.get());
-                        output.accept(ModItems.PETROLE.get());
+                        output.accept(ModItems.PETROLEUM.get());
                         output.accept(ModItems.MEMS.get());
-                        output.accept(ModItems.PLASTIQUE.get());
+                        output.accept(ModItems.PLA.get());
                         output.accept(ModItems.GEOPHONE.get());
-                        output.accept(ModItems.SUCRE_FERMENTE.get());
+                        output.accept(ModItems.FERMENTED_SUGAR.get());
                       })
                   .build());
 

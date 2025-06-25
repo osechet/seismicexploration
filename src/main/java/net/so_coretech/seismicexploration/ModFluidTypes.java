@@ -7,11 +7,17 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import net.so_coretech.seismicexploration.fluid.types.PetroleFluidType;
+import net.so_coretech.seismicexploration.fluid.types.PetroleumFluidType;
 
 public class ModFluidTypes {
+
   public static final DeferredRegister<FluidType> REGISTRY =
       DeferredRegister.create(NeoForgeRegistries.FLUID_TYPES, SeismicExploration.MODID);
-  public static final DeferredHolder<FluidType, FluidType> PETROLE_TYPE =
-      REGISTRY.register("petrole", () -> new PetroleFluidType());
+
+  //
+  // Register fluid types
+  //
+
+  public static final DeferredHolder<FluidType, FluidType> PETROLEUM_TYPE =
+      REGISTRY.register("petroleum", () -> new PetroleumFluidType());
 }

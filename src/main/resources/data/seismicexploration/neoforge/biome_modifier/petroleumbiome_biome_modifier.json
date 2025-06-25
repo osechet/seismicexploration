@@ -3,6 +3,6 @@
   "biomes": {
     "type": "neoforge:any"
   },
-  "features": "seismicexploration:petrolebiome",
+  "features": "seismicexploration:petroleumbiome",
   "step": "lakes"
 }

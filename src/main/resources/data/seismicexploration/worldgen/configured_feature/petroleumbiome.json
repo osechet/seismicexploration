@@ -4,7 +4,7 @@
     "fluid": {
       "type": "minecraft:simple_state_provider",
       "state": {
-        "Name": "seismicexploration:petrole"
+        "Name": "seismicexploration:petroleum"
       }
     },
     "barrier": {
