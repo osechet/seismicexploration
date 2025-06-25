@@ -1,5 +1,6 @@
 package net.so_coretech.seismicexploration;
 
+import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -27,7 +28,15 @@ public class ModBlockEntities {
   public static final Supplier<BlockEntityType<SensorBlockEntity>> SENSOR_ENTITY =
       BLOCK_ENTITIES.register(
           "sensor_entity",
-          () -> new BlockEntityType<>(SensorBlockEntity::new, ModBlocks.DFU.get()));
+          () ->
+              new BlockEntityType<>(
+                  SensorBlockEntity::new,
+                  Set.of(ModBlocks.DFU.get(), ModBlocks.DFU3C.get(), ModBlocks.AFU.get())));
+
+  /*public static final Supplier<BlockEntityType<SensorBlockEntity>> SENSOR_ENTITY =
+  BLOCK_ENTITIES.register(
+      "sensor_entity",
+      () -> new BlockEntityType<>(SensorBlockEntity::new, ModBlocks.DFU.get()));*/
 
   public static final Supplier<BlockEntityType<RecorderBlockEntity>> RECORDER_ENTITY =
       BLOCK_ENTITIES.register(

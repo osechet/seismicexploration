@@ -2,17 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "G": "minecraft:glass",
-    "C": "minecraft:copper_ingot",
+    "M": "seismicexploration:mems",
     "P": "seismicexploration:plastique"
   },
   "pattern": [
-    "PGP",
-    "PCP",
-    "PPP"
+    "PMP",
+    "PMP",
+    "PMP"
   ],
   "result": {
     "count": 1,
-    "id": "seismicexploration:boom_box"
+    "id": "seismicexploration:dfu3c"
   }
 }

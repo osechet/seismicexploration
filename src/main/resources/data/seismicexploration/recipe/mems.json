@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "a a",
+    "bcb",
+    "a a"
+  ],
+  "key": {
+    "a": "minecraft:green_stained_glass_pane",
+    "b": "minecraft:gold_nugget",
+    "c": "minecraft:copper_ingot"
+  },
+  "result": {
+    "id": "seismicexploration:mems",
+    "count": 1
+  }
+}

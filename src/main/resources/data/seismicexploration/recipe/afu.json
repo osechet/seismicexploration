@@ -2,17 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "G": "minecraft:glass",
-    "C": "minecraft:copper_ingot",
+    "G": "seismicexploration:geophone",
     "P": "seismicexploration:plastique"
   },
   "pattern": [
+    "P P",
     "PGP",
-    "PCP",
-    "PPP"
+    "P P"
   ],
   "result": {
     "count": 1,
-    "id": "seismicexploration:boom_box"
+    "id": "seismicexploration:afu"
   }
 }

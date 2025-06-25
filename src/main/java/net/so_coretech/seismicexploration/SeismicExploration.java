@@ -45,6 +45,8 @@ public class SeismicExploration {
     ModEntities.register(modEventBus);
     ModItems.register(modEventBus);
     ModMenus.register(modEventBus);
+    ModFluids.REGISTRY.register(modEventBus);
+    ModFluidTypes.REGISTRY.register(modEventBus);
 
     // Register ourselves for server and other game events we are interested in
     NeoForge.EVENT_BUS.register(this);
