@@ -4,6 +4,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -76,9 +77,14 @@ public class ModBlocks {
           "petroleum",
           PetroleumBlock::new,
           BlockBehaviour.Properties.of() // Properties:
-              .mapColor(MapColor.COLOR_BLACK) // the color on the map
-              .sound(SoundType.CROP) // the sound made when placed or destroyed
-              .noOcclusion());
+              .mapColor(MapColor.COLOR_BLACK)
+              .strength(100f)
+              .noCollission()
+              .noLootTable()
+              .liquid()
+              .pushReaction(PushReaction.DESTROY)
+              .sound(SoundType.EMPTY)
+              .replaceable());
 
   public static final DeferredBlock<Block> CHARGE =
       BLOCKS.registerBlock(
