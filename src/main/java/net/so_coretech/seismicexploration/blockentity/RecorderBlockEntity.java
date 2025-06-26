@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -24,6 +25,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
@@ -49,9 +51,48 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
   private int axisValue;
   private SliceData sliceData = new SliceData();
 
+  private final Map<Block, Byte> blockColors = new HashMap<>();
+
   public RecorderBlockEntity(final BlockPos pos, final BlockState state) {
     super(ModBlockEntities.RECORDER_ENTITY.get(), pos, state);
+    initBlockColors();
     setSliderValues(pos.getX(), pos.getZ(), RecorderScreen.AXIS_X);
+  }
+
+  private void initBlockColors() {
+    for (Block block : BuiltInRegistries.BLOCK) {
+      MapColor color = block.defaultMapColor();
+      if (color != null) {
+        blockColors.put(block, color.getPackedId(Brightness.NORMAL));
+      }
+    }
+
+    // Customize some colors
+    blockColors.put(Blocks.DIAMOND_ORE, MapColor.COLOR_PINK.getPackedId(Brightness.NORMAL));
+    blockColors.put(
+        Blocks.DEEPSLATE_DIAMOND_ORE, MapColor.COLOR_PINK.getPackedId(Brightness.NORMAL));
+    blockColors.put(Blocks.EMERALD_ORE, MapColor.COLOR_PINK.getPackedId(Brightness.NORMAL));
+    blockColors.put(
+        Blocks.DEEPSLATE_EMERALD_ORE, MapColor.COLOR_PINK.getPackedId(Brightness.NORMAL));
+    blockColors.put(Blocks.LAPIS_ORE, MapColor.COLOR_PINK.getPackedId(Brightness.NORMAL));
+    blockColors.put(Blocks.DEEPSLATE_LAPIS_ORE, MapColor.COLOR_PINK.getPackedId(Brightness.NORMAL));
+    blockColors.put(Blocks.COPPER_ORE, MapColor.COLOR_ORANGE.getPackedId(Brightness.NORMAL));
+    blockColors.put(
+        Blocks.DEEPSLATE_COPPER_ORE, MapColor.COLOR_ORANGE.getPackedId(Brightness.NORMAL));
+    blockColors.put(Blocks.COAL_ORE, MapColor.COLOR_ORANGE.getPackedId(Brightness.NORMAL));
+    blockColors.put(
+        Blocks.DEEPSLATE_COAL_ORE, MapColor.COLOR_ORANGE.getPackedId(Brightness.NORMAL));
+    blockColors.put(Blocks.IRON_ORE, MapColor.COLOR_ORANGE.getPackedId(Brightness.NORMAL));
+    blockColors.put(Blocks.GOLD_ORE, MapColor.COLOR_ORANGE.getPackedId(Brightness.NORMAL));
+    blockColors.put(
+        Blocks.DEEPSLATE_IRON_ORE, MapColor.COLOR_ORANGE.getPackedId(Brightness.NORMAL));
+    blockColors.put(
+        Blocks.DEEPSLATE_GOLD_ORE, MapColor.COLOR_ORANGE.getPackedId(Brightness.NORMAL));
+    blockColors.put(Blocks.REDSTONE_ORE, MapColor.COLOR_MAGENTA.getPackedId(Brightness.NORMAL));
+    blockColors.put(
+        Blocks.DEEPSLATE_REDSTONE_ORE, MapColor.COLOR_MAGENTA.getPackedId(Brightness.NORMAL));
+
+    LOGGER.debug("Colors initialized. {} blocks found", blockColors.size());
   }
 
   public void setSliderValues(final int xValue, final int zValue, final int axisValue) {
@@ -198,18 +239,15 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
           this.blocks =
               placedSensors.stream()
                   .map(pos -> getSensor(serverLevel, pos))
-                  .map(
-                      sensor ->
-                          sensor != null
-                              ? sensor.getBlocks()
-                              : (Map<BlockPos, MapColor>) new HashMap<BlockPos, MapColor>())
-                  .flatMap(map -> map.entrySet().stream())
+                  .filter(Objects::nonNull)
+                  .flatMap(sensor -> sensor.getBlocks().stream())
                   .collect(
                       Collectors.toMap(
-                          Map.Entry::getKey,
-                          entry -> entry.getValue().getPackedId(Brightness.NORMAL),
+                          pos -> pos,
+                          pos -> getPackedId(serverLevel, pos),
                           (existing, replacement) -> existing // keep the first value found
                           ));
+
           LOGGER.debug("Data retrieved: {} blocks", this.blocks.size());
           setChanged();
 
@@ -228,5 +266,10 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
       LOGGER.warn("SensorBlockEntity at {} is null.", pos);
     }
     return sensor;
+  }
+
+  private Byte getPackedId(ServerLevel serverLevel, BlockPos pos) {
+    final Block block = serverLevel.getBlockState(pos).getBlock();
+    return blockColors.getOrDefault(block, MapColor.STONE.getPackedId(Brightness.NORMAL));
   }
 }
