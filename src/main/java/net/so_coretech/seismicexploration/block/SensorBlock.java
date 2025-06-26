@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.redstone.Orientation;
 import net.so_coretech.seismicexploration.ModBlockEntities;
 import net.so_coretech.seismicexploration.blockentity.TickableBlockEntity;
 
@@ -57,6 +58,26 @@ public abstract class SensorBlock extends HorizontalDirectionalBlock implements 
     builder.add(FACING);
   }
 
+  @Override
+  protected void neighborChanged(
+      BlockState state,
+      Level level,
+      BlockPos pos,
+      Block neighborBlock,
+      @Nullable Orientation orientation,
+      boolean movedByPiston) {
+    super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
+
+    // Check if the block *below* this block has changed
+    if (!level.isClientSide) { // Server-side check
+      BlockState stateBelow = level.getBlockState(pos.below());
+      if (stateBelow.isAir() || stateBelow.canBeReplaced()) {
+        // If the block below is air or replaceable, break this block
+        level.destroyBlock(pos, true);
+      }
+    }
+  }
+
   @Nullable
   @Override
   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
@@ -68,7 +89,7 @@ public abstract class SensorBlock extends HorizontalDirectionalBlock implements 
   public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
     BlockState below = level.getBlockState(pos.below());
 
-    // Interdire de poser un SensorBlock sur un autre SensorBlock
+    // Forbid to place a SensorBlock on top of another one
     return !(below.getBlock() instanceof SensorBlock);
   }
 }
