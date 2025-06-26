@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "a",
+    "b",
+    "b"
+  ],
+  "key": {
+    "a": "seismicexploration:pla",
+    "b": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "seismicexploration:geophone",
+    "count": 1
+  }
+}

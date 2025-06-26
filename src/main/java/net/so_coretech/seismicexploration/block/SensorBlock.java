@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -61,5 +62,13 @@ public abstract class SensorBlock extends HorizontalDirectionalBlock implements 
   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
       final Level level, final BlockState state, final BlockEntityType<T> type) {
     return TickableBlockEntity.getTickerHelper(level);
+  }
+
+  @Override
+  public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+    BlockState below = level.getBlockState(pos.below());
+
+    // Interdire de poser un SensorBlock sur un autre SensorBlock
+    return !(below.getBlock() instanceof SensorBlock);
   }
 }

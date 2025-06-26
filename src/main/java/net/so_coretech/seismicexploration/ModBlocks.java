@@ -7,12 +7,13 @@ import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.so_coretech.seismicexploration.block.AFUBlock;
 import net.so_coretech.seismicexploration.block.ChargeBlock;
+import net.so_coretech.seismicexploration.block.DFU3CBlock;
 import net.so_coretech.seismicexploration.block.DFUBlock;
 import net.so_coretech.seismicexploration.block.RecorderBlock;
 
 public class ModBlocks {
-
   private static final DeferredRegister.Blocks BLOCKS =
       DeferredRegister.createBlocks(SeismicExploration.MODID);
 
@@ -24,6 +25,26 @@ public class ModBlocks {
       BLOCKS.registerBlock(
           "dfu",
           DFUBlock::new,
+          BlockBehaviour.Properties.of() // Properties:
+              .mapColor(MapColor.COLOR_BLUE) // the color on the map
+              .sound(SoundType.CROP) // the sound made when placed or destroyed
+              .noOcclusion() // avoid display issues with bigger surrounding blocks
+          );
+
+  public static final DeferredBlock<Block> DFU3C =
+      BLOCKS.registerBlock(
+          "dfu3c",
+          DFU3CBlock::new,
+          BlockBehaviour.Properties.of() // Properties:
+              .mapColor(MapColor.COLOR_BLUE) // the color on the map
+              .sound(SoundType.CROP) // the sound made when placed or destroyed
+              .noOcclusion() // avoid display issues with bigger surrounding blocks
+          );
+
+  public static final DeferredBlock<Block> AFU =
+      BLOCKS.registerBlock(
+          "afu",
+          AFUBlock::new,
           BlockBehaviour.Properties.of() // Properties:
               .mapColor(MapColor.COLOR_BLUE) // the color on the map
               .sound(SoundType.CROP) // the sound made when placed or destroyed

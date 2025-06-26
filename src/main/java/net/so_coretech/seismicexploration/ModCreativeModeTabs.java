@@ -25,10 +25,16 @@ public class ModCreativeModeTabs {
                   .title(SeismicExploration.translatable("creativetab", "seismic_blocks_tab"))
                   .displayItems(
                       (parameters, output) -> {
-                        output.accept(ModBlocks.DFU.get());
-                        output.accept(ModBlocks.RECORDER.get());
+                        output.accept(ModBlocks.AFU.get());
                         output.accept(ModBlocks.CHARGE.get());
+                        output.accept(ModBlocks.DFU.get());
+                        output.accept(ModBlocks.DFU3C.get());
+                        output.accept(ModBlocks.RECORDER.get());
                         output.accept(ModItems.BLASTER.get());
+                        output.accept(ModItems.FERMENTED_SUGAR.get());
+                        output.accept(ModItems.GEOPHONE.get());
+                        output.accept(ModItems.MEMS.get());
+                        output.accept(ModItems.PLA.get());
                       })
                   .build());
 

@@ -6,12 +6,12 @@
     "P": "seismicexploration:pla"
   },
   "pattern": [
-    "P P",
     "PMP",
-    "P P"
+    "PMP",
+    "PMP"
   ],
   "result": {
     "count": 1,
-    "id": "seismicexploration:dfu"
+    "id": "seismicexploration:dfu3c"
   }
 }

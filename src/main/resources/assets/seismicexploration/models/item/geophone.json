@@ -1,0 +1,70 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "sensor",
+	"textures": {
+		"0": "seismicexploration:item/geophone",
+		"particle": "seismicexploration:item/geophone"
+	},
+	"elements": [
+		{
+			"from": [8, 0, 8],
+			"to": [9, 3, 9],
+			"faces": {
+				"north": {"uv": [6, 6, 7, 9], "texture": "#0"},
+				"east": {"uv": [7, 6, 8, 9], "texture": "#0"},
+				"south": {"uv": [8, 6, 9, 9], "texture": "#0"},
+				"west": {"uv": [0, 9, 1, 12], "texture": "#0"},
+				"up": {"uv": [10, 4, 9, 3], "texture": "#0"},
+				"down": {"uv": [5, 9, 4, 10], "texture": "#0"}
+			}
+		},
+		{
+			"from": [7, 3, 7],
+			"to": [10, 6, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6, 3, 7]},
+			"faces": {
+				"north": {"uv": [0, 0, 3, 3], "texture": "#0"},
+				"east": {"uv": [0, 3, 3, 6], "texture": "#0"},
+				"south": {"uv": [3, 0, 6, 3], "texture": "#0"},
+				"west": {"uv": [3, 3, 6, 6], "texture": "#0"},
+				"up": {"uv": [3, 9, 0, 6], "texture": "#0"},
+				"down": {"uv": [9, 0, 6, 3], "texture": "#0"}
+			}
+		},
+		{
+			"from": [7, 6, 7],
+			"to": [10, 7, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [4, 6, 6]},
+			"faces": {
+				"north": {"uv": [9, 0, 12, 1], "texture": "#0"},
+				"east": {"uv": [1, 9, 4, 10], "texture": "#0"},
+				"south": {"uv": [9, 1, 12, 2], "texture": "#0"},
+				"west": {"uv": [9, 2, 12, 3], "texture": "#0"},
+				"up": {"uv": [6, 9, 3, 6], "texture": "#0"},
+				"down": {"uv": [9, 3, 6, 6], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [-0.5, 3, -1.75]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0.5, 3, -1.75]
+		},
+		"firstperson_righthand": {
+			"translation": [0, 2, 0]
+		},
+		"firstperson_lefthand": {
+			"translation": [0, 2, 0]
+		},
+		"gui": {
+			"translation": [0, 3, 0],
+			"scale": [1, 1.06836, 1]
+		},
+		"fixed": {
+			"translation": [0, 3, 0]
+		}
+	}
+}
