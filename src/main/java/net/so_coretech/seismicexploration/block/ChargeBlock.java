@@ -83,7 +83,7 @@ public class ChargeBlock extends Block implements EntityBlock {
 
           BlockEntity be = level.getBlockEntity(pos);
           if (be instanceof ChargeBlockEntity chargeEntity) {
-            chargeEntity.detonate();
+            chargeEntity.prime();
           }
 
           return InteractionResult.CONSUME;

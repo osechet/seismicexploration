@@ -96,7 +96,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
   }
 
   public void setSliderValues(final int xValue, final int zValue, final int axisValue) {
-    LOGGER.debug("setSliderValues({}, {}, {})", xValue, zValue, axisValue);
+    LOGGER.trace("setSliderValues({}, {}, {})", xValue, zValue, axisValue);
     this.xValue = xValue;
     this.zValue = zValue;
     this.axisValue = axisValue;
@@ -134,7 +134,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
   @Override
   protected void loadAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-    LOGGER.debug(
+    LOGGER.trace(
         "loadAdditional - {}",
         level == null ? "server" : level.isClientSide() ? "client" : "server");
     super.loadAdditional(tag, registry);
@@ -146,7 +146,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
     axisValue = compound.getIntOr("axisValue", RecorderScreen.AXIS_X);
     sliceData = SliceData.fromNBT(compound.getCompoundOrEmpty("sliceData"));
 
-    LOGGER.debug(
+    LOGGER.trace(
         "loaded - xValue = {}, zValue = {}, axisValue = {}, sliceData = {}",
         xValue,
         zValue,
@@ -156,11 +156,11 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
 
   @Override
   protected void saveAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-    LOGGER.debug(
+    LOGGER.trace(
         "saveAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
     super.saveAdditional(tag, registry);
 
-    LOGGER.debug(
+    LOGGER.trace(
         "saving - xValue = {}, zValue = {}, axisValue = {}, sliceData = {}",
         xValue,
         zValue,
@@ -195,7 +195,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
       final ClientboundBlockEntityDataPacket pkt,
       final Provider lookup) {
     super.onDataPacket(connection, pkt, lookup);
-    LOGGER.debug("onDataPacket - received {}", this.sliceData);
+    LOGGER.trace("onDataPacket - received {}", this.sliceData);
     ClientLevelDataManager.get()
         .setRecorderParameters(this.sliceData.centerX, this.sliceData.centerZ, this.sliceData.axis);
     ClientLevelDataManager.get().setSlice(this.sliceData);
@@ -209,7 +209,7 @@ public class RecorderBlockEntity extends BlockEntity implements MenuProvider, Ti
    */
   @Override
   public CompoundTag getUpdateTag(final Provider registries) {
-    LOGGER.debug(
+    LOGGER.trace(
         "getUpdateTag - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
     final CompoundTag tag = super.getUpdateTag(registries);
     this.saveAdditional(tag, registries);

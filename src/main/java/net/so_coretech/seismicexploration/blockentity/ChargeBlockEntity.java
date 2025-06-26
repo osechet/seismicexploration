@@ -1,6 +1,7 @@
 package net.so_coretech.seismicexploration.blockentity;
 
 import com.mojang.logging.LogUtils;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -38,9 +39,9 @@ public class ChargeBlockEntity extends BlockEntity implements TickableBlockEntit
 
   @Override
   protected void loadAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-    // LOGGER.debug(
-    //     "loadAdditional - {}",
-    //     level == null ? "server" : level.isClientSide() ? "client" : "server");
+    LOGGER.trace(
+        "loadAdditional - {}",
+        level == null ? "server" : level.isClientSide() ? "client" : "server");
     super.loadAdditional(tag, registry);
     fuseTicks = tag.getIntOr("fuseTicks", -1);
     hasExploded = tag.getBooleanOr("hasExploded", false);
@@ -53,9 +54,8 @@ public class ChargeBlockEntity extends BlockEntity implements TickableBlockEntit
 
   @Override
   protected void saveAdditional(final CompoundTag tag, final HolderLookup.Provider registry) {
-    // LOGGER.debug(
-    //     "saveAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" :
-    // "server");
+    LOGGER.trace(
+        "saveAdditional - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
     super.saveAdditional(tag, registry);
     tag.putInt("fuseTicks", fuseTicks);
     tag.putBoolean("hasExploded", hasExploded);
@@ -89,8 +89,8 @@ public class ChargeBlockEntity extends BlockEntity implements TickableBlockEntit
 
   @Override
   public CompoundTag getUpdateTag(final Provider registries) {
-    // LOGGER.debug(
-    //     "getUpdateTag - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
+    LOGGER.trace(
+        "getUpdateTag - {}", Objects.requireNonNull(level).isClientSide() ? "client" : "server");
     final CompoundTag tag = super.getUpdateTag(registries);
     this.saveAdditional(tag, registries);
     tag.putBoolean(
@@ -104,15 +104,13 @@ public class ChargeBlockEntity extends BlockEntity implements TickableBlockEntit
     }
   }
 
-  /**
-   * Detonates the charge: damages nearby entities, plays explosion effects, and removes the block.
-   */
-  public void detonate() {
+  /** Primes the charge. */
+  public void prime() {
     if (level == null || level.isClientSide) {
       return;
     }
     if (fuseTicks < 0) {
-      LOGGER.debug("Detonating charge at {}", worldPosition);
+      LOGGER.debug("Priming charge at {}", worldPosition);
       fuseTicks = FUSE_DURATION;
       // Set block to lit
       level.setBlock(worldPosition, getBlockState().setValue(ChargeBlock.LIT, true), 3);
@@ -145,11 +143,10 @@ public class ChargeBlockEntity extends BlockEntity implements TickableBlockEntit
       for (final BlockPos sensorPos : positions) {
         final BlockEntity be = serverLevel.getBlockEntity(sensorPos);
         if (be instanceof final SensorBlockEntity blockEntity) {
-          final int midX = (worldPosition.getX() + sensorPos.getX()) / 2;
-          final int midZ = (worldPosition.getZ() + sensorPos.getZ()) / 2;
-          final int y = serverLevel.getMinY();
-          final BlockPos pos = new BlockPos(midX, y, midZ);
-          blockEntity.startRecording(pos);
+          blockEntity.record(worldPosition);
+        } else {
+          // There is no sensor block entity at this position, so we remove it from the spread
+          Spread.getSpread(serverLevel).remove(sensorPos);
         }
       }
     }

@@ -49,7 +49,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
    * @see RecorderPositionPacket
    */
   public static void setRecorderPosition(final BlockPos recorderPos) {
-    LOGGER.debug("setRecorderPosition({})", recorderPos);
+    LOGGER.trace("setRecorderPosition({})", recorderPos);
     RecorderScreen.recorderPos = recorderPos;
   }
 
@@ -140,7 +140,7 @@ public class RecorderScreen extends AbstractContainerScreen<RecorderMenu> {
   }
 
   private void sendValuesToServer() {
-    LOGGER.debug("sendValuesToServer");
+    LOGGER.trace("sendValuesToServer");
     PacketDistributor.sendToServer(
         new RecorderScreenValuesPacket(
             Objects.requireNonNull(xCoordinateField).getValueInt(),

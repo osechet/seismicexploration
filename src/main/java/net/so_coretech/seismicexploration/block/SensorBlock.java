@@ -21,7 +21,10 @@ import net.so_coretech.seismicexploration.blockentity.TickableBlockEntity;
 
 public abstract class SensorBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
-  protected int radius;
+  // The radius of the recorded area.
+  protected final int radius;
+  // The angle of the reflection at the Common Depth Point, in radians.
+  protected final double reflectionAngle;
 
   /**
    * Creates a new sensor block with the specified radius and properties. The radius defines how
@@ -30,16 +33,23 @@ public abstract class SensorBlock extends HorizontalDirectionalBlock implements 
    * a higher radius will impact the performances.
    *
    * @param radius the radius of the recorded area.
-   * @param properties
+   * @param reflectionAngle of the reflection at the Common Depth Point.
+   * @param properties the block's properties.
    */
-  public SensorBlock(int radius, final BlockBehaviour.Properties properties) {
+  public SensorBlock(
+      int radius, double reflectionAngle, final BlockBehaviour.Properties properties) {
     super(properties);
     this.radius = radius;
+    this.reflectionAngle = reflectionAngle;
     this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
   }
 
   public int getRadius() {
     return radius;
+  }
+
+  public double getReflectionAngle() {
+    return reflectionAngle;
   }
 
   @Override

@@ -16,7 +16,7 @@ public class AFUBlock extends SensorBlock {
   private static final VoxelShape SHAPE = Block.box(6, 0, 6, 10, 4, 10);
 
   public AFUBlock(final BlockBehaviour.Properties properties) {
-    super(0, properties);
+    super(0, Math.toRadians(45), properties);
   }
 
   @Override

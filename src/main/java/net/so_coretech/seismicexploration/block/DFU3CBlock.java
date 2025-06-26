@@ -16,7 +16,7 @@ public class DFU3CBlock extends SensorBlock {
   private static final VoxelShape SHAPE = Block.box(6, 0, 6, 10, 4, 10);
 
   public DFU3CBlock(final BlockBehaviour.Properties properties) {
-    super(1, properties);
+    super(1, Math.toRadians(30), properties);
   }
 
   @Override

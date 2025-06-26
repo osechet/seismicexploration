@@ -31,7 +31,7 @@ public final class ClientLevelDataManager {
   }
 
   public void setSlice(final SliceData sliceData) {
-    LOGGER.debug("Storing new slice in ClientLevelDataManager");
+    LOGGER.trace("Storing new slice in ClientLevelDataManager");
     this.sliceData = sliceData;
   }
 
