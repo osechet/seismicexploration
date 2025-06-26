@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.so_coretech.seismicexploration.ModItems;
 import net.so_coretech.seismicexploration.entity.WorkerEntity;
 import net.so_coretech.seismicexploration.entity.ai.action.PlaceItemAction.BlockPlacedListener;
+import net.so_coretech.seismicexploration.entity.ai.goal.BoxType;
 import net.so_coretech.seismicexploration.entity.ai.goal.OrderType;
 import net.so_coretech.seismicexploration.spread.Spread;
 import org.slf4j.Logger;
@@ -85,8 +86,15 @@ public class TaskFactory {
           final Item itemToDeploy;
           final BlockPlacedListener listener;
           if (orderType == OrderType.DEPLOY_SENSORS) {
+            final BoxType box_type = BoxType.values()[parameters.get("box_type").getAsInt()];
             // Assuming DFU is the sensor item. This might need to be more flexible later.
-            itemToDeploy = ModItems.DFU.get();
+            itemToDeploy =
+                switch (box_type) {
+                  case DFU -> ModItems.DFU.get();
+                  case AFU -> ModItems.AFU.get();
+                  case DFU_3C -> ModItems.DFU3C.get();
+                  default -> ModItems.DFU.get();
+                };
             listener =
                 new BlockPlacedListener() {
                   @Override
@@ -96,10 +104,7 @@ public class TaskFactory {
                   }
                 };
           } else { // DEPLOY_CHARGES
-            // TODO: Replace with actual charge item once it exists
-            LOGGER.warn(
-                "TaskFactory: DEPLOY_CHARGES item not yet defined. Using DFU as placeholder.");
-            itemToDeploy = ModItems.DFU.get(); // Placeholder
+            itemToDeploy = ModItems.CHARGE.get();
             listener = null;
           }
 

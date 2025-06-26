@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.so_coretech.seismicexploration.SeismicExploration;
 import net.so_coretech.seismicexploration.entity.WorkerEntity;
+import net.so_coretech.seismicexploration.entity.ai.goal.BoxType;
 import net.so_coretech.seismicexploration.entity.ai.goal.OrderType;
 import net.so_coretech.seismicexploration.entity.ai.task.ITask;
 import net.so_coretech.seismicexploration.entity.ai.task.TaskFactory;
@@ -69,6 +70,7 @@ public record DeploySensorsOrderPacket(
             params.addProperty("direction", data.direction().getName());
             params.addProperty("count", data.count());
             params.addProperty("gap", data.gap());
+            params.addProperty("box_type", BoxType.DFU.ordinal());
 
             final ITask deployTask =
                 TaskFactory.createTask(OrderType.DEPLOY_SENSORS, workerEntity, player, params);
